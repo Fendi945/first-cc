@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.2"
+  },
+  "devDependencies": {
+    "rcedit": "^4.0.1"
+  }
+}

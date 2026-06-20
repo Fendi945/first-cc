@@ -373,7 +373,7 @@ def _get_segmenter():
     return _SEGMENTER_CACHE[0]
 
 
-def blur_video(input_path, output_path, trim_seconds):
+def blur_video(input_path, output_path, trim_seconds, max_duration=0):
     """
     人物-背景分离 + 背景模糊。
 
@@ -391,7 +391,7 @@ def blur_video(input_path, output_path, trim_seconds):
         "-vf", f"boxblur={BLUR_RADIUS}:{BLUR_POWER}",
         "-c:v", "h264_mf", "-b:v", VIDEO_BITRATE,
         "-an", "-y", str(temp_blur)
-    ], check=True, capture_output=True)
+    ] + (["-t", str(max_duration)] if max_duration > 0 else []), check=True, capture_output=True)
     print(f"  [模糊] 预模糊 ({time.time()-t0:.0f}s)")
 
     # === Phase 2: 全人分割 + 合成 ===
@@ -405,6 +405,10 @@ def blur_video(input_path, output_path, trim_seconds):
     skip = int(trim_seconds * fps)
     cap_orig.set(cv2.CAP_PROP_POS_MSEC, trim_seconds * 1000)
     remaining = total - skip
+    if max_duration > 0:
+        max_frames = int(max_duration * fps)
+        if remaining > max_frames:
+            remaining = max_frames
 
     # Pipe to FFmpeg
     ffmpeg_proc = subprocess.Popen([
@@ -431,6 +435,8 @@ def blur_video(input_path, output_path, trim_seconds):
         ret_o, frame_o = cap_orig.read()
         ret_b, frame_b = cap_blur.read()
         if not ret_o or not ret_b:
+            break
+        if processed >= remaining:
             break
 
         frame_idx += 1
@@ -745,11 +751,37 @@ def build_subtitles_from_segmented(transcript_path, segmented_path, cuts, trim_s
 
     # Self-check
     too_short = sum(1 for s,e,t in adjusted if e-s < 0.7)
+
+    # 右向左借时间：短字幕 < 0.7s 的从前一条字幕借时间
+    # 策略：从右往左遍历，短字幕向后伸长到 0.7s，不够的部分从前一条的 end 处扣
+    for i in range(len(adjusted) - 1, -1, -1):
+        s, e, text = adjusted[i]
+        dur = e - s
+        if dur >= 0.7:
+            continue
+        need = 0.7 - dur  # 还差多少秒
+        if i == 0:
+            # 第一条字幕，只能自己扛
+            adjusted[i] = (s, s + 0.7, text)
+        else:
+            prev_s, prev_e, prev_text = adjusted[i - 1]
+            # 前一条至少保留 0.7s（或它的阅读时间，取较大值）
+            prev_min = prev_s + max(0.7, len(prev_text) * 0.18 + 0.3)
+            borrow = min(need, prev_e - prev_min)
+            if borrow > 0.01:
+                adjusted[i - 1] = (prev_s, prev_e - borrow, prev_text)
+                adjusted[i] = (s, e + borrow, text)
+            # 借不够也尽力了，不强行拉长以免重叠
+
+    # Re-check after fix
+    still_short = sum(1 for s,e,t in adjusted if e-s < 0.7)
     if too_short:
         print(f"  [WARN] {too_short}/{len(adjusted)} subs < 0.7s (fast speech)")
         for s,e,t in adjusted:
             if e-s < 0.7:
                 print(f"    {s:.1f}s-{e:.1f}s ({e-s:.2f}s) {t}")
+    if still_short and still_short < too_short:
+        print(f"  [FIX] 右向左借时间修复了 {too_short-still_short}/{too_short} 条短字幕")
 
     print(f"  [Subs] {len(adjusted)}/{len(user_lines)} subs, {too_short} short")
     return adjusted
@@ -1087,19 +1119,38 @@ def test_corrections():
 # ============================================================
 # 主流程
 # ============================================================
-def main():
+def main(args=None):
+    if args is None:
+        # 兼容无参数调用
+        class FakeArgs:
+            preview = 0; skip_blur = False; skip_cut = False; skip_burn = False
+        args = FakeArgs()
+
+    preview_seconds = args.preview
+    skip_blur = args.skip_blur
+    skip_cut = args.skip_cut
+    skip_burn = args.skip_burn
+
     print()
     print("=" * 60)
-    print("  口播视频剪辑 Agent v1.1")
+    print("  口播视频剪辑 Agent v1.2")
     print("  Sub-Agent for 口播 editing")
     print("=" * 60)
+    if preview_seconds:
+        print(f"  🔍 预览模式: 前 {preview_seconds}s")
+
+    # 预览模式输出路径
+    output_path = OUTPUT_DIR / ("preview.mp4" if preview_seconds else "final.mp4")
 
     # ========================================
-    # 第零步：清理
+    # 第零步：清理（skip 模式下保留 temp 文件）
     # ========================================
-    for p in [TEMP_DIR / "blur_base.mp4", TEMP_DIR / "tv.mp4",
-              TEMP_DIR / "ta.aac", TEMP_DIR / "muxed.mp4",
-              OUTPUT_DIR / "final.mp4"]:
+    clean_list = [TEMP_DIR / "blur_base.mp4"]
+    if not skip_cut:
+        clean_list += [TEMP_DIR / "tv.mp4", TEMP_DIR / "ta.aac"]
+    if not skip_burn:
+        clean_list += [TEMP_DIR / "muxed.mp4", output_path]
+    for p in clean_list:
         if p.exists():
             if p.is_dir():
                 import shutil
@@ -1159,6 +1210,12 @@ def main():
             dur = e - s
             print(f"    {s:.1f}s-{e:.1f}s ({dur:.1f}s)  {reason}")
 
+    # 预览模式：裁剪段限制在 preview_seconds 内
+    if preview_seconds > 0:
+        all_cuts = [(s, e, r) for s, e, r in all_cuts if s < preview_seconds]
+        if trim_start >= preview_seconds:
+            trim_start = 0
+
     # ========================================
     # 第二步：提取音频
     # ========================================
@@ -1172,10 +1229,11 @@ def main():
         "-c:a", "copy", "-y", str(raw_audio)
     ], check=True, capture_output=True)
     audio_t = TEMP_DIR / "audio_t.aac"
-    subprocess.run([
-        "ffmpeg", "-i", str(raw_audio), "-ss", str(trim_start),
-        "-c", "copy", "-y", str(audio_t)
-    ], check=True, capture_output=True)
+    audio_cmd = ["ffmpeg", "-i", str(raw_audio), "-ss", str(trim_start)]
+    if preview_seconds > 0:
+        audio_cmd += ["-t", str(preview_seconds - trim_start)]
+    audio_cmd += ["-c", "copy", "-y", str(audio_t)]
+    subprocess.run(audio_cmd, check=True, capture_output=True)
     print(f"  OK ({get_dur(audio_t):.1f}s)")
 
     # ========================================
@@ -1186,7 +1244,10 @@ def main():
     print("─" * 50)
 
     blurred = TEMP_DIR / "blurred.mp4"
-    blur_video(ORIGINAL_VIDEO, blurred, trim_start)
+    if skip_blur and blurred.exists():
+        print(f"  [跳过] 使用已有 {blurred.name}")
+    else:
+        blur_video(ORIGINAL_VIDEO, blurred, trim_start, preview_seconds)
 
     # ========================================
     # 第四步：裁剪
@@ -1195,7 +1256,12 @@ def main():
     print("  Step 4: 裁剪沉默/语气词/重复")
     print("─" * 50)
 
-    tv, ta = cut_main(blurred, audio_t, all_cuts, trim_start)
+    tv = TEMP_DIR / "tv.mp4"
+    ta = TEMP_DIR / "ta.aac"
+    if skip_cut and tv.exists() and ta.exists():
+        print(f"  [跳过] 使用已有 {tv.name} + {ta.name}")
+    else:
+        tv, ta = cut_main(blurred, audio_t, all_cuts, trim_start)
 
     # ========================================
     # 第五步：字幕
@@ -1236,28 +1302,66 @@ def main():
     print("  Step 7: 烧录字幕")
     print("─" * 50)
 
-    final = OUTPUT_DIR / "final.mp4"
-    burn_ass(muxed, ass_path, final)
+    if skip_burn:
+        print(f"  [跳过] --skip-burn 已设，输出 muxed.mp4")
+        output_path = muxed
+    else:
+        burn_ass(muxed, ass_path, output_path)
 
     # ========================================
-    # 完成
+    # 输出自检
     # ========================================
     od = get_dur(ORIGINAL_VIDEO)
-    fd = get_dur(final)
+    fd = get_dur(output_path)
+
+    issues = []
+    # 检查是否还有字幕重叠
+    overlap_count = 0
+    for i in range(len(subs) - 1):
+        if subs[i][1] > subs[i+1][0] - 0.05:
+            overlap_count += 1
+    if overlap_count:
+        issues.append(f"{overlap_count} 处字幕重叠")
+
+    # 检查短字幕（< 0.5s 才算问题，因为 0.7s 已经修过）
+    very_short = sum(1 for s,e,t in subs if e - s < 0.5)
+    if very_short:
+        issues.append(f"{very_short} 条字幕 < 0.5s")
+
+    # 检查输出文件异常
+    if not output_path.exists() or output_path.stat().st_size < 1024:
+        issues.append("输出文件异常")
+
     print()
     print("=" * 60)
-    print("  ✅ 完成!")
+    print("  ✅ 完成!" if not issues else f"  ⚠️  完成（{', '.join(issues)}）")
     print(f"  ⏱  {od:.1f}s → {fd:.1f}s (剪 {od-fd:.1f}s)")
     print(f"  📝 字幕: {len(subs)} 条 (ASS格式)")
     print(f"  🎨 字体: {FONT_NAME} {FONT_SIZE}号 / 重点词 {FONT_SIZE_HIGHLIGHT}号黄色")
     print(f"  🔇 沉默: {len(silence_cuts)} 处 | 🗣️ 语气词: {len(filler_cuts)} 处 | 🔄 重复: {len(repeat_cuts)} 处")
-    print(f"  📂 输出: {final}")
+    print(f"  📂 输出: {output_path}")
+    if issues:
+        print(f"  ⚠️  自检发现: {'; '.join(issues)}")
+        print(f"  💡 建议重新运行或检查参数")
     print("=" * 60)
 
 
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "--test-corrections":
+    import argparse
+    parser = argparse.ArgumentParser(description="口播视频剪辑流水线")
+    parser.add_argument("--test-corrections", action="store_true",
+                        help="快速验证 CORRECTIONS 匹配率（5秒）")
+    parser.add_argument("--preview", type=float, default=0,
+                        help="预览模式：只处理前 N 秒，输出 output/preview.mp4")
+    parser.add_argument("--skip-blur", action="store_true",
+                        help="跳过模糊（重用 temp/blurred.mp4）")
+    parser.add_argument("--skip-cut", action="store_true",
+                        help="跳过裁剪（重用 temp/tv.mp4 + ta.aac）")
+    parser.add_argument("--skip-burn", action="store_true",
+                        help="跳过烧录字幕（输出 muxed.mp4）")
+    args = parser.parse_args()
+
+    if args.test_corrections:
         test_corrections()
     else:
-        main()
+        main(args)
