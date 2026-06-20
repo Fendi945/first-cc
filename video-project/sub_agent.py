@@ -1123,13 +1123,16 @@ def main(args=None):
     if args is None:
         # 兼容无参数调用
         class FakeArgs:
-            preview = 0; skip_blur = False; skip_cut = False; skip_burn = False
+            preview = 0; skip_blur = False; skip_cut = False; skip_burn = False; input = None
         args = FakeArgs()
 
     preview_seconds = args.preview
     skip_blur = args.skip_blur
     skip_cut = args.skip_cut
     skip_burn = args.skip_burn
+
+    # 支持 --input 动态指定视频
+    source_video = Path(args.input) if args.input else ORIGINAL_VIDEO
 
     print()
     print("=" * 60)
@@ -1225,7 +1228,7 @@ def main(args=None):
 
     raw_audio = TEMP_DIR / "raw.aac"
     subprocess.run([
-        "ffmpeg", "-i", str(ORIGINAL_VIDEO), "-vn",
+        "ffmpeg", "-i", str(source_video), "-vn",
         "-c:a", "copy", "-y", str(raw_audio)
     ], check=True, capture_output=True)
     audio_t = TEMP_DIR / "audio_t.aac"
@@ -1247,7 +1250,7 @@ def main(args=None):
     if skip_blur and blurred.exists():
         print(f"  [跳过] 使用已有 {blurred.name}")
     else:
-        blur_video(ORIGINAL_VIDEO, blurred, trim_start, preview_seconds)
+        blur_video(source_video, blurred, trim_start, preview_seconds)
 
     # ========================================
     # 第四步：裁剪
@@ -1311,7 +1314,7 @@ def main(args=None):
     # ========================================
     # 输出自检
     # ========================================
-    od = get_dur(ORIGINAL_VIDEO)
+    od = get_dur(source_video)
     fd = get_dur(output_path)
 
     issues = []
@@ -1351,6 +1354,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="口播视频剪辑流水线")
     parser.add_argument("--test-corrections", action="store_true",
                         help="快速验证 CORRECTIONS 匹配率（5秒）")
+    parser.add_argument("--input", type=str, default=None,
+                        help="输入视频路径（覆盖 ORIGINAL_VIDEO）")
     parser.add_argument("--preview", type=float, default=0,
                         help="预览模式：只处理前 N 秒，输出 output/preview.mp4")
     parser.add_argument("--skip-blur", action="store_true",
