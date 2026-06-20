@@ -25,6 +25,7 @@ PROJECT_DIR = Path(__file__).parent
 SUB_AGENT = PROJECT_DIR / "sub_agent.py"
 TRANSCRIPT = PROJECT_DIR / "transcript.json"
 SEGMENTED = PROJECT_DIR / "transcript_segmented.json"
+DESKTOP_OUTPUT = Path(r"D:\Documents\Desktop\视频成品")
 
 
 def help():
@@ -67,12 +68,14 @@ def cmd_koubo(video, extra_args):
             json.dump({"segments": segments}, f, ensure_ascii=False, indent=2)
         print(f"  ✅ {len(segments)} 条默认断句")
 
-    # Step 3: 调用流水线
+    # Step 3: 调用流水线（默认输出到桌面）
+    if "--output-dir" not in " ".join(extra_args):
+        extra_args = list(extra_args) + ["--output-dir", str(DESKTOP_OUTPUT)]
     cmd = [sys.executable, str(SUB_AGENT), "--input", str(video)] + extra_args
     print(f"\n{'='*60}")
-    print(f"  ✂️  口播剪辑: {video.name}")
+    print(f"  ✂️  口播剪辑: {video.name} → {DESKTOP_OUTPUT}")
     print(f"{'='*60}")
-    subprocess.run(cmd, env={"PYTHONIOENCODING": "utf-8"})
+    subprocess.run(cmd, env={**__import__("os").environ, "PYTHONIOENCODING": "utf-8"})
 
 
 # ── 子命令：切片 ──────────────────────────────────────────
@@ -129,7 +132,7 @@ def main():
             print("用法: cut_video 口播 <视频> [参数]")
             return
         video = sys.argv[2]
-        extra = [a for a in sys.argv[3:] if a.startswith("--")]
+        extra = sys.argv[3:]
         cmd_koubo(video, extra)
 
     elif subcmd in ("切片", "qiepian", "qp", "clip"):
@@ -151,7 +154,7 @@ def main():
             print("用法: cut_video 剪 <视频> [参数]")
             return
         video = sys.argv[2]
-        extra = [a for a in sys.argv[3:] if a.startswith("--")]
+        extra = sys.argv[3:]
         cmd_cut_video(video, extra)
 
     else:

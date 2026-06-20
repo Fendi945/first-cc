@@ -1123,7 +1123,7 @@ def main(args=None):
     if args is None:
         # 兼容无参数调用
         class FakeArgs:
-            preview = 0; skip_blur = False; skip_cut = False; skip_burn = False; input = None
+            preview = 0; skip_blur = False; skip_cut = False; skip_burn = False; input = None; output_dir = None
         args = FakeArgs()
 
     preview_seconds = args.preview
@@ -1134,6 +1134,13 @@ def main(args=None):
     # 支持 --input 动态指定视频
     source_video = Path(args.input) if args.input else ORIGINAL_VIDEO
 
+    # 支持 --output-dir 动态指定输出目录
+    if args.output_dir:
+        OUTPUT_DIR_OVERRIDE = Path(args.output_dir)
+        OUTPUT_DIR_OVERRIDE.mkdir(exist_ok=True)
+    else:
+        OUTPUT_DIR_OVERRIDE = None
+
     print()
     print("=" * 60)
     print("  口播视频剪辑 Agent v1.2")
@@ -1143,7 +1150,9 @@ def main(args=None):
         print(f"  🔍 预览模式: 前 {preview_seconds}s")
 
     # 预览模式输出路径
-    output_path = OUTPUT_DIR / ("preview.mp4" if preview_seconds else "final.mp4")
+    out_dir = OUTPUT_DIR_OVERRIDE or OUTPUT_DIR
+    out_dir.mkdir(exist_ok=True)
+    output_path = out_dir / ("preview.mp4" if preview_seconds else "final.mp4")
 
     # ========================================
     # 第零步：清理（skip 模式下保留 temp 文件）
@@ -1356,6 +1365,8 @@ if __name__ == "__main__":
                         help="快速验证 CORRECTIONS 匹配率（5秒）")
     parser.add_argument("--input", type=str, default=None,
                         help="输入视频路径（覆盖 ORIGINAL_VIDEO）")
+    parser.add_argument("--output-dir", type=str, default=None,
+                        help="输出目录（默认 output/）")
     parser.add_argument("--preview", type=float, default=0,
                         help="预览模式：只处理前 N 秒，输出 output/preview.mp4")
     parser.add_argument("--skip-blur", action="store_true",
