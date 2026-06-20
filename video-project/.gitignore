@@ -1,0 +1,13 @@
+# 生成文件
+temp/
+output/
+*.mp4
+*.wav
+*.aac
+
+# Python
+__pycache__/
+*.pyc
+
+# Claude 记忆
+.claude/
