@@ -1,0 +1,17 @@
+{
+	"name": "yuanyan-engine",
+	"version": "1.0.0",
+	"description": "元演心智 AI 自动化流水线插件",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "node esbuild.config.mjs production",
+		"deploy": "node scripts/deploy.js"
+	},
+	"devDependencies": {
+		"builtin-modules": "^3.3.0",
+		"esbuild": "^0.20.0",
+		"obsidian": "^1.7.0",
+		"typescript": "^5.3.0"
+	}
+}

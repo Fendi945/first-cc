@@ -1,0 +1,9 @@
+{
+	"id": "yuanyan-engine",
+	"name": "元演引擎",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "元演心智 AI 自动化流水线 — 日输入自动分类、审批面板、自动生产",
+	"author": "YuanYan",
+	"isDesktopOnly": true
+}
