@@ -24,6 +24,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from engine.config import PENDING_FILE, APPROVED_FILE, DAILY_INPUT_DIR
+from engine.flomo_sync import FlomoSync
 from vault_bridge.vault_utils import read_json, write_json
 
 HOST = "127.0.0.1"
@@ -130,6 +131,12 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
         elif path == "/api/health":
             self._send_json({"ok": True, "time": time.strftime("%Y-%m-%d %H:%M:%S")})
 
+        elif path == "/api/flomo/status":
+            if hasattr(self.server, "flomo_sync") and self.server.flomo_sync:
+                self._send_json(self.server.flomo_sync.get_status())
+            else:
+                self._send_json({"running": False, "error": "Flomo sync not initialized"})
+
         else:
             # 非 API 请求：当作静态文件处理
             super().do_GET()
@@ -203,6 +210,16 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 self._send_json({"ok": False, "error": str(e)}, 500)
 
+        elif parsed.path == "/api/flomo/sync":
+            try:
+                if hasattr(self.server, "flomo_sync") and self.server.flomo_sync:
+                    count = self.server.flomo_sync.sync_once()
+                    self._send_json({"ok": True, "imported": count})
+                else:
+                    self._send_json({"ok": False, "error": "Flomo sync not initialized"}, 500)
+            except Exception as e:
+                self._send_json({"ok": False, "error": str(e)}, 500)
+
         else:
             self._send_json({"ok": False, "error": "Not Found"}, 404)
 
@@ -223,6 +240,12 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
     KANBAN_DIR.mkdir(parents=True, exist_ok=True)
 
     server = http.server.HTTPServer((HOST, port), APIHandler)
+
+    # -- 初始化 Flomo 同步 --
+    flomo_sync = FlomoSync()
+    flomo_sync.start_scheduler()
+    server.flomo_sync = flomo_sync
+
     url = f"http://{HOST}:{port}/dashboard/"
 
     # 控制台可能不支持 emoji，用 ASCII 安全版本
