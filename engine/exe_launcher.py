@@ -61,11 +61,27 @@ def run_server():
 
 
 def open_browser_later():
-    """延迟打开浏览器。"""
+    """延迟以 Edge App 模式打开（无浏览器工具栏）。"""
     time.sleep(1.5)
     url = f"http://{HOST}:{PORT}/dashboard/"
     print(f"  [Browser] Opening: {url}")
-    webbrowser.open(url)
+    # Edge App 模式 → 无地址栏，像桌面程序
+    import subprocess
+    edge_paths = [
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+    ]
+    opened = False
+    for edge in edge_paths:
+        if Path(edge).exists():
+            try:
+                subprocess.Popen([edge, "--app=" + url], shell=False)
+                opened = True
+                break
+            except Exception:
+                continue
+    if not opened:
+        webbrowser.open(url)
 
 
 def main():

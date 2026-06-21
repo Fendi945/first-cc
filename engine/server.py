@@ -239,11 +239,27 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
     if not no_browser:
         # 延迟打开浏览器，确保服务器已就绪
         import threading
+        import subprocess
 
         def _open_browser():
             import time as t
-            t.sleep(0.5)
-            webbrowser.open(url)
+            t.sleep(0.8)
+            # Edge App 模式：无地址栏/标签页，像桌面程序
+            edge_paths = [
+                r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+                r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+            ]
+            opened = False
+            for edge in edge_paths:
+                if Path(edge).exists():
+                    try:
+                        subprocess.Popen([edge, "--app=" + url], shell=False)
+                        opened = True
+                        break
+                    except Exception:
+                        continue
+            if not opened:
+                webbrowser.open(url)
 
         threading.Thread(target=_open_browser, daemon=True).start()
 
