@@ -14,6 +14,7 @@ if not VAULT_PATH.exists():
 
 # 目录常量（基于 vault 路径的相对路径）
 DAILY_INPUT_DIR = VAULT_PATH / "🌱 原料库" / "日输入"
+CAPTURE_DIR = VAULT_PATH / "🌱 原料库" / "捕获"
 KANBAN_DIR = VAULT_PATH / "⚙️ 反哺弧" / "看板"
 SEED_DIR = VAULT_PATH / "🍎 成品区" / "种子"
 TOOL_DIR = VAULT_PATH / "🍎 成品区" / "工具"
@@ -36,3 +37,7 @@ if not DEEPSEEK_API_KEY:
         "DEEPSEEK_API_KEY 未在 .env 中配置。"
         "请确保 .env 文件中包含 DEEPSEEK_API_KEY=your-key"
     )
+
+# ── Flomo API ──────────────────────────────────────
+FLOMO_API_KEY = os.getenv("FLOMO_API_KEY", "")
+FLOMO_SYNC_INTERVAL = int(os.getenv("FLOMO_SYNC_INTERVAL", "1800"))  # 秒，默认30分钟
