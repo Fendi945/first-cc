@@ -6,3 +6,5 @@ NUL
 wechat_credentials.json
 __pycache__/
 *.pyc
+build/
+dai
