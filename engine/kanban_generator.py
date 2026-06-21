@@ -66,7 +66,10 @@ def generate_kanban() -> str:
         lines.append("🎉 暂无待审批项")
         lines.append("")
     else:
-        lines.append("## 待审批")
+        lines.append("## ✅ 待审批 — 勾选后告诉我「批完了」")
+        lines.append("")
+        lines.append("> 💡 在 Obsidian 里把 `[ ]` 改成 `[x]` 表示通过，改成 `[-]` 表示跳过")
+        lines.append("> 改完后告诉我 **「批完了」**，我自动执行。")
         lines.append("")
 
         # 按标签分组
@@ -86,6 +89,7 @@ def generate_kanban() -> str:
             lines.append(f"### {icon} {label}（{len(items)}项）")
             lines.append("")
             for item in items:
+                item_id = item.get("id", "")
                 title = item.get("suggested_title") or item.get("summary") or "(无标题)"
                 summary = item.get("summary", "")
                 original = item.get("original_text", "")
@@ -94,12 +98,11 @@ def generate_kanban() -> str:
                 date = item.get("source_date", "")
                 platform = item.get("suitable_platform") or "待定"
 
-                lines.append(f"- **{title}**")
+                lines.append(f"- [ ] `{item_id}` **{title}**")
                 if summary:
                     lines.append(f"  - {summary}")
                 lines.append(f"  - {layer_icon} {layer} · 📅 {date} · 🎯 {platform}")
                 if original:
-                    # 截断长原文
                     short = original[:80] + ("..." if len(original) > 80 else "")
                     lines.append(f"  - > {short}")
                 lines.append("")
@@ -108,7 +111,7 @@ def generate_kanban() -> str:
     if done_items:
         lines.append("---")
         lines.append("")
-        lines.append("## 已处理")
+        lines.append("## 📋 已处理")
         lines.append("")
         approved_count = sum(1 for i in done_items if i.get("status") == "approved")
         skipped_count = sum(1 for i in done_items if i.get("status") == "skipped")
