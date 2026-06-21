@@ -1,10 +1,9 @@
-"""审批同步器 —— 读取用户在看板.md 中勾选的复选框，同步到 待审批.json。
+"""审批同步器 —— 读取用户在看板.md 中勾选的复选框，自动审批。
 
 工作流：
   1. 用户在 Obsidian 打开 看板.md
-  2. 把 [ ] 改成 [x]（通过）或 [-]（跳过）
-  3. 用户告诉我「批完了」
-  4. 我运行此脚本 → 读取看板 → 更新 JSON → 执行生产
+  2. 点击方框打勾 [x] （Obsidian 默认行为）
+  3. Watchdog 自动检测 → 同步审批 → 执行生产
 """
 
 import re
@@ -13,33 +12,28 @@ from pathlib import Path
 from engine.config import KANBAN_DIR, PENDING_FILE
 
 
-def parse_kanban_approvals(kanban_path: Path) -> dict:
-    """解析看板.md，找出用户勾选的项。
+def parse_kanban_approvals(kanban_path: Path) -> list:
+    """解析看板.md，找出用户勾选 [x] 的项。
 
     Returns:
-        {"approved": [id1, id2], "skipped": [id3]}
+        [item_id1, item_id2, ...]  # 已勾选的 ID 列表
     """
     if not kanban_path.exists():
         print("  [sync] ⚠️ 看板文件不存在")
-        return {"approved": [], "skipped": []}
+        return []
 
     content = kanban_path.read_text(encoding="utf-8")
     approved = []
-    skipped = []
 
-    # 匹配复选框行: 只匹配 [x]（通过）或 [-]（跳过），忽略 [ ]
-    pattern = re.compile(r"^- \[([x-])\] `([^`]+)`")
+    # 匹配复选框行: [x] 表示通过，忽略 [ ]
+    pattern = re.compile(r"^- \[([x])\] `([^`]+)`")
     for line in content.split("\n"):
         m = pattern.match(line.strip())
         if m:
-            status = m.group(1)
             item_id = m.group(2).strip()
-            if status == "x":
-                approved.append(item_id)
-            elif status == "-":
-                skipped.append(item_id)
+            approved.append(item_id)
 
-    return {"approved": approved, "skipped": skipped}
+    return approved
 
 
 def sync_approvals() -> int:
@@ -47,13 +41,11 @@ def sync_approvals() -> int:
     from vault_bridge.vault_utils import read_json, write_json
 
     kanban_file = KANBAN_DIR / "看板.md"
-    result = parse_kanban_approvals(kanban_file)
-    approved = result["approved"]
-    skipped = result["skipped"]
+    approved = parse_kanban_approvals(kanban_file)
 
-    if not approved and not skipped:
-        print("  [sync] 📭 看板中未发现勾选的项")
-        print("  [sync] 💡 在 Obsidian 里把 [ ] 改成 [x]（通过）或 [-]（跳过）")
+    if not approved:
+        print("  [sync] 📭 看板中未发现新勾选的项")
+        print("  [sync] 💡 在 Obsidian 里点击方框打勾即可")
         return 0
 
     data = read_json(PENDING_FILE)
@@ -71,11 +63,6 @@ def sync_approvals() -> int:
             item["approved_at"] = now
             count += 1
             print(f"  [sync] ✅ 通过: {item.get('summary','')[:20]}")
-        elif item_id in skipped and item.get("status") == "pending":
-            item["status"] = "skipped"
-            item["skipped_at"] = now
-            count += 1
-            print(f"  [sync] ⏭️ 跳过: {item.get('summary','')[:20]}")
 
     if count:
         write_json(PENDING_FILE, data)
@@ -89,9 +76,9 @@ def sync_approvals() -> int:
             if not isinstance(logs, list):
                 logs = []
             for item in data:
-                if item.get("status") in ("approved", "skipped") and item.get("id") in approved + skipped:
+                if item.get("status") == "approved" and item.get("id") in approved:
                     logs.append({
-                        "action": item["status"],
+                        "action": "approved",
                         "item_id": item["id"],
                         "suggested_title": item.get("suggested_title", ""),
                         "summary": item.get("summary", ""),

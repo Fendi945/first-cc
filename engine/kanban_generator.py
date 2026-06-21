@@ -68,8 +68,7 @@ def generate_kanban() -> str:
     else:
         lines.append("## ✅ 待审批 — 勾选后告诉我「批完了」")
         lines.append("")
-        lines.append("> 💡 在 Obsidian 里把 `[ ]` 改成 `[x]` 表示通过，改成 `[-]` 表示跳过")
-        lines.append("> 改完后告诉我 **「批完了」**，我自动执行。")
+        lines.append("> 💡 点击方框打勾 ✅ 即表示通过，Watchdog 自动处理")
         lines.append("")
 
         # 按标签分组
