@@ -107,6 +107,7 @@ body {
 }
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
 .btn-approve-all {
   background: var(--accent-green-bg);

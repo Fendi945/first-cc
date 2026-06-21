@@ -2,3 +2,7 @@ node_modules/
 .claude/
 *.log
 NUL
+.env
+wechat_credentials.json
+__pycache__/
+*.pyc

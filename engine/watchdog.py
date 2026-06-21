@@ -1,35 +1,100 @@
-"""文件系统监控——监听 vault 日输入目录的新文件。"""
+"""文件系统监控——监听 vault 日输入目录的新文件。
+
+Feature:
+  - 防抖处理（避免文件保存中重复触发）
+  - 分类结果写入 分类日志.json 用于追溯
+  - 启动时自动确保 vault 目录结构
+"""
 
 import time
 from pathlib import Path
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from engine.config import DAILY_INPUT_DIR
-from vault_bridge.vault_utils import get_daily_inputs
+from engine.config import DAILY_INPUT_DIR, KANBAN_DIR, CLASSIFY_LOG
+from vault_bridge.vault_utils import get_daily_inputs, read_json, write_json
+
+# ── 防抖配置 ──────────────────────────────────────
+FILE_COOLDOWN_SECONDS = 3    # 同一文件两次处理的最小间隔
+_last_processed = {}         # {str_path: timestamp}
+
+
+def _is_cooldown(file_path: Path) -> bool:
+    """检查文件是否在冷却期内。"""
+    key = str(file_path.resolve())
+    now = time.time()
+    last = _last_processed.get(key, 0)
+    if now - last < FILE_COOLDOWN_SECONDS:
+        return True
+    _last_processed[key] = now
+    return False
+
+
+def _write_classify_log(file_path: Path, raw_results: list) -> None:
+    """将分类原始结果写入 分类日志.json。"""
+    log_entry = {
+        "source_file": str(file_path),
+        "processed_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "segments": raw_results,
+    }
+    try:
+        logs = read_json(CLASSIFY_LOG)
+        if not isinstance(logs, list):
+            logs = []
+        logs.append(log_entry)
+        # 只保留最近 200 条日志，防止无限膨胀
+        if len(logs) > 200:
+            logs = logs[-200:]
+        write_json(CLASSIFY_LOG, logs)
+    except Exception as e:
+        print(f"  [watchdog] ⚠️ 写入分类日志失败: {e}")
+
+
+def _ensure_vault_dirs():
+    """确保所有必要的 vault 目录存在。"""
+    dirs = [DAILY_INPUT_DIR, KANBAN_DIR]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    if not KANBAN_DIR.exists():
+        print(f"  [watchdog] ⚠️ 无法创建看板目录: {KANBAN_DIR}")
+    if not DAILY_INPUT_DIR.exists():
+        print(f"  [watchdog] ⚠️ 无法创建日输入目录: {DAILY_INPUT_DIR}")
 
 
 class InputHandler(FileSystemEventHandler):
-    """日输入文件事件处理器。"""
+    """日输入文件事件处理器（带防抖）。"""
 
     def on_created(self, event):
         if event.is_directory:
             return
         if event.src_path.endswith(".md"):
-            process_file(Path(event.src_path))
+            file_path = Path(event.src_path)
+            if _is_cooldown(file_path):
+                return
+            process_file(file_path)
 
     def on_modified(self, event):
         if event.is_directory:
             return
         if event.src_path.endswith(".md"):
-            process_file(Path(event.src_path))
+            file_path = Path(event.src_path)
+            if _is_cooldown(file_path):
+                return
+            process_file(file_path)
 
 
 def process_file(file_path: Path) -> None:
-    """处理一个日输入文件。"""
+    """处理一个日输入文件。
+
+    流程：读取 → AI 分类 → 记入分类日志 → 生成审批项 → 写入待审批 → 标记已处理。
+    """
     from engine.classifier import classify_text
-    from vault_bridge.vault_utils import read_markdown_file, read_json, write_json, mark_processed
+    from vault_bridge.vault_utils import read_markdown_file, mark_processed
     from engine.config import PENDING_FILE
+
+    # 防抖：如果文件刚刚被处理过，跳过
+    if _is_cooldown(file_path):
+        return
 
     print(f"  📄 处理: {file_path.name}")
 
@@ -50,6 +115,9 @@ def process_file(file_path: Path) -> None:
     if not results:
         print(f"  ⏭️  无分类结果，跳过")
         return
+
+    # 写入分类日志（原始结果，便于追溯）
+    _write_classify_log(file_path, results)
 
     # 生成审批项
     pending_items = []
@@ -97,6 +165,9 @@ def process_file(file_path: Path) -> None:
 
 def scan_existing() -> None:
     """扫描所有未处理的日输入文件。"""
+    # 确保目录存在
+    _ensure_vault_dirs()
+
     inputs = get_daily_inputs()
     if not inputs:
         print("  📭 没有待处理的日输入文件")
@@ -108,6 +179,8 @@ def scan_existing() -> None:
 
 def start_watchdog() -> None:
     """启动文件系统监控。"""
+    # 确保目录存在
+    _ensure_vault_dirs()
     if not DAILY_INPUT_DIR.exists():
         print(f"⚠️  日输入目录不存在，创建: {DAILY_INPUT_DIR}")
         DAILY_INPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -117,8 +190,9 @@ def start_watchdog() -> None:
     observer.schedule(event_handler, str(DAILY_INPUT_DIR), recursive=False)
     observer.start()
 
-    print(f"👁️  Watchdog 已启动")
+    print(f"👁️  Watchdog 已启动（防抖 {FILE_COOLDOWN_SECONDS}s）")
     print(f"   监控目录: {DAILY_INPUT_DIR}")
+    print(f"   写入日志: 分类日志.json / 审批日志.json")
     print(f"   等待新文件... (Ctrl+C 停止)\n")
 
     try:
