@@ -8,3 +8,4 @@ __pycache__/
 *.pyc
 build/
 dai
+wechat_token_cache.json

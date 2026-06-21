@@ -1,17 +1,17 @@
-"""生产执行器 —— 根据审批结果执行具体生产动作。
+"""生产执行器 —— 根据审批结果在 🌿 加工间 执行生产。
 
-当用户在 Obsidian 看板完成审批后，本模块负责：
-- video → 生成口播脚本
-- article → 生成公众号文章
-- tool → 格式化工具 → 写入 成品区/工具
-- explore → 写入 问题库
-- none → 归档（无操作）
+审批通过后，不同标签进入不同加工流程：
+
+  video   → 写入加工间/视频脚本/ + 调用现有 FFmpeg 管线
+  article → 写入加工间/文章草稿/ + 推送到公众号草稿箱
+  tool    → 写入加工间/工具雏形/
+  explore → 写入加工间/攻坚/
+  none    → 归档（无操作）
 """
 
 import time
-import json
 from pathlib import Path
-from engine.config import PENDING_FILE, APPROVED_FILE, SEED_DIR, TOOL_DIR, ISSUE_DIR, KANBAN_DIR
+from engine.config import PENDING_FILE, PROCESSING_DIR
 
 
 def run_production():
@@ -27,7 +27,8 @@ def run_production():
     for item in pending:
         if item.get("status") == "approved" and not item.get("produced"):
             tag = item.get("output_tag", "none")
-            print(f"  [producer] 🏭 生产: {item.get('summary','')[:20]}... ({tag})")
+            summary = item.get("summary", "")[:20]
+            print(f"  [producer] 🏭 生产: {summary} ({tag})")
 
             result = _produce(item, tag)
             if result:
@@ -35,12 +36,11 @@ def run_production():
                 item["produced_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
                 item["produced_path"] = str(result)
                 produced += 1
-                print(f"    → 产出: {result}")
+                print(f"    -> 产出: {result.name}")
 
     if produced:
         write_json(PENDING_FILE, pending)
         print(f"  [producer] ✅ {produced} 项已生产")
-        # 更新看板
         try:
             from engine.kanban_generator import write_kanban_file
             write_kanban_file()
@@ -51,7 +51,6 @@ def run_production():
 
 
 def _produce(item: dict, tag: str) -> Path | None:
-    """根据产出标签执行生产，返回产出文件路径。"""
     title = item.get("suggested_title") or item.get("summary") or "未命名"
     summary = item.get("summary", "")
     original = item.get("original_text", "")
@@ -62,7 +61,7 @@ def _produce(item: dict, tag: str) -> Path | None:
     elif tag == "explore":
         return _produce_explore(item, title, original, source_date)
     elif tag == "video":
-        return _produce_script(item, title, summary, original, source_date)
+        return _produce_video(item, title, summary, original, source_date)
     elif tag == "article":
         return _produce_article(item, title, summary, original, source_date)
     else:
@@ -70,20 +69,14 @@ def _produce(item: dict, tag: str) -> Path | None:
 
 
 def _produce_tool(item, title, summary, original, date) -> Path | None:
-    """将内容格式化为认知工具，写入 成品区/工具。"""
-    TOOL_DIR.mkdir(parents=True, exist_ok=True)
-
-    # 生成工具文件名
-    safe_name = "".join(c for c in title if c.isalnum() or c in " _-").strip()[:30]
-    if not safe_name:
-        safe_name = f"tool-{int(time.time())}"
-
-    tool_file = TOOL_DIR / f"{safe_name}.md"
-    content = f"""---
+    """工具雏形 -> 写入 🌿 加工间/工具雏形/"""
+    target_dir = PROCESSING_DIR / "工具雏形"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    return _write_md(target_dir, title, f"""---
 created: {date}
-type: tool
+type: tool-draft
+status: draft
 source: 元演AI自动分类
-status: published
 ---
 
 # {title}
@@ -96,36 +89,25 @@ status: published
 
 ## 核心要点
 
-（待补充——可根据 AI 提炼自动生成）
+（待补充 - AI 可进一步提炼）
 
 ## 使用场景
 
 （待补充）
 
-## 相关链接
+## 待完善
 
-- 来源: 日输入 {date}
-"""
-    try:
-        # 避免覆盖已有文件
-        if tool_file.exists():
-            tool_file = TOOL_DIR / f"{safe_name}-{int(time.time())}.md"
-        tool_file.write_text(content, encoding="utf-8")
-        return tool_file
-    except Exception as e:
-        print(f"    ❌ 写入工具失败: {e}")
-        return None
+- [ ] 补充核心要点
+- [ ] 验证实用性
+- [ ] 定稿后移入 成品区/工具
+""")
 
 
 def _produce_explore(item, title, original, date) -> Path | None:
-    """将待深入内容放入问题库。"""
-    ISSUE_DIR.mkdir(parents=True, exist_ok=True)
-    safe_name = "".join(c for c in title if c.isalnum() or c in " _-").strip()[:30]
-    if not safe_name:
-        safe_name = f"explore-{int(time.time())}"
-
-    issue_file = ISSUE_DIR / f"{safe_name}.md"
-    content = f"""---
+    """待深入 -> 写入 🌿 加工间/攻坚/"""
+    target_dir = PROCESSING_DIR / "攻坚"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    return _write_md(target_dir, title, f"""---
 created: {date}
 type: explore
 status: open
@@ -146,28 +128,20 @@ status: open
 ## 状态
 
 ⏳ 待深入探究
-"""
-    try:
-        if issue_file.exists():
-            issue_file = ISSUE_DIR / f"{safe_name}-{int(time.time())}.md"
-        issue_file.write_text(content, encoding="utf-8")
-        return issue_file
-    except Exception as e:
-        print(f"    ❌ 写入问题库失败: {e}")
-        return None
+""")
 
 
-def _produce_script(item, title, summary, original, date) -> Path | None:
-    """生成口播视频脚本草稿。"""
-    SEED_DIR.mkdir(parents=True, exist_ok=True)
-    safe_name = "".join(c for c in title if c.isalnum() or c in " _-").strip()[:30]
-    if not safe_name:
-        safe_name = f"script-{int(time.time())}"
+def _produce_video(item, title, summary, original, date) -> Path | None:
+    """视频脚本草稿 -> 写入 🌿 加工间/视频脚本/
 
-    script_file = SEED_DIR / f"{safe_name}-脚本.md"
-    content = f"""---
+    注意：视频的实际生产走现有 FFmpeg 管线（cut_video），
+    这里只生成脚本草稿供审核。
+    """
+    target_dir = PROCESSING_DIR / "视频脚本"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    return _write_md(target_dir, title, f"""---
 created: {date}
-type: video-script
+type: video-script-draft
 status: draft
 duration: ~3min
 ---
@@ -176,45 +150,37 @@ duration: ~3min
 
 **摘要：** {summary}
 
-## 口播脚本
+## 口播脚本框架
 
-（待 AI 生成完整脚本——基于原文: {original}）
+### 开头 Hook（前5秒）
+（待生成 - 基于原文: {original[:100]}）
 
-### 开头 Hook
+### 主体逻辑
+（待生成）
 
-### 主体内容
+### 结尾 CTA
+（待生成）
 
-### 结尾 Call to Action
+## 生产提示
 
-## 拍摄提示
+- 后期制作走现有 FFmpeg 管线
+- 参考: cut_video --input 口播视频.mp4
+- 时长控制在 3 分钟左右
 
-- 时长: ~3分钟
-- 格式: 竖屏 9:16
-- 风格: 口播
+## 待办
 
-## 相关
-
-- 来源: {date}
-"""
-    try:
-        if script_file.exists():
-            script_file = SEED_DIR / f"{safe_name}-{int(time.time())}.md"
-        script_file.write_text(content, encoding="utf-8")
-        return script_file
-    except Exception as e:
-        print(f"    ❌ 生成脚本失败: {e}")
-        return None
+- [ ] AI 生成完整脚本
+- [ ] 用户审核脚本
+- [ ] 进入视频制作管线
+""")
 
 
 def _produce_article(item, title, summary, original, date) -> Path | None:
-    """生成公众号文章草稿。"""
-    SEED_DIR.mkdir(parents=True, exist_ok=True)
-    safe_name = "".join(c for c in title if c.isalnum() or c in " _-").strip()[:30]
-    if not safe_name:
-        safe_name = f"article-{int(time.time())}"
+    """文章草稿 -> 写入 🌿 加工间/文章草稿/ -> 推送到公众号草稿箱"""
+    target_dir = PROCESSING_DIR / "文章草稿"
+    target_dir.mkdir(parents=True, exist_ok=True)
 
-    article_file = SEED_DIR / f"{safe_name}-文章.md"
-    content = f"""---
+    filepath = _write_md(target_dir, title, f"""---
 created: {date}
 type: article-draft
 status: draft
@@ -227,17 +193,48 @@ platform: 公众号
 
 ## 正文
 
-（待 AI 生成完整文章——基于原文: {original}）
+（待 AI 生成完整文章）
 
 ---
 
 *本文由元演心智AI自动生成草稿，经人工审核后发布。*
-"""
+""")
+
+    # 异步推送公众号草稿箱
+    if filepath:
+        try:
+            _push_to_wechat_draft(item, title, summary)
+        except Exception as e:
+            print(f"    ⚠️ 公众号推送失败: {e}")
+
+    return filepath
+
+
+def _push_to_wechat_draft(item, title, summary):
+    """将文章推送到微信公众号草稿箱。"""
     try:
-        if article_file.exists():
-            article_file = SEED_DIR / f"{safe_name}-{int(time.time())}.md"
-        article_file.write_text(content, encoding="utf-8")
-        return article_file
+        from engine.wechat_publisher import push_draft
+        result = push_draft(title, summary)
+        if result:
+            print(f"    📤 已推送至公众号草稿箱")
+            item["wechat_draft_id"] = result
+    except ImportError:
+        print(f"    ⚠️ wechat_publisher 模块未就绪")
     except Exception as e:
-        print(f"    ❌ 生成文章失败: {e}")
+        print(f"    ⚠️ 公众号推送异常: {e}")
+
+
+def _write_md(target_dir: Path, title: str, content: str) -> Path | None:
+    """写入 .md 文件，避免覆盖已有文件。"""
+    safe_name = "".join(c for c in title if c.isalnum() or c in " _-").strip()[:40]
+    if not safe_name:
+        safe_name = f"draft-{int(time.time())}"
+    filepath = target_dir / f"{safe_name}.md"
+    if filepath.exists():
+        filepath = target_dir / f"{safe_name}-{int(time.time())}.md"
+    try:
+        filepath.write_text(content, encoding="utf-8")
+        return filepath
+    except Exception as e:
+        print(f"    ❌ 写入失败: {e}")
         return None
