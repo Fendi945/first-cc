@@ -1,14 +1,18 @@
-"""Flomo 笔记同步模块 — 定时轮询 Flomo Pro API，写入捕获目录。"""
+"""Flomo 笔记同步模块 — 通过 MCP 协议获取 Flomo 笔记，写入捕获目录。
+
+认证方式：OAuth 授权码流程（PKCE），首次需运行:
+  python -m engine.flomo_auth
+这会打开浏览器完成 Flomo 授权，Token 保存在 flomo_token.json。
+"""
 
 import json
 import logging
-import os
 import time
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
-from engine.config import CAPTURE_DIR, FLOMO_API_KEY, FLOMO_SYNC_INTERVAL, PROJECT_ROOT
+from engine.config import CAPTURE_DIR, FLOMO_SYNC_INTERVAL, PROJECT_ROOT
 
 logger = logging.getLogger("flomo_sync")
 
@@ -16,10 +20,9 @@ STATE_FILE = PROJECT_ROOT / "flomo_state.json"
 
 
 class FlomoSync:
-    """Flomo API 同步器。"""
+    """Flomo MCP 同步器（OAuth 认证）。"""
 
-    def __init__(self, api_key: str = FLOMO_API_KEY, interval: int = FLOMO_SYNC_INTERVAL):
-        self.api_key = api_key
+    def __init__(self, interval: int = FLOMO_SYNC_INTERVAL):
         self.interval = interval
         self._state: dict = self._load_state()
         self._running = False
@@ -27,6 +30,7 @@ class FlomoSync:
         self.last_sync_time: Optional[str] = self._state.get("last_sync_time")
         self.last_error: Optional[str] = None
         self.sync_count: int = 0
+        self._token_ok: Optional[bool] = None  # None=未检查, True=有效, False=无效
 
     # ── 状态持久化 ──
 
@@ -50,25 +54,39 @@ class FlomoSync:
 
     # ── Flomo MCP ──
 
+    def _get_token(self) -> Optional[str]:
+        """获取有效的 OAuth access_token（自动刷新）。"""
+        try:
+            from engine.flomo_auth import get_valid_token
+            token = get_valid_token()
+            self._token_ok = token is not None
+            return token
+        except ImportError:
+            self._token_ok = False
+            return None
+
     def fetch_notes(self, since: Optional[str] = None) -> list[dict]:
         """通过 Flomo MCP memo_search 获取笔记列表。
 
-        Flomo 使用 MCP (Model Context Protocol) Streamable HTTP 传输，
-        需连接 https://flomoapp.com/mcp 并调用 memo_search 工具。
-        Token 从 Flomo 设置 → MCP 连接 → 个人 Token 获取。
+        使用 OAuth access_token 连接 https://flomoapp.com/mcp。
+        首次使用前需运行: python -m engine.flomo_auth
         """
         import asyncio
 
-        if not self.api_key:
-            raise ValueError("FLOMO_API_KEY 未配置")
+        token = self._get_token()
+        if not token:
+            raise ValueError(
+                "Flomo OAuth Token 未配置或已过期。"
+                "请运行: python -m engine.flomo_auth"
+            )
 
         try:
-            notes = asyncio.run(self._mcp_fetch_notes(since))
+            notes = asyncio.run(self._mcp_fetch_notes(token, since))
             return notes
         except Exception as e:
             raise RuntimeError(f"Flomo MCP 同步失败: {e}")
 
-    async def _mcp_fetch_notes(self, since: Optional[str] = None) -> list[dict]:
+    async def _mcp_fetch_notes(self, token: str, since: Optional[str] = None) -> list[dict]:
         """通过 MCP 异步获取笔记。"""
         from mcp import ClientSession
         from mcp.client.streamable_http import streamablehttp_client
@@ -76,7 +94,7 @@ class FlomoSync:
         try:
             async with streamablehttp_client(
                 "https://flomoapp.com/mcp",
-                headers={"Authorization": f"Bearer {self.api_key}"}
+                headers={"Authorization": f"Bearer {token}"}
             ) as (read_stream, write_stream, _):
                 async with ClientSession(read_stream, write_stream) as session:
                     await session.initialize()
@@ -100,16 +118,14 @@ class FlomoSync:
                                 elif isinstance(data, dict):
                                     notes.append(data)
                             except json.JSONDecodeError:
-                                # 可能是纯文本格式，尝试按行解析
                                 logger.debug("memo_search 返回非 JSON 文本: %s", item.text[:100])
 
                     # 按时间升序排列
                     notes.sort(key=lambda n: n.get("created_at", ""))
                     return notes
 
-        except (ImportError, Exception) as e:
+        except Exception as e:
             logger.error("MCP 连接失败: %s", e)
-            # 回退方案: 尝试 tools/list 发现可用工具
             raise RuntimeError(f"MCP 连接失败: {e}")
 
     # ── 笔记写入 ──
@@ -224,8 +240,12 @@ tags:
         """在后台线程启动定时同步。"""
         if self._running:
             return
-        if not self.api_key:
-            logger.warning("FLOMO_API_KEY 未配置，不启动 Flomo 同步")
+
+        # 检查是否有有效的 OAuth Token
+        token = self._get_token()
+        if not token:
+            logger.warning("Flomo OAuth Token 无效，请运行 python -m engine.flomo_auth")
+            self.last_error = "OAuth Token 未配置或已过期"
             return
 
         self._running = True
@@ -249,7 +269,7 @@ tags:
     def get_status(self) -> dict:
         return {
             "running": self._running,
-            "api_key_configured": bool(self.api_key),
+            "oauth_configured": bool(self._token_ok),
             "interval": self.interval,
             "last_sync_time": self.last_sync_time,
             "last_error": self.last_error,
