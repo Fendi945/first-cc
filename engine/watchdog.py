@@ -1,0 +1,129 @@
+"""文件系统监控——监听 vault 日输入目录的新文件。"""
+
+import time
+from pathlib import Path
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+from engine.config import DAILY_INPUT_DIR
+from vault_bridge.vault_utils import get_daily_inputs
+
+
+class InputHandler(FileSystemEventHandler):
+    """日输入文件事件处理器。"""
+
+    def on_created(self, event):
+        if event.is_directory:
+            return
+        if event.src_path.endswith(".md"):
+            process_file(Path(event.src_path))
+
+    def on_modified(self, event):
+        if event.is_directory:
+            return
+        if event.src_path.endswith(".md"):
+            process_file(Path(event.src_path))
+
+
+def process_file(file_path: Path) -> None:
+    """处理一个日输入文件。"""
+    from engine.classifier import classify_text
+    from vault_bridge.vault_utils import read_markdown_file, read_json, write_json, mark_processed
+    from engine.config import PENDING_FILE
+
+    print(f"  📄 处理: {file_path.name}")
+
+    # 读取内容
+    content = read_markdown_file(file_path)
+    if not content:
+        print(f"  ⏭️  跳过空文件: {file_path.name}")
+        return
+
+    # AI 分类
+    print(f"  🤖 AI 分类中...")
+    try:
+        results = classify_text(content)
+    except Exception as e:
+        print(f"  ❌ 分类失败: {e}")
+        return
+
+    if not results:
+        print(f"  ⏭️  无分类结果，跳过")
+        return
+
+    # 生成审批项
+    pending_items = []
+    for seg in results:
+        item = {
+            "id": f"{file_path.stem}-{len(pending_items)}",
+            "source_file": str(file_path),
+            "source_date": file_path.stem,
+            "original_text": seg.get("original_text", ""),
+            "layer": seg.get("layer", "event"),
+            "layer_reason": seg.get("layer_reason", ""),
+            "output_tag": seg.get("output_tag", "none"),
+            "tag_reason": seg.get("tag_reason", ""),
+            "summary": seg.get("summary", ""),
+            "suggested_title": seg.get("suggested_title", ""),
+            "suitable_platform": seg.get("suitable_platform", ""),
+            "status": "pending",  # pending | approved | skipped
+            "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        pending_items.append(item)
+
+    # 写入待审批文件
+    existing = read_json(PENDING_FILE)
+    existing.extend(pending_items)
+    write_json(PENDING_FILE, existing)
+
+    # 标记已处理
+    try:
+        mark_processed(file_path)
+    except FileExistsError:
+        pass
+
+    # 输出摘要
+    video_count = sum(1 for i in pending_items if i["output_tag"] == "video")
+    article_count = sum(1 for i in pending_items if i["output_tag"] == "article")
+    tool_count = sum(1 for i in pending_items if i["output_tag"] == "tool")
+    print(f"  ✅ 完成: {len(pending_items)} 条内容")
+    if video_count:
+        print(f"     📹 视频 x{video_count}")
+    if article_count:
+        print(f"     📝 文章 x{article_count}")
+    if tool_count:
+        print(f"     🔧 工具 x{tool_count}")
+
+
+def scan_existing() -> None:
+    """扫描所有未处理的日输入文件。"""
+    inputs = get_daily_inputs()
+    if not inputs:
+        print("  📭 没有待处理的日输入文件")
+        return
+    print(f"  📂 发现 {len(inputs)} 个待处理文件")
+    for inp in inputs:
+        process_file(inp["path"])
+
+
+def start_watchdog() -> None:
+    """启动文件系统监控。"""
+    if not DAILY_INPUT_DIR.exists():
+        print(f"⚠️  日输入目录不存在，创建: {DAILY_INPUT_DIR}")
+        DAILY_INPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    event_handler = InputHandler()
+    observer = Observer()
+    observer.schedule(event_handler, str(DAILY_INPUT_DIR), recursive=False)
+    observer.start()
+
+    print(f"👁️  Watchdog 已启动")
+    print(f"   监控目录: {DAILY_INPUT_DIR}")
+    print(f"   等待新文件... (Ctrl+C 停止)\n")
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
