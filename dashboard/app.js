@@ -111,8 +111,8 @@ function render() {
         doneList.innerHTML = '';
     } else {
         doneList.innerHTML = `
-            <div style="margin-top:24px;padding:12px 0;border-top:1px solid var(--border-glass);font-size:13px;color:var(--text-secondary)">
-            📋 已处理 (${doneItems.length})
+            <div class="done-section-header">
+            已处理 (${doneItems.length})
             </div>
             ${doneItems.map(item => renderCard(item)).join('')}`;
     }

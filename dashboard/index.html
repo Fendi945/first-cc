@@ -3,74 +3,68 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🧠 元演心智 · 审批中心</title>
+<title>元演心智 · 审批中心</title>
 <link rel="stylesheet" href="style.css">
-<style>
-/* 加载动画 */
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-/* 连接状态指示器 */
-.connection-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:middle; }
-</style>
 </head>
 <body>
 
 <!-- 顶部标题栏 -->
 <header class="app-header">
-    <h1>🧠 元演心智 · 审批中心</h1>
-    <div class="header-stats">
-        <span id="connection-status" class="stat" style="font-size:14px;cursor:help" title="服务器连接状态">⏳</span>
-        <span class="stat-item"><strong id="stat-pending">0</strong> 待审</span>
-        <button class="btn btn-approve-all" onclick="approveAll()">⚡ 全部通过</button>
-        <button class="btn btn-approve-all" id="btn-refresh" style="background:rgba(255,255,255,0.05);color:var(--text-secondary);border-color:rgba(255,255,255,0.08)">🔄 刷新</button>
-    </div>
+  <h1>元演心智 · 审批中心</h1>
+  <div class="header-stats">
+    <span id="connection-status" class="stat-item" title="服务器连接状态">⏳</span>
+    <span class="stat-item"><strong id="stat-pending">0</strong> 待审</span>
+    <button class="btn btn-approve-all" onclick="approveAll()">全部通过</button>
+    <button class="btn" id="btn-refresh">刷新</button>
+  </div>
 </header>
 
 <div class="container">
-    <!-- 统计栏 -->
-    <div class="stats-bar">
-        <div class="left">
-            <span class="stat">📹 视频 <strong class="count-video" id="stat-video">0</strong></span>
-            <span class="stat">📝 文章 <strong class="count-article" id="stat-article">0</strong></span>
-            <span class="stat">🔧 工具 <strong class="count-tool" id="stat-tool">0</strong></span>
-        </div>
-        <span class="stat">最后更新: <span id="last-update">刚刚</span> · 自动刷新 30s</span>
+  <!-- 统计栏 -->
+  <div class="stats-bar">
+    <div class="left">
+      <span class="stat">视频 <strong class="count-video" id="stat-video">0</strong></span>
+      <span class="stat">文章 <strong class="count-article" id="stat-article">0</strong></span>
+      <span class="stat">工具 <strong class="count-tool" id="stat-tool">0</strong></span>
     </div>
+    <span class="stat">更新: <span id="last-update">刚刚</span></span>
+  </div>
 
-    <!-- 待审批列表 -->
-    <div id="pending-list" class="pending-list"></div>
+  <!-- 待审批列表 -->
+  <div id="pending-list" class="pending-list"></div>
 
-    <!-- 已处理列表 -->
-    <div id="done-list"></div>
+  <!-- 已处理列表 -->
+  <div id="done-list"></div>
 </div>
 
-<!-- 确认弹窗 -->
+<!-- 全部通过确认弹窗 -->
 <div class="modal-overlay" id="confirm-modal">
-    <div class="modal-box">
-        <h3>⚡ 全部通过</h3>
-        <p>确认将所有待审批项标记为"通过"并进入生产流程？</p>
-        <div class="btn-group">
-            <button class="btn btn-approve" onclick="confirmApproveAll()">确认通过</button>
-            <button class="btn btn-skip" onclick="document.getElementById('confirm-modal').classList.remove('active')">取消</button>
-        </div>
+  <div class="modal-box">
+    <h3>全部通过</h3>
+    <p>确认将所有待审批项标记为「通过」并进入生产流程？</p>
+    <div class="btn-group">
+      <button class="btn btn-approve" onclick="confirmApproveAll()">确认通过</button>
+      <button class="btn btn-skip" onclick="document.getElementById('confirm-modal').classList.remove('active')">取消</button>
     </div>
+  </div>
 </div>
 
 <!-- 修改弹窗 -->
 <div class="modal-overlay edit-modal" id="edit-modal">
-    <div class="modal-box" style="max-width:600px;text-align:left">
-        <h3>✏️ 修改内容</h3>
-        <p style="font-size:13px">可编辑 suggested_title、summary、original_text</p>
-        <textarea id="edit-textarea"></textarea>
-        <div class="btn-group" style="justify-content:flex-end">
-            <button class="btn btn-approve" onclick="saveEdit()">保存</button>
-            <button class="btn btn-skip" onclick="document.getElementById('edit-modal').classList.remove('active')">取消</button>
-        </div>
+  <div class="modal-box">
+    <h3>修改内容</h3>
+    <p style="font-size:13px;color:var(--text-light);text-align:center">可编辑 suggested_title、summary、original_text</p>
+    <textarea id="edit-textarea"></textarea>
+    <div class="btn-group" style="justify-content:flex-end">
+      <button class="btn btn-approve" onclick="saveEdit()">保存</button>
+      <button class="btn btn-skip" onclick="document.getElementById('edit-modal').classList.remove('active')">取消</button>
     </div>
+  </div>
 </div>
 
 <!-- 底部 -->
 <footer class="app-footer">
-    🧠 元演心智 · AI 自动化流水线 &nbsp;|&nbsp; 数据来源: ⚙️ 反哺弧/看板/待审批.json &nbsp;|&nbsp; <span id="connection-status-text">本地服务器</span>
+  元演心智 · 数据来源: 反哺弧/看板/待审批.json
 </footer>
 
 <script src="app.js"></script>
