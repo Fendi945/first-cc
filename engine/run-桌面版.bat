@@ -10,8 +10,10 @@ echo ================================
 echo  YuanYan - AI Engine
 echo ================================
 echo.
-echo  Watching for daily inputs...
-echo  Results -> dai shen pi.json
+echo  Auto:
+echo    1) Watch daily inputs  -> classify
+echo    2) Watch kanban review -> approve + produce
+echo    3) Serve dashboard     -> click to open
 echo.
 python -m engine.main
 echo.
