@@ -110,6 +110,10 @@ export async function writeApprovalLog(vault: Vault, entries: ApprovalLogEntry[]
 	return writeJson(vault, APPROVAL_LOG_FILE, entries);
 }
 
+export async function writeClassifyLog(vault: Vault, entries: ClassifyLogEntry[]): Promise<void> {
+	return writeJson(vault, CLASSIFY_LOG_FILE, entries);
+}
+
 export async function readClassifyLog(vault: Vault): Promise<ClassifyLogEntry[]> {
 	return readJson<ClassifyLogEntry[]>(vault, CLASSIFY_LOG_FILE, []);
 }
