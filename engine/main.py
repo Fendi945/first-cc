@@ -9,6 +9,15 @@ import sys
 from engine.config import DEEPSEEK_API_KEY
 
 
+def _update_kanban():
+    """生成/更新 Obsidian 看板文件。"""
+    try:
+        from engine.kanban_generator import write_kanban_file
+        write_kanban_file()
+    except Exception as e:
+        print(f"  ⚠️ 看板更新失败: {e}")
+
+
 def main():
     # 检查 API Key 是否已配置
     if not DEEPSEEK_API_KEY or DEEPSEEK_API_KEY == "your-api-key-here":
@@ -20,11 +29,13 @@ def main():
     if "--scan" in sys.argv:
         print("🔍 扫描已有日输入文件...")
         scan_existing()
+        _update_kanban()
         print("\n✅ 扫描完成")
     else:
         # 启动前先扫描已有文件
         print("🔍 启动前扫描已有文件...")
         scan_existing()
+        _update_kanban()
         print()
         start_watchdog()
 

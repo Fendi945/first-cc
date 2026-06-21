@@ -162,6 +162,14 @@ def process_file(file_path: Path) -> None:
     if tool_count:
         print(f"     🔧 工具 x{tool_count}")
 
+    # 更新 Obsidian 看板
+    try:
+        from engine.kanban_generator import write_kanban_file
+        write_kanban_file()
+        print(f"     🗂️  看板已更新")
+    except Exception as e:
+        print(f"     ⚠️  看板更新失败: {e}")
+
 
 def scan_existing() -> None:
     """扫描所有未处理的日输入文件。"""
