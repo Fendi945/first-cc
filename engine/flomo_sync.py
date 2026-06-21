@@ -100,25 +100,29 @@ class FlomoSync:
                     await session.initialize()
 
                     # 调用 memo_search 工具搜索笔记
-                    search_args: dict = {"limit": 100}
+                    search_args: dict = {"limit": 50}
                     if since:
-                        search_args["timeRange"] = {"start": since}
-                    search_args["query"] = ""
+                        # since 格式: "2026-01-01T00:00:00" → 只需日期部分
+                        search_args["start_date"] = since[:10]
+                    # memo_search 用 keywords 参数（不是 query）
+                    search_args["keywords"] = ""
 
                     result = await session.call_tool("memo_search", arguments=search_args)
 
-                    # 解析返回内容
+                    # 解析返回内容 - 格式: {"memos": [{...}, ...]}
                     notes = []
                     for item in result.content:
                         if item.type == "text":
                             try:
                                 data = json.loads(item.text)
-                                if isinstance(data, list):
+                                if isinstance(data, dict):
+                                    memos = data.get("memos") or data.get("notes") or []
+                                    if isinstance(memos, list):
+                                        notes.extend(memos)
+                                elif isinstance(data, list):
                                     notes.extend(data)
-                                elif isinstance(data, dict):
-                                    notes.append(data)
                             except json.JSONDecodeError:
-                                logger.debug("memo_search 返回非 JSON 文本: %s", item.text[:100])
+                                logger.debug("memo_search 返回非 JSON: %s", item.text[:100])
 
                     # 按时间升序排列
                     notes.sort(key=lambda n: n.get("created_at", ""))
