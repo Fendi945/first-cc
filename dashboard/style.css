@@ -114,6 +114,11 @@ body {
   border: 1px solid rgba(76, 175, 125, 0.3);
 }
 .btn-approve-all:hover { background: rgba(76, 175, 125, 0.25); }
+.btn-approve-all:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
 
 /* 卡片列表 */
 .pending-list { display: flex; flex-direction: column; gap: 12px; }

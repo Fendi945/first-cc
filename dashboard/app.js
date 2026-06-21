@@ -2,7 +2,9 @@
 
 // ── 配置 ──────────────────────────────────────────
 const PENDING_JSON_PATH = '待审批.json';  // 实际路径通过 .bat 启动时传入
+let currentJsonPath = '待审批.json';      // C2: 运行时路径（支持 ?json= 覆盖）
 let pendingData = [];
+let isDirty = false;                      // I2: 是否有未保存更改
 
 // ── 工具函数 ──────────────────────────────────────
 function getStatusCounts(items) {
@@ -54,6 +56,10 @@ function render() {
     document.getElementById('stat-article').textContent = counts.article;
     document.getElementById('stat-tool').textContent = counts.tool;
 
+    // I4: 全部通过按钮禁用状态
+    const btn = document.querySelector('.btn-approve-all');
+    if (btn) btn.disabled = counts.pending === 0;
+
     const list = document.getElementById('pending-list');
     const doneList = document.getElementById('done-list');
 
@@ -79,12 +85,17 @@ function render() {
             </div>
             ${doneItems.map(item => renderCard(item)).join('')}`;
     }
+
+    // I1: 更新最后刷新时间
+    document.getElementById('last-update').textContent = new Date().toLocaleString('zh-CN');
 }
 
 function renderCard(item) {
     const title = item.suggested_title || item.summary || item.original_text.slice(0, 40);
+    // C1: 转义 ID 中的引号用于 dataset
+    const safeId = item.id.replace(/'/g, "\\'").replace(/"/g, '&quot;');
     return `
-    <div class="card ${cardStatusClass(item)}" data-id="${item.id}">
+    <div class="card ${cardStatusClass(item)}" data-id="${safeId}">
         <div class="card-header">
             <div class="card-title">${item.output_tag === 'video' ? '📹' : item.output_tag === 'article' ? '📝' : item.output_tag === 'tool' ? '🔧' : '📄'} ${escapeHtml(title)}</div>
             <div class="card-tags">
@@ -102,9 +113,9 @@ function renderCard(item) {
         </div>
         ${item.status === 'pending' ? `
         <div class="card-actions">
-            <button class="btn btn-approve" onclick="approveItem('${item.id}')">✅ 通过 → 进入生产</button>
-            <button class="btn btn-edit" onclick="editItem('${item.id}')">✏️ 修改</button>
-            <button class="btn btn-skip" onclick="skipItem('${item.id}')">🗑️ 跳过</button>
+            <button class="btn btn-approve" data-id="${safeId}" data-action="approve">✅ 通过 → 进入生产</button>
+            <button class="btn btn-edit" data-id="${safeId}" data-action="edit">✏️ 修改</button>
+            <button class="btn btn-skip" data-id="${safeId}" data-action="skip">🗑️ 跳过</button>
         </div>` : ''}
     </div>`;
 }
@@ -121,6 +132,7 @@ function approveItem(id) {
     if (item) {
         item.status = 'approved';
         item.approved_at = new Date().toLocaleString('zh-CN');
+        isDirty = true;
         saveData();
         render();
     }
@@ -131,6 +143,7 @@ function skipItem(id) {
     if (item) {
         item.status = 'skipped';
         item.skipped_at = new Date().toLocaleString('zh-CN');
+        isDirty = true;
         saveData();
         render();
     }
@@ -157,9 +170,11 @@ function saveEdit() {
     if (!item) return;
     try {
         const edited = JSON.parse(document.getElementById('edit-textarea').value);
-        if (edited.suggested_title) item.suggested_title = edited.suggested_title;
-        if (edited.summary) item.summary = edited.summary;
-        if (edited.original_text) item.original_text = edited.original_text;
+        // I3: 允许清除字段（使用 !== undefined 而非 falsy 检查）
+        if (edited.suggested_title !== undefined) item.suggested_title = edited.suggested_title;
+        if (edited.summary !== undefined) item.summary = edited.summary;
+        if (edited.original_text !== undefined) item.original_text = edited.original_text;
+        isDirty = true;
     } catch(e) { alert('JSON 格式错误'); return; }
     modal.classList.remove('active');
     saveData();
@@ -179,9 +194,21 @@ function confirmApproveAll() {
             i.approved_at = new Date().toLocaleString('zh-CN');
         }
     });
+    isDirty = true;
     document.getElementById('confirm-modal').classList.remove('active');
     saveData();
     render();
+}
+
+// C1: 卡片操作事件委托
+function handleCardAction(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    if (action === 'approve') approveItem(id);
+    else if (action === 'edit') editItem(id);
+    else if (action === 'skip') skipItem(id);
 }
 
 // ── 数据读写 ──────────────────────────────────────
@@ -189,17 +216,20 @@ async function loadData() {
     try {
         // 尝试从查询参数获取 JSON 路径
         const params = new URLSearchParams(window.location.search);
-        const jsonPath = params.get('json') || '待审批.json';
+        // C2: 存储实际路径供 saveData 使用
+        currentJsonPath = params.get('json') || '待审批.json';
 
-        const resp = await fetch(jsonPath);
+        const resp = await fetch(currentJsonPath);
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const data = await resp.json();
         pendingData = Array.isArray(data) ? data : [];
+        isDirty = false;
         render();
     } catch(e) {
         console.warn('加载待审批数据失败（首次使用或文件不存在）:', e.message);
         // 创建示例数据
         pendingData = getSampleData();
+        isDirty = false;
         render();
         document.querySelector('.empty-state p:last-child')?.textContent =
             '提示：尚未检测到真实数据，当前显示示例';
@@ -250,7 +280,8 @@ function getSampleData() {
 
 async function saveData() {
     try {
-        const resp = await fetch(PENDING_JSON_PATH, {
+        // C2: 使用运行时路径（支持 ?json= 查询参数覆盖）
+        const resp = await fetch(currentJsonPath, {
             method: 'PUT',
             body: JSON.stringify(pendingData, null, 2),
         });
@@ -265,8 +296,15 @@ async function saveData() {
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
 
-    // 刷新按钮
+    // C1: 卡片操作事件委托（避免 inline onclick XSS）
+    document.getElementById('pending-list').addEventListener('click', handleCardAction);
+    document.getElementById('done-list').addEventListener('click', handleCardAction);
+
+    // I2: 刷新时检查未保存更改
     document.getElementById('btn-refresh')?.addEventListener('click', () => {
+        if (isDirty && !confirm('有未保存的更改，刷新将丢失。是否继续？')) {
+            return;
+        }
         loadData();
     });
 });
