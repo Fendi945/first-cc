@@ -1,9 +1,10 @@
-"""文件系统监控——监听 vault 日输入目录的新文件。
+"""文件系统监控——监听 vault 日输入目录 + 看板审批。
 
 Feature:
   - 防抖处理（避免文件保存中重复触发）
   - 分类结果写入 分类日志.json 用于追溯
   - 启动时自动确保 vault 目录结构
+  - 监控 看板.md 变更，自动同步审批 → 执行生产
 """
 
 import time
@@ -185,23 +186,53 @@ def scan_existing() -> None:
         process_file(inp["path"])
 
 
+class KanbanHandler(FileSystemEventHandler):
+    """看板文件变更处理器 —— 用户勾选复选框后自动同步审批。"""
+
+    def on_modified(self, event):
+        if event.is_directory:
+            return
+        if event.src_path.endswith("看板.md"):
+            file_path = Path(event.src_path)
+            if _is_cooldown(file_path):
+                return
+            print(f"  📋 看板已更新，检查审批...")
+            try:
+                from engine.approval_sync import sync_approvals
+                count = sync_approvals()
+                if count:
+                    print(f"  ✅ 自动审批完成，{count} 项已处理")
+                else:
+                    print(f"     （未发现新勾选项）")
+            except Exception as e:
+                print(f"  ⚠️  审批同步失败: {e}")
+
+
 def start_watchdog() -> None:
-    """启动文件系统监控。"""
+    """启动文件系统监控（日输入 + 看板审批）。"""
     # 确保目录存在
     _ensure_vault_dirs()
     if not DAILY_INPUT_DIR.exists():
         print(f"⚠️  日输入目录不存在，创建: {DAILY_INPUT_DIR}")
         DAILY_INPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    event_handler = InputHandler()
+    # 监控日输入
+    input_handler = InputHandler()
+    # 监控看板
+    kanban_handler = KanbanHandler()
+
     observer = Observer()
-    observer.schedule(event_handler, str(DAILY_INPUT_DIR), recursive=False)
+    observer.schedule(input_handler, str(DAILY_INPUT_DIR), recursive=False)
+    # 监控整个看板目录（看板.md 在里面）
+    if KANBAN_DIR.exists():
+        observer.schedule(kanban_handler, str(KANBAN_DIR), recursive=False)
     observer.start()
 
     print(f"👁️  Watchdog 已启动（防抖 {FILE_COOLDOWN_SECONDS}s）")
-    print(f"   监控目录: {DAILY_INPUT_DIR}")
-    print(f"   写入日志: 分类日志.json / 审批日志.json")
-    print(f"   等待新文件... (Ctrl+C 停止)\n")
+    print(f"   监控:")
+    print(f"     🌱 日输入 → {DAILY_INPUT_DIR}")
+    print(f"     📋 看板   → {KANBAN_DIR / '看板.md'}")
+    print(f"   等待新文件或审批... (Ctrl+C 停止)\n")
 
     try:
         while True:

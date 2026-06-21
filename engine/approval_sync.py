@@ -27,8 +27,8 @@ def parse_kanban_approvals(kanban_path: Path) -> dict:
     approved = []
     skipped = []
 
-    # 匹配复选框行: - [x] `item-id` Title 或 - [-] `item-id` Title
-    pattern = re.compile(r"^- \[([ x-])\] `([^`]+)`")
+    # 匹配复选框行: 只匹配 [x]（通过）或 [-]（跳过），忽略 [ ]
+    pattern = re.compile(r"^- \[([x-])\] `([^`]+)`")
     for line in content.split("\n"):
         m = pattern.match(line.strip())
         if m:
