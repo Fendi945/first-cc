@@ -1,7 +1,5 @@
 """AI 分类引擎——调用 DeepSeek API 做四层分类 + 产出标签。"""
 
-from dataclasses import dataclass, asdict
-from typing import Optional
 import requests
 import json
 
@@ -56,40 +54,44 @@ SYSTEM_PROMPT = """你是一个笔记分类助手。分析用户输入的每一�
 
 def _call_deepseek(messages: list) -> dict:
     """调用 DeepSeek API 的通用方法。"""
-    resp = requests.post(
-        f"{DEEPSEEK_BASE_URL.rstrip('/')}/chat/completions",
-        headers={
-            "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model": DEEPSEEK_MODEL,
-            "messages": messages,
-            "temperature": 0.3,
-            "max_tokens": 4096,
-        },
-        timeout=60,
-    )
-    resp.raise_for_status()
-    data = resp.json()
-    content = data["choices"][0]["message"]["content"]
-    # 解析 JSON（处理可能的 markdown 包裹）
-    content = content.strip()
-    if content.startswith("```"):
-        content = content.split("\n", 1)[-1]
-        content = content.rsplit("```", 1)[0]
-    return json.loads(content.strip())
+    try:
+        resp = requests.post(
+            f"{DEEPSEEK_BASE_URL.rstrip('/')}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": DEEPSEEK_MODEL,
+                "messages": messages,
+                "temperature": 0.3,
+                "max_tokens": 4096,
+            },
+            timeout=60,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        content = data["choices"][0]["message"]["content"]
+        # 解析 JSON（处理可能的 markdown 包裹）
+        content = content.strip()
+        if content.startswith("```"):
+            content = content.split("\n", 1)[-1]
+            content = content.rsplit("```", 1)[0]
+        return json.loads(content.strip())
+    except requests.RequestException as e:
+        print(f"[WARNING] DeepSeek API 请求失败: {e}")
+        return {"segments": [], "error": str(e)}
+    except json.JSONDecodeError as e:
+        print(f"[WARNING] DeepSeek API 返回非 JSON 响应: {e}")
+        return {"segments": [], "error": str(e)}
+    except KeyError as e:
+        print(f"[WARNING] DeepSeek API 响应缺少必要字段 {e}: {e}")
+        return {"segments": [], "error": str(e)}
 
 
 def classify_text(text: str) -> list[dict]:
     """对输入文本做分类，返回分段分类结果列表。"""
     if not text.strip():
-        return []
-
-    # 将文本按段落分割，传入 AI 做批量判断
-    segments = [s.strip() for s in text.split("\n") if s.strip() and not s.startswith("---")]
-
-    if not segments:
         return []
 
     messages = [
