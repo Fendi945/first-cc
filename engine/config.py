@@ -31,10 +31,14 @@ DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
 DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/v1")
 DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-v4-flash")
 
+if not DEEPSEEK_API_KEY:
+    raise ValueError(
+        "DEEPSEEK_API_KEY 未在 .env 中配置。"
+        "请确保 .env 文件中包含 DEEPSEEK_API_KEY=your-key"
+    )
+
 # ── 确保必要目录存在 ──────────────────────────────
-def ensure_dirs():
-    """确保所有输出目录存在。"""
+def ensure_vault_dirs():
+    """Ensure all output directories exist. Call after config import if needed."""
     for d in [DAILY_INPUT_DIR, KANBAN_DIR]:
         d.mkdir(parents=True, exist_ok=True)
-
-ensure_dirs()
