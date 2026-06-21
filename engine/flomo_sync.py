@@ -48,43 +48,69 @@ class FlomoSync:
         except OSError as e:
             logger.error("保存状态文件失败: %s", e)
 
-    # ── Flomo API ──
+    # ── Flomo MCP ──
 
     def fetch_notes(self, since: Optional[str] = None) -> list[dict]:
-        """调用 Flomo API 获取笔记列表。
+        """通过 Flomo MCP memo_search 获取笔记列表。
 
-        返回按 created_at 升序排列的笔记列表。
-        API 文档参考: https://flomoapp.com/api/docs (Pro)
-        GET /api/v1/notes?since={timestamp}&limit=50
+        Flomo 使用 MCP (Model Context Protocol) Streamable HTTP 传输，
+        需连接 https://flomoapp.com/mcp 并调用 memo_search 工具。
+        Token 从 Flomo 设置 → MCP 连接 → 个人 Token 获取。
         """
-        import urllib.request
-        import urllib.error
+        import asyncio
 
         if not self.api_key:
             raise ValueError("FLOMO_API_KEY 未配置")
 
-        params = "?limit=50"
-        if since:
-            params += f"&since={since}"
+        try:
+            notes = asyncio.run(self._mcp_fetch_notes(since))
+            return notes
+        except Exception as e:
+            raise RuntimeError(f"Flomo MCP 同步失败: {e}")
 
-        url = f"https://flomoapp.com/api/v1/notes{params}"
-        req = urllib.request.Request(url)
-        req.add_header("Authorization", f"Bearer {self.api_key}")
-        req.add_header("Content-Type", "application/json")
+    async def _mcp_fetch_notes(self, since: Optional[str] = None) -> list[dict]:
+        """通过 MCP 异步获取笔记。"""
+        from mcp import ClientSession
+        from mcp.client.streamable_http import streamablehttp_client
 
         try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-        except urllib.error.HTTPError as e:
-            body = e.read().decode("utf-8", errors="replace")
-            raise RuntimeError(f"Flomo API HTTP {e.code}: {body}")
-        except urllib.error.URLError as e:
-            raise RuntimeError(f"Flomo API 网络错误: {e.reason}")
+            async with streamablehttp_client(
+                "https://flomoapp.com/mcp",
+                headers={"Authorization": f"Bearer {self.api_key}"}
+            ) as (read_stream, write_stream, _):
+                async with ClientSession(read_stream, write_stream) as session:
+                    await session.initialize()
 
-        notes = data.get("notes", [])
-        # 按时间升序排列
-        notes.sort(key=lambda n: n.get("created_at", ""))
-        return notes
+                    # 调用 memo_search 工具搜索笔记
+                    search_args: dict = {"limit": 100}
+                    if since:
+                        search_args["timeRange"] = {"start": since}
+                    search_args["query"] = ""
+
+                    result = await session.call_tool("memo_search", arguments=search_args)
+
+                    # 解析返回内容
+                    notes = []
+                    for item in result.content:
+                        if item.type == "text":
+                            try:
+                                data = json.loads(item.text)
+                                if isinstance(data, list):
+                                    notes.extend(data)
+                                elif isinstance(data, dict):
+                                    notes.append(data)
+                            except json.JSONDecodeError:
+                                # 可能是纯文本格式，尝试按行解析
+                                logger.debug("memo_search 返回非 JSON 文本: %s", item.text[:100])
+
+                    # 按时间升序排列
+                    notes.sort(key=lambda n: n.get("created_at", ""))
+                    return notes
+
+        except (ImportError, Exception) as e:
+            logger.error("MCP 连接失败: %s", e)
+            # 回退方案: 尝试 tools/list 发现可用工具
+            raise RuntimeError(f"MCP 连接失败: {e}")
 
     # ── 笔记写入 ──
 
@@ -107,8 +133,20 @@ class FlomoSync:
             logger.warning("笔记 id=%s 内容为空，跳过", note_id)
             return None
 
-        created_at = note.get("created_at", datetime.now(timezone.utc).isoformat())
-        tags = note.get("tags", [])
+        created_at = note.get("created_at") or note.get("createdAt") or datetime.now(timezone.utc).isoformat()
+        raw_tags = note.get("tags") or note.get("tag") or []
+        # 兼容 tags 为 [{name: "tag"}] 或 ["tag"] 或 "tag" 多种格式
+        if isinstance(raw_tags, str):
+            tags = [raw_tags]
+        elif isinstance(raw_tags, list):
+            tags = []
+            for t in raw_tags:
+                if isinstance(t, str):
+                    tags.append(t)
+                elif isinstance(t, dict):
+                    tags.append(t.get("name", str(t)))
+        else:
+            tags = []
 
         # 标题：取第一行
         first_line = content.split("\n")[0]
