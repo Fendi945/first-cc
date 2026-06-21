@@ -32,16 +32,6 @@ def _start_server():
         print(f"  ⚠️ 服务器启动失败: {e}")
 
 
-def _start_flomo_sync():
-    """在后台线程启动 Flomo 同步调度。"""
-    try:
-        from engine.flomo_sync import FlomoSync
-        sync = FlomoSync()
-        sync.start_scheduler()
-    except Exception as e:
-        print(f"  ⚠️ Flomo 同步启动失败: {e}")
-
-
 def main():
     # 检查 API Key 是否已配置
     if not DEEPSEEK_API_KEY or DEEPSEEK_API_KEY == "your-api-key-here":
@@ -59,10 +49,6 @@ def main():
         # 后台启动服务器（提供审批面板 API）
         server_thread = threading.Thread(target=_start_server, daemon=True)
         server_thread.start()
-
-        # 启动 Flomo 同步（后台）
-        flomo_thread = threading.Thread(target=_start_flomo_sync, daemon=True)
-        flomo_thread.start()
 
         # 启动前先扫描已有文件
         print("🔍 启动前扫描已有文件...")
