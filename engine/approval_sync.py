@@ -1,9 +1,12 @@
-"""审批同步器 —— 读取用户在看板.md 中勾选的复选框，自动审批。
+"""审批同步器 —— 解析用户在看板.md 中修改的状态符号，自动执行。
 
-工作流：
-  1. 用户在 Obsidian 打开 看板.md
-  2. 点击方框打勾 [x] （Obsidian 默认行为）
-  3. Watchdog 自动检测 → 同步审批 → 执行生产
+状态符号对照：
+  ⏳ → 待审批（默认，不处理）
+  ✅ → 通过（按原标签执行生产）
+  ❌ → 拒绝（跳过，不生产）
+  📹 → 改视频（覆盖原标签）
+  📝 → 改文章（覆盖原标签）
+  🔧 → 改工具（覆盖原标签）
 """
 
 import re
@@ -11,29 +14,57 @@ import time
 from pathlib import Path
 from engine.config import KANBAN_DIR, PENDING_FILE
 
+# 状态符号到系统状态的映射
+STATUS_MAP = {
+    "✅": "approved",
+    "❌": "skipped",
+}
 
-def parse_kanban_approvals(kanban_path: Path) -> list:
-    """解析看板.md，找出用户勾选 [x] 的项。
+# 状态符号到产出标签的覆盖映射
+TAG_OVERRIDE = {
+    "📹": "video",
+    "📝": "article",
+    "🔧": "tool",
+}
+
+# 所有需要处理的符号（⏳ 是待审批，忽略）
+ACTIVE_SYMBOLS = set(STATUS_MAP.keys()) | set(TAG_OVERRIDE.keys())
+
+
+def parse_kanban_actions(kanban_path: Path) -> list[dict]:
+    """解析看板.md，找出用户修改了状态符号的项。
 
     Returns:
-        [item_id1, item_id2, ...]  # 已勾选的 ID 列表
+        [{"id": str, "action": str, "tag_override": str|None}, ...]
     """
     if not kanban_path.exists():
         print("  [sync] ⚠️ 看板文件不存在")
         return []
 
     content = kanban_path.read_text(encoding="utf-8")
-    approved = []
+    actions = []
 
-    # 匹配复选框行: [x] 表示通过，忽略 [ ]
-    pattern = re.compile(r"^- \[([x])\] `([^`]+)`")
+    # 匹配格式：- {符号} id:{item_id} **标题**
+    pattern = re.compile(r"^- ([✅❌📹📝🔧]) `([^`]+)`")
+
     for line in content.split("\n"):
         m = pattern.match(line.strip())
-        if m:
-            item_id = m.group(2).strip()
-            approved.append(item_id)
+        if not m:
+            continue
+        symbol = m.group(1)
+        item_id = m.group(2).strip()
 
-    return approved
+        if symbol not in ACTIVE_SYMBOLS:
+            continue
+
+        action = {
+            "id": item_id,
+            "action": STATUS_MAP.get(symbol, "approved"),
+            "tag_override": TAG_OVERRIDE.get(symbol, None),
+        }
+        actions.append(action)
+
+    return actions
 
 
 def sync_approvals() -> int:
@@ -41,11 +72,10 @@ def sync_approvals() -> int:
     from vault_bridge.vault_utils import read_json, write_json
 
     kanban_file = KANBAN_DIR / "看板.md"
-    approved = parse_kanban_approvals(kanban_file)
+    actions = parse_kanban_actions(kanban_file)
 
-    if not approved:
-        print("  [sync] 📭 看板中未发现新勾选的项")
-        print("  [sync] 💡 在 Obsidian 里点击方框打勾即可")
+    if not actions:
+        print("  [sync] 📭 看板中未发现状态变更")
         return 0
 
     data = read_json(PENDING_FILE)
@@ -56,13 +86,28 @@ def sync_approvals() -> int:
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     count = 0
 
-    for item in data:
-        item_id = item.get("id", "")
-        if item_id in approved and item.get("status") == "pending":
-            item["status"] = "approved"
-            item["approved_at"] = now
-            count += 1
-            print(f"  [sync] ✅ 通过: {item.get('summary','')[:20]}")
+    for action in actions:
+        item_id = action["id"]
+        new_status = action["action"]
+        tag_override = action["tag_override"]
+
+        for item in data:
+            if item.get("id") == item_id and item.get("status") == "pending":
+                item["status"] = new_status
+                item["approved_at"] = now
+
+                # 如果用户换了产出标签
+                if tag_override:
+                    old_tag = item.get("output_tag", "")
+                    item["output_tag"] = tag_override
+                    item["tag_reason"] = f"用户手动修改: {old_tag} → {tag_override}"
+
+                count += 1
+                summary = item.get("summary", "")[:20]
+                symbol = "✅" if new_status == "approved" else "❌"
+                print(f"  [sync] {symbol} {summary}")
+                if tag_override:
+                    print(f"        标签改为: {tag_override}")
 
     if count:
         write_json(PENDING_FILE, data)
@@ -76,12 +121,13 @@ def sync_approvals() -> int:
             if not isinstance(logs, list):
                 logs = []
             for item in data:
-                if item.get("status") == "approved" and item.get("id") in approved:
+                if item.get("status") in ("approved", "skipped") and item.get("id") in [a["id"] for a in actions]:
                     logs.append({
-                        "action": "approved",
+                        "action": item["status"],
                         "item_id": item["id"],
                         "suggested_title": item.get("suggested_title", ""),
                         "summary": item.get("summary", ""),
+                        "output_tag": item.get("output_tag", ""),
                         "timestamp": now,
                     })
             if len(logs) > 500:
