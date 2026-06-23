@@ -27,6 +27,7 @@ from engine.config import PENDING_FILE, APPROVED_FILE, DAILY_INPUT_DIR
 from engine.flomo_sync import FlomoSync
 from engine.feishu_sync import FeishuSync
 from engine.feishu_bitable_sync import FeishuBitableSync
+from engine.feishu_kanban_sync import FeishuKanbanSync
 from vault_bridge.vault_utils import read_json, write_json
 
 HOST = "127.0.0.1"
@@ -151,6 +152,12 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 self._send_json({"error": "Feishu bitable not initialized"})
 
+        elif path == "/api/feishu/kanban/status":
+            if hasattr(self.server, "feishu_kanban"):
+                self._send_json(self.server.feishu_kanban.get_status())
+            else:
+                self._send_json({"error": "Feishu kanban not initialized"})
+
         else:
             # 非 API 请求：当作静态文件处理
             super().do_GET()
@@ -254,6 +261,16 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 self._send_json({"ok": False, "error": str(e)}, 500)
 
+        elif parsed.path == "/api/feishu/kanban/sync":
+            try:
+                if hasattr(self.server, "feishu_kanban"):
+                    result = self.server.feishu_kanban.sync_all()
+                    self._send_json({"ok": True, "result": result})
+                else:
+                    self._send_json({"ok": False, "error": "Feishu kanban not initialized"}, 500)
+            except Exception as e:
+                self._send_json({"ok": False, "error": str(e)}, 500)
+
         elif parsed.path == "/api/feishu/bitable/record":
             try:
                 body = self._read_body()
@@ -317,6 +334,13 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
 
     # -- 初始化飞书多维表格同步 --
     server.feishu_bitable = FeishuBitableSync()
+
+    # -- 初始化飞书审批看板同步 --
+    server.feishu_kanban = FeishuKanbanSync()
+    try:
+        server.feishu_kanban.sync_local_to_feishu()
+    except Exception as e:
+        print(f"  [server] ⚠️ 看板同步初始化失败: {e}")
 
     url = f"http://{HOST}:{port}/dashboard/"
 
