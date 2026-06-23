@@ -6,7 +6,7 @@ import shutil
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DIST_DIR = Path(r"D:\Documents\Desktop\元演审批面板")
+DIST_DIR = Path(r"D:\Documents\Desktop\yy-panel")
 LAUNCHER = PROJECT_ROOT / "engine" / "exe_launcher.py"
 DASHBOARD_DIR = PROJECT_ROOT / "dashboard"
 
@@ -41,6 +41,12 @@ PyInstaller.__main__.run([
     "--noconfirm",
     "--console",
     "--add-data", add_data_spec,
+    "--hidden-import=engine.config",
+    "--hidden-import=engine.server",
+    "--hidden-import=engine.feishu_client",
+    "--hidden-import=engine.feishu_bitable_sync",
+    "--hidden-import=engine.feishu_kanban_sync",
+    "--hidden-import=dotenv",
     f"--distpath={DIST_DIR}",
     "--clean",
     "--workpath", str(PROJECT_ROOT / "build" / "pyinstaller"),

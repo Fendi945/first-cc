@@ -1,0 +1,6 @@
+[submodule "four-quadrants"]
+	path = four-quadrants
+	url = git@github.com:Fendi945/four-quadrants.git
+[submodule "pomodoro-timer"]
+	path = pomodoro-timer
+	url = git@github.com:Fendi945/Pomodoro-timer.git

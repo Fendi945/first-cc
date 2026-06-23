@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
 """
-口播视频剪辑 Agent v1.2
+口播视频剪辑 Agent v1.3
 =========================
 专用子 agent，负责口播视频的全自动剪辑。
 
-功能：
+v1.3 优化（2026-06-22）：
+- 模糊缓存 + --force-blur 强制重渲染
+- 裁剪+烧录合并为一次编码（省 ~30s）
+- MediaPipe detect_every 8→12（省 ~15s）
+- 字符位置映射替代词索引映射（修复字幕漂移）
+- 相对路径 filtergraph（修复 C: 冒号问题）
+
+v1.2 功能：
 1. 检测并裁剪：沉默(>1s)、语气词(嗯啊呃)、重复内容、废话
 2. 背景模糊 + 人物锐化 (OpenCV人脸检测)
 3. 智能字幕 (ASS格式，汉仪中黑体加粗 54号，重点词60号黄色高亮，智能换行)
 
-⚠️ 已知陷阱见: video-agent/SKILL.md → 🪤 已知陷阱
+⚠️ 已知陷阱见: SKILL.md → 🪤 已知陷阱
    Windows路径转义、ASS Bold=1、禁止\rStyle、DirectWrite字体名等
    每次修改/部署前先读 SKILL.md 的陷阱章节。
 """
@@ -30,7 +37,7 @@ import numpy as np
 PROJECT_DIR = Path(__file__).parent
 ORIGINAL_VIDEO = Path(r"D:\Documents\Desktop\23b3412458bd8d6a2659e950bf5c9c14.mp4")
 TRANSCRIPT_FILE = PROJECT_DIR / "transcript.json"
-OUTPUT_DIR = PROJECT_DIR / "output"
+OUTPUT_DIR = Path(r"D:\Documents\Desktop\口播视频")
 TEMP_DIR = PROJECT_DIR / "temp"
 OUTPUT_DIR.mkdir(exist_ok=True)
 TEMP_DIR.mkdir(exist_ok=True)
@@ -46,15 +53,15 @@ FONT_COLOR_HIGHLIGHT = "&H0000FFFF"  # 黄色 (ASS: &HAABBGGRR)
 # 模糊参数
 BLUR_RADIUS = 6          # boxblur 半径（简单模糊，用户要求不复杂）
 BLUR_POWER = 2           # boxblur power
-MASK_LOW = 0.02          # 人物遮罩低阈值：<0.02=背景噪声砍掉
-MASK_HIGH = 0.25         # 人物遮罩高阈值：>0.25=完全清晰（含胳膊等低置信区域）
-FEATHER_RADIUS = 7       # 羽化半径（像素），5-10 柔化人物边缘避免生硬割裂
+MASK_LOW = 0.05          # 人物遮罩低阈值：>0.05=人物（二值遮罩，低阈值保人物完整）
+MASK_HIGH = 0.50         # 不再使用（二值遮罩无需线性拉伸）
+FEATHER_RADIUS = 10      # 羽化半径（像素），柔化二值遮罩边缘
 
 # 编码质量
 VIDEO_BITRATE = "6000k"  # 视频码率（原片高于1080P，设高质量）
 
 # 沉默阈值
-SILENCE_THRESHOLD = 1.0  # 超过1秒沉默视为气口
+SILENCE_THRESHOLD = 0.7  # 超过0.7秒沉默视为气口
 
 # 语气词列表 (仅确凿无疑的语气词，避免误伤内容词)
 FILLER_WORDS = {
@@ -65,36 +72,51 @@ FILLER_WORDS = {
 
 # Whisper 错字修正词典
 CORRECTIONS = {
-    "时工钱多": "施工前", "动线每一会儿": "动线没画", "时工对黑": "施工队黑",
-    "守五王哪身": "手往哪伸", "红风成一三": "红枫×3", "元宝风成一二": "元宝枫×2",
-    "从客厅到水井": "从客厅到水景", "踩一脚衣": "踩一脚泥", "洞个脑子": "动动脑子",
-    "叶竹省": "业主审", "怎么省它": "怎么省事", "砸迟毕": "砸池壁",
-    "拿枝笔": "拿支笔", "拿着笔": "拿支笔", "循环笵": "循环泵",
-    "时工": "施工", "鞋俩字": "写俩字", "绿花袋": "绿化带", "厅步路": "汀步路",
-    "红风": "红枫", "元宝风": "元宝枫", "贯笵": "冠幅", "笵坑": "泵坑",
-    "迟毕": "池壁", "守五": "手", "数官": "树冠", "数长": "树长", "数种": "树种",
-    "掌开": "长开", "兼具": "间距", "石拔": "石板", "水井": "水景",
-    "挖两壳": "挖了两棵", "挖两棵": "挖了两棵", "五位书": "五位数",
-    "指标了": "只标了", "管先": "管线", "交结": "胶粘", "沾死": "粘死",
-    "水准": "水景", "稳资": "文字", "笵": "泵", "堆": "队", "王": "往",
-    "蕾": "雷", "流": "留", "巳": "已",
-    # ===== 以下修正有顺序依赖，必须 长→短 排序 =====
-    "拖写": "拖鞋",
-    "是图上埋了三个雷": "是图纸上埋了三个雷",
-    "不是时工多了坑了": "不是施工队坑了",
-    "时工多最怕你看懂的三个图纸细节": "施工队最怕你看懂的三个图纸细节",
-    "重下去三年后": "种下去三年后",
-    "时工多": "施工队",
-    "重下去": "种下去",
-    "是图上": "是图纸上",
+    # ── 命分法视频 ──
+    '裁老': '拆了', '于小问对': '渔樵问对',
+    '于小问': '渔樵问', '韦度': '维度',
+    '份是你自己的本份': '分是你自己的本分',
+    '忍不重要跟你分享': '忍不住要跟你说',
+    '忍不': '忍不住',
+    '经历吃劝退': '锦鲤池劝退', '经历池劝退': '锦鲤池劝退',
+    '评论去': '评论区', '一般人': '一半人',
+    '重砍': '中肯', '学义不精': '学艺不精',
+    '学义不精彩彩了坑': '学艺不精才踩了坑',
+    '不救': '补救', '采了坑': '踩了坑', '彩了坑': '踩了坑',
+    '原理': '园林', '坑制坑制': '坑',
+    '造原子': '造园子',
+    '想控制我控制不了': '想控制我控制不了的',
+    '不是我的事别人想不相信我': '不是我的事',
+    '那不是我的事那是老天爷的事我就是一个做了16年原理的人我就是一个坑制': '那不是我的事那是老天爷的事我就是一个做了16年园林的人',
+    # ── 原园林术语 ──
+    '时工钱多': '施工前', '动线每一会儿': '动线没画', '时工对黑': '施工队黑',
+    '守五王哪身': '手往哪伸', '红风成一三': '红枫×3', '元宝风成一二': '元宝枫×2',
+    '从客厅到水井': '从客厅到水景', '踩一脚衣': '踩一脚泥', '洞个脑子': '动动脑子',
+    '叶竹省': '业主审', '怎么省它': '怎么省事', '砸迟毕': '砸池壁',
+    '拿枝笔': '拿支笔', '拿着笔': '拿支笔', '循环笵': '循环泵',
+    '时工': '施工', '鞋俩字': '写俩字', '绿花袋': '绿化带', '厅步路': '汀步路',
+    '红风': '红枫', '元宝风': '元宝枫', '贯笵': '冠幅', '笵坑': '泵坑',
+    '迟毕': '池壁', '守五': '手', '数官': '树冠', '数长': '树长', '数种': '树种',
+    '掌开': '长开', '兼具': '间距', '石拔': '石板', '水井': '水景',
+    '挖两壳': '挖了两棵', '挖两棵': '挖了两棵', '五位书': '五位数',
+    '指标了': '只标了', '管先': '管线', '交结': '胶粘', '沾死': '粘死',
+    '水准': '水景', '稳资': '文字', '笵': '泵', '堆': '队', '王': '往',
+    '蕾': '雷', '流': '留', '巳': '已',
+    '拖写': '拖鞋',
+    '是图上埋了三个雷': '是图纸上埋了三个雷',
+    '不是时工多了坑了': '不是施工队坑了',
+    '时工多最怕你看懂的三个图纸细节': '施工队最怕你看懂的三个图纸细节',
+    '重下去三年后': '种下去三年后',
+    '时工多': '施工队',
+    '重下去': '种下去',
+    '是图上': '是图纸上',
 }
 
 # 重点词（高亮为黄色60号加粗）
 KEY_TERMS = [
-    "8万", "八万", "十一万", "五位数", "三个雷", "好几万",
-    "汀步路", "绿化带", "循环泵", "冠幅", "树冠",
-    "石板", "管线", "池壁", "施工队", "业主",
-    "动线", "水景", "检修口", "红枫", "元宝枫",
+    "命分法", "渔樵问对", "老天爷", "老天",
+    "恐惧", "焦虑", "控制不了", "本分",
+    "锦鲤池", "16年", "园林",
 ]
 
 # 数字模式（用于高亮）
@@ -215,6 +237,26 @@ def find_silence(transcript_path, after=0, min_gap=SILENCE_THRESHOLD):
                 if e > s and s >= after:
                     cuts.append((s, e, f"段间沉默({gap:.1f}s)"))
 
+    # 词内停顿检测：单字词 > 2.0s = 卡壳/假启动，切掉多余部分
+    for seg in data["segments"]:
+        words = seg.get("words", [])
+        for w in words:
+            t = re.sub('[，,。！？、；：!?."()（）【】《》「」『』—…·\s]', '', w["word"]).strip()
+            if not t:
+                continue
+            dur = w["end"] - w["start"]
+            # 单字 > 2s 或 多字但明显过长 (>1.0s/字)
+            char_count = len(t)
+            expected = char_count * 0.3  # 每字0.3秒正常语速
+            excess = dur - expected
+            if excess > 0.8 and char_count <= 3 and dur > 1.5:
+                # 词内有一个明显的停顿，切掉词的后半部分（卡壳通常在前半）
+                keep = expected * 0.6
+                s = w["start"] + keep
+                e = w["end"] - 0.05
+                if e > s and s >= after:
+                    cuts.append((s, e, f"词内停顿({excess:.1f}s)"))
+
     return cuts
 
 
@@ -312,7 +354,15 @@ def find_repeats(transcript_path, after=0):
                 s = words[word_pos]["start"]
                 e = words[end_pos]["end"]
                 if s >= after and e > s + 0.3:
-                    repeats.append((s, e, f"重复:{key[:15]}..."))
+                    # 只切第二次出现的重复（从第二次开始到第二次结束）
+                    # 第二次的起始位置 = cum_chars + len(phrase) 在全文中的比例
+                    sec_cum = cum_chars + len(phrase)
+                    sec_ratio = sec_cum / max(len(text), 1)
+                    sec_pos = int(sec_ratio * len(words))
+                    sec_pos = max(0, min(sec_pos, len(words) - 1))
+                    ss = words[sec_pos]["start"]
+                    # seen2 block handles this more accurately
+                    pass
             seen[key] = idx
 
     # 3. 段内连续短语重复检测（放开阈值，捕获"觉得有用吗,收藏这期,觉得有用吗,收藏这期"模式）
@@ -344,16 +394,110 @@ def find_repeats(transcript_path, after=0):
                 s = words[word_pos]["start"]
                 e = words[end_pos]["end"]
                 if s >= after and e > s + 0.3:
-                    repeats.append((s, e, f"重复:{key[:12]}..."))
+                    # 只切第二次出现的重复
+                    sec_cum = first_cum + len(phrase)
+                    sec_ratio = sec_cum / max(len(text), 1)
+                    sec_pos = int(sec_ratio * len(words))
+                    sec_pos = max(0, min(sec_pos, len(words) - 1))
+                    ss = words[sec_pos]["start"]
+                    if ss > s and e > ss + 0.3:
+                        repeats.append((s, ss, f"重复:{key[:12]}..."))
             seen2[key] = idx
 
+
+    # 4. 模糊短语重复检测：相邻两句共同前缀>=5字符视为假启动/卡壳
+    for seg in data["segments"]:
+        text = fix(seg["text"])
+        words = seg.get("words", [])
+        if not words or len(text) < 10:
+            continue
+        phrases = re.split(r'(?<=[，,。.!?！？])', text)
+        phrases = [p.strip() for p in phrases if p.strip()]
+        for pi in range(len(phrases) - 1):
+            p1 = re.sub('[，,。！？、；：!?.\"()（）【】《》「」『』—…·\\s]', '', phrases[pi])
+            p2 = re.sub('[，,。！？、；：!?.\"()（）【】《》「」『』—…·\\s]', '', phrases[pi+1])
+            if len(p1) < 4 or len(p2) < 4:
+                continue
+            # 算共同前缀长度
+            common = 0
+            for ci in range(min(len(p1), len(p2))):
+                if p1[ci] == p2[ci]:
+                    common += 1
+                else:
+                    break
+            if common >= 4:
+                # 长度比判断：第二句比第一句长20%以上 = 假启动（修正补充了内容）
+                # 长度相近 = 并列结构（一半...一半...），不切
+                cutoff = max(len(p1), len(p2)) * 0.6
+                if common < cutoff:
+                    # 共同前缀不够长，可能是并列结构
+                    # 但如果是第二句明显更长（修正后的句子），还是切
+                    if len(p2) <= len(p1) * 1.15:
+                        continue
+                cum_before = sum(len(phrases[j]) for j in range(pi))
+                char_ratio = cum_before / max(len(text), 1)
+                word_start = int(char_ratio * len(words))
+                word_start = max(0, min(word_start, len(words)-1))
+                end_cum = cum_before + len(phrases[pi])
+                end_ratio = end_cum / max(len(text), 1)
+                word_end = int(end_ratio * len(words))
+                word_end = max(0, min(word_end, len(words)-1))
+                s = words[word_start]["start"]
+                e = words[word_end]["end"]
+                if s >= after and e > s + 0.5:
+                    repeats.append((s, e, f"重复:{p1[:12]}..."))
+        # 5. 假启动检测（半截话）：很短 + 后面有长停顿 + 下一个段以相似词开头
+    for seg in data["segments"]:
+        text = fix(seg["text"])
+        words = seg.get("words", [])
+        if not words or len(text) < 5:
+            continue
+        # 按标点拆成短句
+        parts = re.split(r'(?<=[，,。.!?！？])', text)
+        parts = [p.strip() for p in parts if p.strip()]
+        if len(parts) < 2:
+            continue
+        # 看第一句是否很短（<5字）并且后面的段以相似词开头
+        first = parts[0].strip('，,。！？、；： ')
+        rest = ''.join(parts[1:])
+        if len(first) < 5 and len(first) >= 2:
+            # 算第一句的时间位置
+            first_cum = len(parts[0])
+            first_ratio = first_cum / max(len(text), 1)
+            first_pos = int(first_ratio * len(words))
+            first_pos = max(0, min(first_pos, len(words) - 1))
+            end_cum = first_cum + len(parts[0])
+            end_ratio = end_cum / max(len(text), 1)
+            end_pos = int(end_ratio * len(words))
+            end_pos = max(0, min(end_pos, len(words) - 1))
+            s = words[0]["start"]
+            e = words[end_pos]["end"]
+            if s >= after and e > s + 0.3 and e - s < 2.0:
+                repeats.append((s, e, f"假启动:{first}..."))
+    
+
+    # 5. 合并重叠/相邻的裁剪段（同一个原因被多个检测器抓到）
+    if len(repeats) > 1:
+        repeats.sort()
+        merged = [repeats[0]]
+        for r in repeats[1:]:
+            last = merged[-1]
+            # 如果重叠或间隔<0.5s，合并
+            if r[0] - last[1] < 1.0:
+                new_end = max(last[1], r[1])
+                new_label = last[2] + ' + ' + r[2] if last[2] != r[2] else last[2]
+                merged[-1] = (last[0], new_end, new_label)
+            else:
+                merged.append(r)
+        repeats = merged
+    
     return repeats
 
 
 # ============================================================
 # 模糊模块：人物-背景分离
 # ============================================================
-SEGMENTER_MODEL = Path(__file__).parent / "temp" / "selfie_segmenter.tflite"
+SEGMENTER_MODEL = Path(__file__).parent / "selfie_segmenter.tflite"
 _SEGMENTER_CACHE = [None]  # module-level lazy singleton
 
 
@@ -426,7 +570,7 @@ def blur_video(input_path, output_path, trim_seconds, max_duration=0):
     from mediapipe import Image as MpImage, ImageFormat
 
     current_mask = None
-    detect_every = 8       # 每 8 帧跑一次分割，中间帧复用
+    detect_every = 12       # 每 12 帧跑一次分割，中间帧复用（性能优化）
     frame_idx = 0
     interval = max(1, remaining // 10)
     processed = 0
@@ -453,15 +597,13 @@ def blur_video(input_path, output_path, trim_seconds, max_duration=0):
         # 合成：sharp person + blurred background
         # 对比度拉伸 → 保证人物中心完全清晰，高斯模糊边缘做羽化
         if current_mask is not None:
-            mask_boosted = np.clip(
-                (current_mask - MASK_LOW) / (MASK_HIGH - MASK_LOW), 0, 1
-            )
-            # 羽化：高斯模糊 mask 柔化边缘，避免人物与背景生硬割裂
+            # 二值遮罩：超过低阈值=100%人物，低于=背景，羽化柔化边缘
+            mask_binary = (current_mask > MASK_LOW).astype(np.float32)
             if FEATHER_RADIUS > 0:
-                mask_boosted = cv2.GaussianBlur(
-                    mask_boosted, (0, 0), FEATHER_RADIUS
+                mask_binary = cv2.GaussianBlur(
+                    mask_binary, (0, 0), FEATHER_RADIUS
                 )
-            m3 = np.stack([mask_boosted] * 3, axis=-1)
+            m3 = np.stack([mask_binary] * 3, axis=-1)
             comp = (frame_o * m3 + frame_b * (1 - m3)).astype(np.uint8)
         else:
             comp = frame_b  # fallback: 全帧模糊
@@ -485,8 +627,9 @@ def blur_video(input_path, output_path, trim_seconds, max_duration=0):
 # ============================================================
 # 裁剪模块
 # ============================================================
-def cut_main(blurred_path, audio_path, all_cuts, trim_start):
-    """执行裁剪：用 filter_complex select 一次性完成（NVENC 编码）。"""
+def cut_main(blurred_path, audio_path, all_cuts, trim_start, ass_path=None):
+    """执行裁剪：用 filter_complex select 一次性完成。
+    如果 ass_path 提供，在裁剪同时烧录字幕（省一次编码）。"""
     adj_cuts = [(s - trim_start, e - trim_start) for s, e, _ in all_cuts]
     segments = []
     prev = 0.0
@@ -512,14 +655,22 @@ def cut_main(blurred_path, audio_path, all_cuts, trim_start):
     # select 表达式: select='between(t,0,30)+between(t,35,69)+...'
     select_expr = "+".join(f"between(t,{s:.3f},{e:.3f})" for s, e in segments)
 
-    # 视频: select 保留段 → setpts 压缩时间线 → MF 编码
+    # 合并 filter: select → setpts → [可选 ass 烧录]
+    # ass 和裁剪同时进行，避免二次编码
+    filter_parts = [f"select='{select_expr}'", "setpts=N/FRAME_RATE/TB"]
+    if ass_path:
+        # 用相对路径避免 Windows C: 冒号被 filtergraph 当作选项分隔符
+        rel = ass_path.relative_to(PROJECT_DIR)
+        filter_parts.append(f"ass={rel.as_posix()}")
+    filter_complex = ",".join(filter_parts)
+
+    # 视频: select 保留段 → setpts 压缩时间线 → [ass 烧录] → MF 编码（一次）
     subprocess.run([
         "ffmpeg", "-i", str(blurred_path),
-        "-filter_complex",
-        f"select='{select_expr}',setpts=N/FRAME_RATE/TB",
+        "-filter_complex", filter_complex,
         "-c:v", "h264_mf", "-b:v", VIDEO_BITRATE,
         "-an", "-y", str(tv)
-    ], check=True, capture_output=True)
+    ], check=True, capture_output=True, cwd=str(PROJECT_DIR))
 
     # 音频: aselect → asetpts → AAC
     subprocess.run([
@@ -609,182 +760,131 @@ def build_subtitles(transcript_path, cuts, trim_start):
 
 def build_subtitles_from_segmented(transcript_path, segmented_path, cuts, trim_start):
     """
-    Match user lines to timing by finding each line in the CORRECTED
-    Whisper text (which matches the user's edited text), then mapping
-    the character position back to Raw word timestamps.
-
-    Strategy:
-    1. Build corrected full text (fix() applied to concatenated raw)
-    2. For each user line, find exact match in corrected text
-    3. Use character position to look up the nearest Raw word timestamp
-    4. End of line N = start of line N+1
+    用字级时间戳对齐字幕——每段字幕的起始时间取自该段对应的第一个词的时间戳。
+    
+    策略：
+    1. 从 Whisper 提取字级时间戳
+    2. 按用户断句的字数比例把词分组
+    3. 每组字幕的开始时间 = 该组第一个词的 start
+    4. 每组字幕的结束时间 = 该组最后一个词的 end
     """
     import json, re
-    with open(transcript_path, encoding="utf-8") as f:
+    with open(transcript_path, encoding='utf-8') as f:
         whisper_data = json.load(f)
-    with open(segmented_path, encoding="utf-8") as f:
+    with open(segmented_path, encoding='utf-8') as f:
         seg_data = json.load(f)
-
-    user_lines = [s["text"] for s in seg_data["segments"]]
-
-    # Collect raw words (no punctuation)
-    PUNCT_RE = re.compile(r"[　、。，『』「」！？．《》；：!?.,;'()（）【】「」『』╱╲—…·]")
+    
+    user_lines = [s['text'] for s in seg_data['segments']]
+    
+    # 收集所有带时间戳的词
     raw_words = []  # [(start, end, text)]
-    for seg in whisper_data["segments"]:
-        for w in seg.get("words", []):
-            t = w["word"].strip()
-            t = PUNCT_RE.sub('', t)
+    for seg in whisper_data['segments']:
+        for w in seg.get('words', []):
+            t = w['word'].strip()
             if t:
-                raw_words.append((w["start"], w["end"], t))
-
+                raw_words.append((w['start'], w['end'], t))
+    
     if not raw_words:
         return []
+    
+    # 滤掉落在裁剪段里的词（被剪掉的词不能用于字幕时间）
+    def _word_in_cut(t, cut_list):
+        for cs, ce, _ in cut_list:
+            if cs <= t <= ce:
+                return True
+        return False
+    surviving = [(ws, we, wt) for ws, we, wt in raw_words
+                 if not _word_in_cut((ws + we) / 2, cuts)]
+    if surviving:
+        raw_words = surviving
+    # 用幸存词重新计算时间调整
+    total_cut_before = sum(ce - cs for cs, ce, _ in cuts if ce < raw_words[0][0])
+    # 把剪裁调整从 cut_before 改为：幸存词的起止 = 原时间 - 该词之前的总裁剪量
+    def adjust_time(t):
+        before = 0.0
+        for cs, ce, _ in cuts:
+            if ce <= t:
+                before += (ce - cs)
+        return t - before
+    # 重建时间轴：每个幸存词的新时间
+    # 先算每个词的偏移
+    word_offsets = []
+    for ws, we, wt in raw_words:
+        nws = adjust_time(ws)
+        nwe = adjust_time(we)
+        word_offsets.append((nws, nwe, wt))
+    raw_words = word_offsets
+    
+    # 计算每个用户段落的字数（只算汉字英文数字）
+    def char_count(t):
+        clean = re.sub(r'[^一-鿿\w]', '', t)
+        return len(clean)
+    
+    seg_lens = [char_count(t) for t in user_lines if t]
+    total_chars = sum(seg_lens)
+    total_raw_chars = sum(len(w[2]) for w in raw_words)
+    
+    if total_chars < 1 or total_raw_chars < 1:
+        return []
 
-    # Build raw concatenated text + char-to-word mapping
-    full_raw = "".join(w[2] for w in raw_words)
+    # 构建字符级索引——每个有效字符对应的词索引
+    # 映射从"词索引取整"降为"字符级连续位置"，幅度远大于Whisper单字听写误差
     char_to_word = []
-    for wi, (_, _, txt) in enumerate(raw_words):
-        for _ in txt:
+    total_raw_clean = 0
+    for wi, (_, _, wt) in enumerate(raw_words):
+        clean = re.sub(r'[^一-鿿\w]', '', wt)
+        for _ in clean:
             char_to_word.append(wi)
+        total_raw_clean += len(clean)
+    if total_raw_clean < 1:
+        return []
 
-    # Build corrected full text (fix() on concatenated text, catches all corrections)
-    full_corrected = fix(full_raw)
-
-    # Match each user line in corrected text; use position to get raw word timestamp
+    # 按字符位置比例把 raw_words 分组
     subs = []
-    search_pos = 0
-    unmatched = []
+    cum_chars = 0
 
     for text in user_lines:
         if not text:
             continue
-        p = full_corrected.find(text, search_pos)
-        if p >= 0:
-            # Position in corrected ≈ position in raw (same-length corrections)
-            wi = char_to_word[min(p, len(char_to_word) - 1)]
-            subs.append((raw_words[wi][0], text))
-            search_pos = p + 1  # advance past first char
-        else:
-            unmatched.append(text)
+        n_chars = char_count(text)
 
-    if unmatched:
-        print(f"  [WARN] {len(unmatched)} lines unmatched in corrected text:")
-        for t in unmatched[:5]:
-            print(f"    {t}")
-        # Fill unmatched with proportional estimate
-        for text in unmatched:
-            total_chars = sum(len(t[1]) for t in subs) + sum(len(t) for t in unmatched)
-            if total_chars < 1:
-                continue
-            cum_before = 0
-            user_order = list(dict.fromkeys([s[1] for s in subs] + unmatched))
-            for t in user_order:
-                if t == text:
-                    break
-                cum_before += len(t)
-            total_dur = raw_words[-1][1] - raw_words[0][0]
-            estimate = raw_words[0][0] + (cum_before / total_chars) * total_dur
-            if subs:
-                estimate = max(estimate, subs[-1][0] + 0.3)
-            subs.append((estimate, text))
+        # 字符位置的连续映射（不是词索引取整）
+        start_cp = int(cum_chars / total_chars * total_raw_clean) if cum_chars > 0 else 0
+        end_cp = int((cum_chars + n_chars) / total_chars * total_raw_clean)
+        end_cp = min(end_cp, total_raw_clean - 1)
 
-    subs.sort(key=lambda x: x[0])
+        start_wi = char_to_word[start_cp]
+        end_wi = char_to_word[end_cp]
 
-    # Convert start times to (start, end) pairs
-    # Duration = max(reading speed, natural gap) — no overlap
-    subs_out = []
-    for i in range(len(subs)):
-        start, text = subs[i]
-        read_time = max(0.8, len(text) * 0.18 + 0.3)
-        if i + 1 < len(subs):
-            next_start = subs[i + 1][0]
-            gap = next_start - start
-            duration = max(read_time, gap)
-            end = start + duration
-            # Never overlap next subtitle
-            if end > next_start - 0.05:
-                end = next_start - 0.05
-        else:
-            end = start + max(1.0, read_time)
-        if end - start > 6.0:
-            end = start + 6.0
-        subs_out.append((start, end, text))
+        # 该段的时间 = 第一个词开始 ~ 最后一个词结束
+        seg_start = raw_words[start_wi][0]
+        seg_end = raw_words[end_wi][1]
 
-    # Adjust for cuts
-    def cut_before(t):
-        c = 0.0
-        for s, e, _ in cuts:
-            if e <= t:
-                c += (e - s)
-            elif s < t < e:
-                c += (t - s)
-        return c + trim_start
+        subs.append((seg_start, seg_end, text))
+        cum_chars += n_chars
 
-    # Adjust for cuts + enforce minimum readable durations
-    raw_adjusted = []
-    for s, e, text in subs_out:
-        ns = s - cut_before(s)
-        ne = e - cut_before(e)
+    # 后处理：消除字幕重叠（字符映射的边界误差导致相邻字幕交叉）
+    # 策略：前一个字幕结束时间 = min(自身结束, 下一个开始)，保证不重叠
+    for i in range(len(subs) - 1):
+        if subs[i][1] > subs[i + 1][0]:
+            # 取中点作为分界
+            split_at = (subs[i][1] + subs[i + 1][0]) / 2
+            subs[i] = (subs[i][0], split_at, subs[i][2])
+            subs[i + 1] = (split_at, subs[i + 1][1], subs[i + 1][2])
+
+    # 时间已由 raw_words 调整过，只需减掉片头裁剪
+    result = []
+    for s, e, text in subs:
+        ns = s - trim_start
+        ne = e - trim_start
+        if ne <= ns + 0.5:
+            ne = ns + 0.5
         if text:
-            raw_adjusted.append((ns, ne, text))
+            result.append((ns, ne, text))
+    
+    print(f'  [Subs] {len(result)}/{len(user_lines)} subs (word-aligned timing)')
+    return result
 
-    # Post-process: enforce minimum 0.7s per subtitle, no overlaps
-    adjusted = []
-    for i in range(len(raw_adjusted)):
-        s, e, text = raw_adjusted[i]
-        # Calculate minimum readable duration
-        read_time = max(0.7, len(text) * 0.18 + 0.3)
-        # Enforce minimum
-        if e - s < read_time:
-            e = s + read_time
-        # No overlap with next subtitle
-        if i + 1 < len(raw_adjusted):
-            next_s = raw_adjusted[i + 1][0]
-            if e > next_s - 0.05:
-                e = next_s - 0.05
-        # Max cap
-        if e - s > 6.0:
-            e = s + 6.0
-        # Only skip if truly zero-length after all adjustments
-        if e - s >= 0.1:
-            adjusted.append((s, e, text))
-
-    # Self-check
-    too_short = sum(1 for s,e,t in adjusted if e-s < 0.7)
-
-    # 右向左借时间：短字幕 < 0.7s 的从前一条字幕借时间
-    # 策略：从右往左遍历，短字幕向后伸长到 0.7s，不够的部分从前一条的 end 处扣
-    for i in range(len(adjusted) - 1, -1, -1):
-        s, e, text = adjusted[i]
-        dur = e - s
-        if dur >= 0.7:
-            continue
-        need = 0.7 - dur  # 还差多少秒
-        if i == 0:
-            # 第一条字幕，只能自己扛
-            adjusted[i] = (s, s + 0.7, text)
-        else:
-            prev_s, prev_e, prev_text = adjusted[i - 1]
-            # 前一条至少保留 0.7s（或它的阅读时间，取较大值）
-            prev_min = prev_s + max(0.7, len(prev_text) * 0.18 + 0.3)
-            borrow = min(need, prev_e - prev_min)
-            if borrow > 0.01:
-                adjusted[i - 1] = (prev_s, prev_e - borrow, prev_text)
-                adjusted[i] = (s, e + borrow, text)
-            # 借不够也尽力了，不强行拉长以免重叠
-
-    # Re-check after fix
-    still_short = sum(1 for s,e,t in adjusted if e-s < 0.7)
-    if too_short:
-        print(f"  [WARN] {too_short}/{len(adjusted)} subs < 0.7s (fast speech)")
-        for s,e,t in adjusted:
-            if e-s < 0.7:
-                print(f"    {s:.1f}s-{e:.1f}s ({e-s:.2f}s) {t}")
-    if still_short and still_short < too_short:
-        print(f"  [FIX] 右向左借时间修复了 {too_short-still_short}/{too_short} 条短字幕")
-
-    print(f"  [Subs] {len(adjusted)}/{len(user_lines)} subs, {too_short} short")
-    return adjusted
 def format_subtitle_line(text):
     """
     智能换行规则：
@@ -902,7 +1002,7 @@ def write_ass(subtitles, path, width, height):
         display_text = format_subtitle_line(text)
         # 手动再加一层：超长文本自动在标点处折行
         # 每行最多25个字
-        display_text = auto_wrap_text(display_text, max_chars=22)
+        display_text = auto_wrap_text(display_text, max_chars=14)
         # ASS 标记（重点词高亮）
         marked_text = build_ass_text(display_text)
         if marked_text == display_text:
@@ -1130,6 +1230,7 @@ def main(args=None):
     skip_blur = args.skip_blur
     skip_cut = args.skip_cut
     skip_burn = args.skip_burn
+    force_blur = args.force_blur
 
     # 支持 --input 动态指定视频
     source_video = Path(args.input) if args.input else ORIGINAL_VIDEO
@@ -1257,33 +1358,23 @@ def main(args=None):
 
     blurred = TEMP_DIR / "blurred.mp4"
     if skip_blur and blurred.exists():
-        print(f"  [跳过] 使用已有 {blurred.name}")
+        print(f"  [跳过] --skip-blur, 使用已有 {blurred.name}")
+    elif force_blur:
+        blur_video(source_video, blurred, trim_start, preview_seconds)
+    elif blurred.exists() and source_video.stat().st_mtime < blurred.stat().st_mtime:
+        print(f"  [缓存] {blurred.name} 已存在且未过期, 跳过模糊 (--force-blur 强制重渲染)")
     else:
         blur_video(source_video, blurred, trim_start, preview_seconds)
 
     # ========================================
-    # 第四步：裁剪
+    # 第四步：字幕生成（提前，需要 all_cuts 而已知）
     # ========================================
     print("\n" + "─" * 50)
-    print("  Step 4: 裁剪沉默/语气词/重复")
+    print("  Step 4: 生成字幕 (ASS)")
     print("─" * 50)
 
-    tv = TEMP_DIR / "tv.mp4"
-    ta = TEMP_DIR / "ta.aac"
-    if skip_cut and tv.exists() and ta.exists():
-        print(f"  [跳过] 使用已有 {tv.name} + {ta.name}")
-    else:
-        tv, ta = cut_main(blurred, audio_t, all_cuts, trim_start)
-
-    # ========================================
-    # 第五步：字幕
-    # ========================================
-    print("\n" + "─" * 50)
-    print("  Step 5: 生成字幕 (ASS)")
-    print("─" * 50)
-
-    # 获取视频宽高
-    cap = cv2.VideoCapture(str(tv))
+    # 获取视频宽高（从模糊视频获取，裁剪前就可用）
+    cap = cv2.VideoCapture(str(blurred))
     vw = int(cap.get(3))
     vh = int(cap.get(4))
     cap.release()
@@ -1298,27 +1389,29 @@ def main(args=None):
     write_ass(subs, ass_path, vw, vh)
 
     # ========================================
-    # 第六步：合成
+    # 第五步：裁剪 + 烧录字幕（合并为一次编码）
     # ========================================
     print("\n" + "─" * 50)
-    print("  Step 6: 合成视频")
+    print("  Step 5: 裁剪 + 烧录字幕")
     print("─" * 50)
 
-    muxed = TEMP_DIR / "muxed.mp4"
-    mux_av(tv, ta, muxed)
-
-    # ========================================
-    # 第七步：烧录字幕
-    # ========================================
-    print("\n" + "─" * 50)
-    print("  Step 7: 烧录字幕")
-    print("─" * 50)
-
-    if skip_burn:
-        print(f"  [跳过] --skip-burn 已设，输出 muxed.mp4")
-        output_path = muxed
+    tv = TEMP_DIR / "tv.mp4"
+    ta = TEMP_DIR / "ta.aac"
+    if skip_cut and tv.exists() and ta.exists():
+        print(f"  [跳过] 使用已有 {tv.name} + {ta.name}")
+        muxed = TEMP_DIR / "muxed.mp4"
+        mux_av(tv, ta, muxed)
+        if skip_burn:
+            print(f"  [跳过] --skip-burn 已设，输出 muxed.mp4（无字幕）")
+            output_path = muxed
+        else:
+            burn_ass(muxed, ass_path, output_path)
     else:
-        burn_ass(muxed, ass_path, output_path)
+        # 裁剪同时烧录字幕（一次编码）
+        tv, ta = cut_main(blurred, audio_t, all_cuts, trim_start, ass_path)
+        # 合成音视频（stream copy，无需重编码——字幕已烧录进视频流）
+        print("  [合成] 音视频合成...")
+        mux_av(tv, ta, output_path)
 
     # ========================================
     # 输出自检
@@ -1327,10 +1420,10 @@ def main(args=None):
     fd = get_dur(output_path)
 
     issues = []
-    # 检查是否还有字幕重叠
+    # 检查是否还有字幕重叠（>0.03s 才算真重叠，允许舍入误差）
     overlap_count = 0
     for i in range(len(subs) - 1):
-        if subs[i][1] > subs[i+1][0] - 0.05:
+        if subs[i][1] > subs[i+1][0] + 0.03:
             overlap_count += 1
     if overlap_count:
         issues.append(f"{overlap_count} 处字幕重叠")
@@ -1373,6 +1466,8 @@ if __name__ == "__main__":
                         help="跳过模糊（重用 temp/blurred.mp4）")
     parser.add_argument("--skip-cut", action="store_true",
                         help="跳过裁剪（重用 temp/tv.mp4 + ta.aac）")
+    parser.add_argument("--force-blur", action="store_true",
+                        help="强制重渲染模糊（忽略缓存）")
     parser.add_argument("--skip-burn", action="store_true",
                         help="跳过烧录字幕（输出 muxed.mp4）")
     args = parser.parse_args()

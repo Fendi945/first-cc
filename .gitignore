@@ -9,3 +9,8 @@ __pycache__/
 build/
 dai
 wechat_token_cache.json
+flomo_client.json
+flomo_token.json
+flomo_state.json
+test_out.mp4
+test_chinese.png

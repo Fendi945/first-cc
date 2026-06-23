@@ -7,6 +7,7 @@
 
 import json
 import logging
+import threading
 import time
 from datetime import datetime
 from pathlib import Path
@@ -18,6 +19,9 @@ from engine.feishu_client import FeishuClient
 logger = logging.getLogger("feishu_kanban_sync")
 
 STATE_FILE = PROJECT_ROOT / "feishu_kanban_state.json"
+
+# 文件读写锁：防止 sync 和 server API 并发修改 PENDING_FILE
+_file_lock = threading.Lock()
 
 # 字段类型
 FT_TEXT = 1
@@ -206,9 +210,10 @@ class FeishuKanbanSync:
         if not PENDING_FILE.exists():
             return {"updated": 0}
 
-        local_data = json.loads(PENDING_FILE.read_text(encoding="utf-8"))
-        if not isinstance(local_data, list):
-            return {"updated": 0}
+        with _file_lock:
+            local_data = json.loads(PENDING_FILE.read_text(encoding="utf-8"))
+            if not isinstance(local_data, list):
+                return {"updated": 0}
 
         app_token, table_id = self.ensure_bitable()
         record_map = self._state.get("record_map", {})
@@ -251,10 +256,25 @@ class FeishuKanbanSync:
                 logger.info("状态更新 [%s]: %s -> %s", local_id, local_status, feishu_status)
 
         if updated > 0:
-            PENDING_FILE.write_text(
-                json.dumps(local_data, ensure_ascii=False, indent=2),
-                encoding="utf-8",
-            )
+            with _file_lock:
+                # 在写入前重新读取，避免覆盖并发修改
+                try:
+                    latest = json.loads(PENDING_FILE.read_text(encoding="utf-8"))
+                    if isinstance(latest, list):
+                        # 用飞书状态更新 latest 中的数据
+                        latest_by_id = {item.get("id", ""): item for item in latest}
+                        for item in local_data:
+                            lid = item.get("id", "")
+                            if lid in latest_by_id:
+                                latest_by_id[lid].update(item)
+                        local_data = list(latest_by_id.values())
+                except (json.JSONDecodeError, OSError):
+                    pass  # 读取失败就用当前内存数据
+
+                PENDING_FILE.write_text(
+                    json.dumps(local_data, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
             logger.info("本地待审批文件已更新: %d 条", updated)
 
         return {"updated": updated}
@@ -262,9 +282,12 @@ class FeishuKanbanSync:
     # ── 全量双向同步 ──
 
     def sync_all(self) -> dict:
-        """先推本地到飞书，再拉飞书变更回本地。"""
-        push = self.sync_local_to_feishu()
+        """全量双向同步：先拉飞书变更回本地，再推本地数据到飞书。
+
+        先 pull 再 push 的顺序确保飞书端的变更不会被本地推送静默覆盖。
+        """
         pull = self.sync_feishu_to_local()
+        push = self.sync_local_to_feishu()
         return {"push": push, "pull": pull}
 
     # ── 状态查询 ──

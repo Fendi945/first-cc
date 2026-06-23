@@ -18,8 +18,9 @@ else:
     EXE_DIR = Path(__file__).resolve().parent.parent
     BUNDLE_DIR = EXE_DIR
 
+# 推导项目根目录（frozen 时用 EXE 所在目录）
+PROJECT_ROOT = EXE_DIR
 BUNDLED_DASHBOARD = BUNDLE_DIR / "dashboard"
-PROJECT_ROOT = Path(r"C:\Users\Administrator\Documents\trae_projects\first cc")
 TARGET_DASHBOARD = PROJECT_ROOT / "dashboard"
 
 PORT = 8765
@@ -67,21 +68,31 @@ def open_browser_later():
     print(f"  [Browser] Opening: {url}")
     # Edge App 模式 → 无地址栏，像桌面程序
     import subprocess
-    edge_paths = [
+
+    # 优先用 shutil.which 查找 Edge，兼容任意安装路径
+    edge = shutil.which("msedge")
+    if edge:
+        try:
+            subprocess.Popen([edge, "--app=" + url], shell=False)
+            return
+        except Exception:
+            pass
+
+    # 回退：常见安装路径
+    fallback_paths = [
         r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
         r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
     ]
-    opened = False
-    for edge in edge_paths:
-        if Path(edge).exists():
+    for fp in fallback_paths:
+        if Path(fp).exists():
             try:
-                subprocess.Popen([edge, "--app=" + url], shell=False)
-                opened = True
-                break
+                subprocess.Popen([fp, "--app=" + url], shell=False)
+                return
             except Exception:
                 continue
-    if not opened:
-        webbrowser.open(url)
+
+    # 最终回退：系统默认浏览器
+    webbrowser.open(url)
 
 
 def main():

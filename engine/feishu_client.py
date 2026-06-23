@@ -73,34 +73,160 @@ class FeishuClient:
     # ── 通用请求封装 ──
 
     def _request(self, method: str, path: str, **kwargs) -> dict:
-        """带 token 自动刷新的 API 请求。"""
-        token = self.get_tenant_access_token()
-        headers = kwargs.pop("headers", {})
-        headers["Authorization"] = f"Bearer {token}"
-        headers["Content-Type"] = "application/json; charset=utf-8"
+        """带 token 自动刷新和指数退避重试的 API 请求。
 
-        url = f"{BASE_URL}{path}"
-        try:
-            resp = requests.request(method, url, headers=headers, timeout=kwargs.pop("timeout", 30), **kwargs)
-            resp.raise_for_status()
-            data = resp.json()
+        自动处理：
+        - 401 → 清理 token，刷新后重试
+        - 429 → 限流退避重试
+        - 5xx → 服务端错误退避重试
+        """
+        max_retries = kwargs.pop("max_retries", 3)
+        timeout = kwargs.pop("timeout", 30)
+        given_headers = kwargs.pop("headers", {})
 
-            if data.get("code") != 0:
+        last_error: Optional[Exception] = None
+        for attempt in range(max_retries):
+            token = self.get_tenant_access_token()
+
+            headers = dict(given_headers)
+            headers["Authorization"] = f"Bearer {token}"
+            headers["Content-Type"] = "application/json; charset=utf-8"
+
+            url = f"{BASE_URL}{path}"
+            try:
+                resp = requests.request(method, url, headers=headers, timeout=timeout, **kwargs)
+
+                # 401 — token 过期，清理缓存并刷新重试（仅一次）
+                if resp.status_code == 401:
+                    old_token = self._token
+                    self._token = None  # 清理过期 token
+                    if attempt == 0:
+                        logger.warning("飞书 token 过期 [%s]，刷新后重试", path)
+                        # 强制刷新 token（get_tenant_access_token 会重新请求）
+                        continue
+                    # 二次尝试仍 401，说明凭证本身有问题
+                    self._token = old_token  # 保留现场以便排查
+                    raise RuntimeError(
+                        f"飞书认证失败 [{path}]: 401 Unauthorized（刷新 token 后仍失败）"
+                    )
+
+                resp.raise_for_status()
+                data = resp.json()
+
+                # 业务错误码 — token invalid / expired
+                if data.get("code") in (99991663, 99991668):
+                    self._token = None
+                    if attempt == 0:
+                        logger.warning("飞书 token 无效 [%s]，刷新后重试", path)
+                        continue
+                    raise RuntimeError(
+                        f"飞书 token 无效 [{path}]: {data.get('msg', '')} "
+                        f"(code={data.get('code')})"
+                    )
+
+                if data.get("code") != 0:
+                    raise RuntimeError(
+                        f"飞书 API 错误 [{path}]: {data.get('msg', '未知错误')} "
+                        f"(code={data.get('code')})"
+                    )
+
+                return data
+
+            except requests.HTTPError as e:
+                status = e.response.status_code if e.response else 0
+
+                # 429 — API 限流，指数退避
+                if status == 429:
+                    if attempt < max_retries - 1:
+                        wait = 2 ** attempt + attempt * 0.5
+                        logger.warning(
+                            "飞书 API 限流 [%s]，%.1fs 后重试 (%d/%d)",
+                            path, wait, attempt + 1, max_retries,
+                        )
+                        time.sleep(wait)
+                        last_error = e
+                        continue
+                    raise RuntimeError(
+                        f"飞书 API 限流 [{path}]: 重试 {max_retries} 次后仍被限流"
+                    )
+
+                # 5xx — 服务端临时错误，可重试
+                if status >= 500:
+                    if attempt < max_retries - 1:
+                        wait = 2 ** attempt + attempt * 0.5
+                        logger.warning(
+                            "飞书服务端错误 [%s] HTTP %d，%.1fs 后重试 (%d/%d)",
+                            path, status, wait, attempt + 1, max_retries,
+                        )
+                        time.sleep(wait)
+                        last_error = e
+                        continue
+                    raise RuntimeError(
+                        f"飞书 API 服务端错误 [{path}]: HTTP {status}"
+                    )
+
+                raise RuntimeError(f"飞书 API 请求失败 [{path}]: {e}")
+
+            except requests.RequestException as e:
+                # 网络层错误（超时、连接重置等），可重试
+                if attempt < max_retries - 1:
+                    wait = 2 ** attempt + attempt * 0.5
+                    logger.warning(
+                        "飞书网络错误 [%s]，%.1fs 后重试 (%d/%d)",
+                        path, wait, attempt + 1, max_retries,
+                    )
+                    time.sleep(wait)
+                    last_error = e
+                    continue
                 raise RuntimeError(
-                    f"飞书 API 错误 [{path}]: {data.get('msg', '未知错误')} "
-                    f"(code={data.get('code')})"
+                    f"飞书 API 请求失败 [{path}]: 重试 {max_retries} 次后仍失败: {last_error}"
                 )
 
-            return data
-
-        except requests.RequestException as e:
-            raise RuntimeError(f"飞书 API 请求失败 [{path}]: {e}")
+        raise RuntimeError(f"飞书 API 请求失败 [{path}]: 意外错误")
 
     def _get(self, path: str, **kwargs) -> dict:
         return self._request("GET", path, **kwargs)
 
     def _post(self, path: str, **kwargs) -> dict:
         return self._request("POST", path, **kwargs)
+
+    # ── 多维表格字段 API ──
+
+    def list_fields(self, app_token: str, table_id: str) -> list:
+        """列出指定多维表格的所有字段定义。
+
+        参数:
+            app_token: 多维表格 app token
+            table_id: 数据表 ID
+
+        返回:
+            字段定义列表 [{field_id, field_name, type, ...}]
+        """
+        path = f"/bitable/v1/apps/{app_token}/tables/{table_id}/fields"
+        data = self._get(path)
+        return data.get("data", {}).get("items", [])
+
+    def create_field(self, app_token: str, table_id: str,
+                     field_name: str, field_type: int,
+                     property: Optional[dict] = None) -> dict:
+        """在多维表格中创建一个新字段。
+
+        参数:
+            app_token: 多维表格 app token
+            table_id: 数据表 ID
+            field_name: 字段名称
+            field_type: 字段类型
+            property: 字段属性（如选项列表）
+
+        返回:
+            创建结果
+        """
+        path = f"/bitable/v1/apps/{app_token}/tables/{table_id}/fields"
+        payload = {"field_name": field_name, "type": field_type}
+        if property:
+            payload["property"] = property
+        data = self._post(path, json=payload)
+        return data.get("data", {})
 
     # ── 文档 API（docx） ──
 

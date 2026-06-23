@@ -64,6 +64,7 @@ BITABLE_DEFS = {
             }
         ],
         "source_dirs": ["🍎 成品区/发布物"],
+        "title_field": "标题",
     },
     "口播文档": {
         "description": "口播稿与视频脚本",
@@ -85,6 +86,7 @@ BITABLE_DEFS = {
             }
         ],
         "source_dirs": ["🌿 加工间/常驻", "🌿 加工间/视频脚本"],
+        "title_field": "标题",
     },
     "公众号&视频号数据": {
         "description": "各平台数据变化记录",
@@ -106,6 +108,7 @@ BITABLE_DEFS = {
             }
         ],
         "source_dirs": [],  # 手动录入，无本地源
+        "title_field": "作品标题",
     },
 }
 
@@ -212,23 +215,24 @@ class FeishuBitableSync:
 
     def _ensure_fields(self, app_token: str, table_id: str, required_fields: list[dict]):
         """确保表格包含指定的字段，缺失的自动创建。"""
-        path = f"/bitable/v1/apps/{app_token}/tables/{table_id}/fields"
-        existing = self._client._get(path)
-        existing_fields = {f.get("field_name", ""): f for f in existing.get("data", {}).get("items", [])}
+        try:
+            existing_fields_list = self._client.list_fields(app_token, table_id)
+        except RuntimeError as e:
+            logger.warning("获取已有字段列表失败: %s", e)
+            return
+        existing_fields = {f.get("field_name", ""): f for f in existing_fields_list}
 
         for field_def in required_fields:
             fname = field_def["field_name"]
             if fname in existing_fields:
                 continue
             try:
-                path = f"/bitable/v1/apps/{app_token}/tables/{table_id}/fields"
-                payload = {
-                    "field_name": fname,
-                    "type": field_def["type"],
-                }
-                if "property" in field_def:
-                    payload["property"] = field_def["property"]
-                self._client._post(path, json=payload)
+                self._client.create_field(
+                    app_token, table_id,
+                    field_name=fname,
+                    field_type=field_def["type"],
+                    property=field_def.get("property"),
+                )
                 logger.info("  创建字段: %s (type=%d)", fname, field_def["type"])
             except RuntimeError as e:
                 logger.warning("  创建字段失败 %s: %s", fname, e)
@@ -301,14 +305,16 @@ class FeishuBitableSync:
 
         # 获取已有记录（按标题去重）
         existing = self._client.list_bitable_records(app_token, table_id, page_size=500)
+        title_field = bitable_def.get("title_field", "标题")
         existing_titles = set()
         for rec in existing:
             fields = rec.get("fields", {})
-            title = fields.get("标题", "") or fields.get("作品标题", "")
+            title = fields.get(title_field, "")
             if title:
                 existing_titles.add(title)
 
         count = 0
+        uploaded_files = self._state.setdefault("uploaded_files", {})
 
         for f in files:
             if f["title"] in existing_titles:
@@ -317,7 +323,7 @@ class FeishuBitableSync:
 
             # 构建字段
             fields = {
-                "标题": f["title"],
+                title_field: f["title"],
                 "正文": f["full_content"],
                 "内容摘要": f["content_preview"],
                 "最后修改时间": _to_ts(f["modified_at"]),
@@ -346,20 +352,28 @@ class FeishuBitableSync:
                     fields["来源目录"] = "视频脚本"
                     fields["状态"] = "草稿"
 
-            # 上传文件到飞书文件夹（仅首次）
-            try:
-                abs_path = self._vault / f["file_path"]
-                if abs_path.exists() and self.FOLDER_TOKEN:
+            # 上传文件到飞书文件夹（仅首次，去重）
+            abs_path = self._vault / f["file_path"]
+            abs_path_str = str(abs_path).replace("\\", "/")
+            existing_token = uploaded_files.get(abs_path_str)
+            if existing_token:
+                fields["飞书链接"] = (
+                    f"https://bcn9k7tysatb.feishu.cn/drive/file/{existing_token}"
+                )
+                logger.debug("  复用已有上传: %s", f["title"])
+            elif abs_path.exists() and self.FOLDER_TOKEN:
+                try:
                     upload_result = self._client.upload_file(
                         str(abs_path), self.FOLDER_TOKEN
                     )
                     file_token = upload_result.get("data", {}).get("file_token", "")
                     if file_token:
-                        feishu_url = f"https://bcn9k7tysatb.feishu.cn/drive/file/{file_token}"
-                        fields["飞书链接"] = feishu_url
-                        logger.info("  上传成功: %s", feishu_url)
-            except (RuntimeError, OSError, IndexError) as e:
-                logger.warning("  上传失败 %s: %s", f["title"], e)
+                        uploaded_files[abs_path_str] = file_token
+                        fields["飞书链接"] = f"https://bcn9k7tysatb.feishu.cn/drive/file/{file_token}"
+                        logger.info("  上传成功: %s", f["title"])
+                        self._save_state()  # 记录已上传的 token
+                except (RuntimeError, OSError, IndexError) as e:
+                    logger.warning("  上传失败 %s: %s", f["title"], e)
 
             try:
                 self._client.create_bitable_record(app_token, table_id, fields)
