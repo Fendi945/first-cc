@@ -26,6 +26,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from engine.config import PENDING_FILE, APPROVED_FILE, DAILY_INPUT_DIR
 from engine.flomo_sync import FlomoSync
 from engine.feishu_sync import FeishuSync
+from engine.feishu_bitable_sync import FeishuBitableSync
 from vault_bridge.vault_utils import read_json, write_json
 
 HOST = "127.0.0.1"
@@ -144,6 +145,12 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 self._send_json({"running": False, "error": "Feishu sync not initialized"})
 
+        elif path == "/api/feishu/bitable/status":
+            if hasattr(self.server, "feishu_bitable"):
+                self._send_json(self.server.feishu_bitable.get_status())
+            else:
+                self._send_json({"error": "Feishu bitable not initialized"})
+
         else:
             # 非 API 请求：当作静态文件处理
             super().do_GET()
@@ -237,6 +244,45 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 self._send_json({"ok": False, "error": str(e)}, 500)
 
+        elif parsed.path == "/api/feishu/bitable/sync":
+            try:
+                if hasattr(self.server, "feishu_bitable"):
+                    results = self.server.feishu_bitable.sync_all()
+                    self._send_json({"ok": True, "results": results})
+                else:
+                    self._send_json({"ok": False, "error": "Feishu bitable not initialized"}, 500)
+            except Exception as e:
+                self._send_json({"ok": False, "error": str(e)}, 500)
+
+        elif parsed.path == "/api/feishu/bitable/record":
+            try:
+                body = self._read_body()
+                payload = json.loads(body) if body else {}
+                required = ["platform", "title"]
+                for r in required:
+                    if r not in payload:
+                        self._send_json({"ok": False, "error": f"缺少必填字段: {r}"}, 400)
+                        return
+                if hasattr(self.server, "feishu_bitable"):
+                    record = self.server.feishu_bitable.add_data_record(
+                        platform=payload["platform"],
+                        title=payload["title"],
+                        views=payload.get("views", 0),
+                        likes=payload.get("likes", 0),
+                        comments=payload.get("comments", 0),
+                        shares=payload.get("shares", 0),
+                        new_followers=payload.get("new_followers", 0),
+                        notes=payload.get("notes", ""),
+                        record_date=payload.get("record_date"),
+                    )
+                    self._send_json({"ok": True, "record": record})
+                else:
+                    self._send_json({"ok": False, "error": "Feishu bitable not initialized"}, 500)
+            except json.JSONDecodeError as e:
+                self._send_json({"ok": False, "error": f"JSON 解析错误: {e}"}, 400)
+            except Exception as e:
+                self._send_json({"ok": False, "error": str(e)}, 500)
+
         else:
             self._send_json({"ok": False, "error": "Not Found"}, 404)
 
@@ -268,6 +314,9 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
     if feishu_sync.check_connection():
         feishu_sync.start_scheduler()
     server.feishu_sync = feishu_sync
+
+    # -- 初始化飞书多维表格同步 --
+    server.feishu_bitable = FeishuBitableSync()
 
     url = f"http://{HOST}:{port}/dashboard/"
 

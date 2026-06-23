@@ -118,6 +118,38 @@ class FeishuClient:
 
     # ── 多维表格 API（bitable） ──
 
+    def create_bitable(self, name: str) -> dict:
+        """创建一个新的多维表格。
+
+        参数:
+            name: 多维表格名称
+
+        返回:
+            创建结果，包含 app_token
+        """
+        path = "/bitable/v1/apps"
+        payload = {"name": name}
+        data = self._post(path, json=payload)
+        app_data = data.get("data", {}).get("app", {})
+        return {
+            "app_token": app_data.get("app_token", ""),
+            "url": app_data.get("url", ""),
+            "default_table_id": app_data.get("default_table_id", ""),
+        }
+
+    def list_tables(self, app_token: str) -> list:
+        """列出多维表格中的所有数据表。
+
+        参数:
+            app_token: 多维表格 app token
+
+        返回:
+            数据表列表
+        """
+        path = f"/bitable/v1/apps/{app_token}/tables"
+        data = self._get(path)
+        return data.get("data", {}).get("items", [])
+
     def list_bitable_records(self, app_token: str, table_id: str, page_size: int = 500) -> list:
         """列出多维表格的所有记录。
 
