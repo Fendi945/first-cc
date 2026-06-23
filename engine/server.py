@@ -25,6 +25,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from engine.config import PENDING_FILE, APPROVED_FILE, DAILY_INPUT_DIR
 from engine.flomo_sync import FlomoSync
+from engine.feishu_sync import FeishuSync
 from vault_bridge.vault_utils import read_json, write_json
 
 HOST = "127.0.0.1"
@@ -137,6 +138,12 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 self._send_json({"running": False, "error": "Flomo sync not initialized"})
 
+        elif path == "/api/feishu/status":
+            if hasattr(self.server, "feishu_sync") and self.server.feishu_sync:
+                self._send_json(self.server.feishu_sync.get_status())
+            else:
+                self._send_json({"running": False, "error": "Feishu sync not initialized"})
+
         else:
             # 非 API 请求：当作静态文件处理
             super().do_GET()
@@ -220,6 +227,16 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 self._send_json({"ok": False, "error": str(e)}, 500)
 
+        elif parsed.path == "/api/feishu/sync":
+            try:
+                if hasattr(self.server, "feishu_sync") and self.server.feishu_sync:
+                    count = self.server.feishu_sync.sync_once()
+                    self._send_json({"ok": True, "synced": count})
+                else:
+                    self._send_json({"ok": False, "error": "Feishu sync not initialized"}, 500)
+            except Exception as e:
+                self._send_json({"ok": False, "error": str(e)}, 500)
+
         else:
             self._send_json({"ok": False, "error": "Not Found"}, 404)
 
@@ -245,6 +262,12 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
     flomo_sync = FlomoSync()
     flomo_sync.start_scheduler()
     server.flomo_sync = flomo_sync
+
+    # -- 初始化飞书同步 --
+    feishu_sync = FeishuSync()
+    if feishu_sync.check_connection():
+        feishu_sync.start_scheduler()
+    server.feishu_sync = feishu_sync
 
     url = f"http://{HOST}:{port}/dashboard/"
 

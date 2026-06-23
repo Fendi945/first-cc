@@ -41,3 +41,8 @@ if not DEEPSEEK_API_KEY:
 # ── Flomo API ──────────────────────────────────────
 FLOMO_API_KEY = os.getenv("FLOMO_API_KEY", "")
 FLOMO_SYNC_INTERVAL = int(os.getenv("FLOMO_SYNC_INTERVAL", "1800"))  # 秒，默认30分钟
+
+# ── 飞书 API ──────────────────────────────────────
+FEISHU_APP_ID = os.getenv("FEISHU_APP_ID", "")
+FEISHU_APP_SECRET = os.getenv("FEISHU_APP_SECRET", "")
+FEISHU_SYNC_INTERVAL = int(os.getenv("FEISHU_SYNC_INTERVAL", "1800"))  # 秒，默认30分钟
