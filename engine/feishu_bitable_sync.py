@@ -52,11 +52,13 @@ BITABLE_DEFS = {
                 "name": "发布物清单",
                 "fields": [
                     {"field_name": "标题", "type": FT_TEXT},
+                    {"field_name": "正文", "type": FT_TEXT},
                     {"field_name": "分类", "type": FT_SELECT, "property": {"options": [{"name": "口播"}, {"name": "渔樵问对"}, {"name": "其他"}]}},
                     {"field_name": "状态", "type": FT_SELECT, "property": {"options": [{"name": "已发布"}, {"name": "待发布"}]}},
                     {"field_name": "最后修改时间", "type": FT_DATETIME},
                     {"field_name": "内容摘要", "type": FT_TEXT},
                     {"field_name": "文件路径", "type": FT_TEXT},
+                    {"field_name": "飞书链接", "type": FT_TEXT},
                     {"field_name": "同步时间", "type": FT_DATETIME},
                 ],
             }
@@ -70,12 +72,14 @@ BITABLE_DEFS = {
                 "name": "口播清单",
                 "fields": [
                     {"field_name": "标题", "type": FT_TEXT},
+                    {"field_name": "正文", "type": FT_TEXT},
                     {"field_name": "状态", "type": FT_SELECT, "property": {"options": [{"name": "草稿"}, {"name": "常驻"}, {"name": "已发布"}]}},
                     {"field_name": "创建时间", "type": FT_DATETIME},
                     {"field_name": "最后修改时间", "type": FT_DATETIME},
                     {"field_name": "内容摘要", "type": FT_TEXT},
                     {"field_name": "文件路径", "type": FT_TEXT},
                     {"field_name": "来源目录", "type": FT_SELECT, "property": {"options": [{"name": "常驻"}, {"name": "视频脚本"}, {"name": "文章草稿"}]}},
+                    {"field_name": "飞书链接", "type": FT_TEXT},
                     {"field_name": "同步时间", "type": FT_DATETIME},
                 ],
             }
@@ -116,13 +120,19 @@ class FeishuBitableSync:
 
     # ── 状态持久化 ──
 
+    FOLDER_TOKEN = "OZd2fPVISlWONpdIJjBceBeWnxQ"  # 视频号口播文案文件夹
+
     def _load_state(self) -> dict:
         if STATE_FILE.exists():
             try:
-                return json.loads(STATE_FILE.read_text(encoding="utf-8"))
+                saved = json.loads(STATE_FILE.read_text(encoding="utf-8"))
+                # 确保有 folder_token
+                if "folder_token" not in saved:
+                    saved["folder_token"] = self.FOLDER_TOKEN
+                return saved
             except (json.JSONDecodeError, OSError) as e:
                 logger.warning("读取飞书表格状态失败: %s", e)
-        return {"bitables": {}}  # { bitable_name: { "app_token": "...", "table_map": { "表名": "table_id" } } }
+        return {"bitables": {}, "folder_token": self.FOLDER_TOKEN}
 
     def _save_state(self):
         try:
@@ -144,7 +154,17 @@ class FeishuBitableSync:
         # 检查是否已记录
         existing = self._state.get("bitables", {}).get(name)
         if existing:
-            return existing["app_token"], existing["table_map"]
+            app_token = existing["app_token"]
+            table_map = existing["table_map"]
+            # 对已有表格也确保字段存在（适配新增字段）
+            bitable_def = BITABLE_DEFS.get(name)
+            if bitable_def:
+                for table_def in bitable_def.get("tables", []):
+                    tname = table_def["name"]
+                    table_id = table_map.get(tname)
+                    if table_id:
+                        self._ensure_fields(app_token, table_id, table_def["fields"])
+            return app_token, table_map
 
         # 创建多维表格
         logger.info("创建多维表格: %s", name)
@@ -298,7 +318,7 @@ class FeishuBitableSync:
             # 构建字段
             fields = {
                 "标题": f["title"],
-                "文件路径": f["file_path"],
+                "正文": f["full_content"],
                 "内容摘要": f["content_preview"],
                 "最后修改时间": _to_ts(f["modified_at"]),
                 "同步时间": _now_ts(),
@@ -306,6 +326,7 @@ class FeishuBitableSync:
 
             # 自动分类（针对成品区发布物）
             if bitable_name == "成品区发布物":
+                fields["文件路径"] = f["file_path"]
                 if "口播" in f["title"]:
                     fields["分类"] = "口播"
                 elif "渔樵" in f["title"]:
@@ -317,13 +338,28 @@ class FeishuBitableSync:
             # 针对口播文档
             if bitable_name == "口播文档":
                 fields["创建时间"] = _to_ts(f["modified_at"])
-                # 判断来源目录
+                fields["文件路径"] = f["file_path"]
                 if "常驻" in f["file_path"]:
                     fields["来源目录"] = "常驻"
                     fields["状态"] = "常驻"
                 elif "视频脚本" in f["file_path"]:
                     fields["来源目录"] = "视频脚本"
                     fields["状态"] = "草稿"
+
+            # 上传文件到飞书文件夹（仅首次）
+            try:
+                abs_path = self._vault / f["file_path"]
+                if abs_path.exists() and self.FOLDER_TOKEN:
+                    upload_result = self._client.upload_file(
+                        str(abs_path), self.FOLDER_TOKEN
+                    )
+                    file_token = upload_result.get("data", {}).get("file_token", "")
+                    if file_token:
+                        feishu_url = f"https://bcn9k7tysatb.feishu.cn/drive/file/{file_token}"
+                        fields["飞书链接"] = feishu_url
+                        logger.info("  上传成功: %s", feishu_url)
+            except (RuntimeError, OSError, IndexError) as e:
+                logger.warning("  上传失败 %s: %s", f["title"], e)
 
             try:
                 self._client.create_bitable_record(app_token, table_id, fields)

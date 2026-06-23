@@ -198,6 +198,21 @@ class FeishuClient:
 
     # ── 云空间 API（drive） ──
 
+    def create_folder(self, name: str, folder_token: str = "") -> dict:
+        """在飞书云空间创建文件夹。
+
+        参数:
+            name: 文件夹名称
+            folder_token: 父文件夹 token，空字符串表示根目录
+
+        返回:
+            {token, url, name, ...}
+        """
+        path = "/drive/v1/files/create_folder"
+        payload = {"name": name, "folder_token": folder_token}
+        data = self._post(path, json=payload)
+        return data.get("data", {})
+
     def upload_file(self, file_path: str, parent_node: str, parent_type: str = "explorer") -> dict:
         """上传文件到飞书云空间。
 
