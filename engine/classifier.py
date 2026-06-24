@@ -1,10 +1,17 @@
 """AI 分类引擎——调用 DeepSeek API 做四层分类 + 产出标签。"""
 
-import requests
+import hashlib
 import json
+import time
+
+import requests
 
 from engine.config import DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL, DEEPSEEK_MODEL
 from engine.retry_utils import retry_with_backoff
+
+# ── 防抖缓存（相同输入短时间内不走 API） ──────────
+_CLASSIFY_CACHE: dict[str, tuple[float, dict]] = {}
+_CACHE_TTL = 300  # 秒（5 分钟）
 
 SYSTEM_PROMPT = """你是一个笔记分类助手。分析用户输入的每一段内容，按「元演心智」系统做两层判断：
 
@@ -100,6 +107,12 @@ def classify_text(text: str) -> dict:
             "error_type": "empty",
         }
 
+    # 防抖缓存：相同内容短时间内不走 API
+    cache_key = hashlib.md5(text.encode("utf-8")).hexdigest()
+    cached = _CLASSIFY_CACHE.get(cache_key)
+    if cached and time.time() - cached[0] < _CACHE_TTL:
+        return cached[1]
+
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": f"请对以下内容做分类：\n\n{text}"},
@@ -151,9 +164,11 @@ def classify_text(text: str) -> dict:
             "error_type": "parse",
         }
 
-    return {
+    result = {
         "ok": True,
         "segments": segments,
         "error": None,
         "error_type": None,
     }
+    _CLASSIFY_CACHE[cache_key] = (time.time(), result)
+    return result

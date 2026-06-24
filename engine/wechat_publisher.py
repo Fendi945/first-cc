@@ -8,16 +8,16 @@
   2. 创建草稿 POST /cgi-bin/draft/add
 """
 
-import os
 import json
 import time
 import requests
 from pathlib import Path
+from engine.config import WECHAT_APP_ID, WECHAT_APP_SECRET
 from engine.retry_utils import retry_with_backoff
 
 # ── 凭证 ──────────────────────────────────────────
-APP_ID = os.getenv("WECHAT_APP_ID", "")
-APP_SECRET = os.getenv("WECHAT_APP_SECRET", "")
+APP_ID = WECHAT_APP_ID
+APP_SECRET = WECHAT_APP_SECRET
 TOKEN_FILE = Path(__file__).resolve().parent.parent / "wechat_token_cache.json"
 
 # Token 缓存

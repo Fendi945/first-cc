@@ -7,10 +7,8 @@ from dotenv import load_dotenv
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
-# ── vault 路径 ─────────────────────────────────────
+# ── vault 路径（延迟验证 — import 时不检查，避免非 vault 模块启动失败） ──
 VAULT_PATH = Path(os.getenv("VAULT_PATH", ""))
-if not VAULT_PATH.exists():
-    raise FileNotFoundError(f"VAULT_PATH 不存在: {VAULT_PATH}")
 
 # 目录常量（基于 vault 路径的相对路径）
 DAILY_INPUT_DIR = VAULT_PATH / "🌱 原料库" / "日输入"
@@ -22,10 +20,14 @@ RULE_DIR = VAULT_PATH / "🍎 成品区" / "规范"
 PROCESSING_DIR = VAULT_PATH / "🌿 加工间"
 ISSUE_DIR = VAULT_PATH / "⚙️ 反哺弧" / "📓 问题库"
 
-# 关键 JSON 文件
+# 机器数据存放目录（项目内，不塞进 Obsidian vault）
+DATA_DIR = PROJECT_ROOT / "engine" / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+# 关键 JSON 文件（人类相关的留在 vault，机器相关的放 DATA_DIR）
 PENDING_FILE = KANBAN_DIR / "待审批.json"
-APPROVED_FILE = KANBAN_DIR / "审批日志.json"
-CLASSIFY_LOG = KANBAN_DIR / "分类日志.json"
+APPROVED_FILE = DATA_DIR / "审批日志.json"
+CLASSIFY_LOG = DATA_DIR / "分类日志.json"
 
 # ── DeepSeek API ──────────────────────────────────
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
@@ -46,3 +48,7 @@ FLOMO_SYNC_INTERVAL = int(os.getenv("FLOMO_SYNC_INTERVAL", "1800"))  # 秒，默
 FEISHU_APP_ID = os.getenv("FEISHU_APP_ID", "")
 FEISHU_APP_SECRET = os.getenv("FEISHU_APP_SECRET", "")
 FEISHU_SYNC_INTERVAL = int(os.getenv("FEISHU_SYNC_INTERVAL", "1800"))  # 秒，默认30分钟
+
+# ── 微信（公众号）API ─────────────────────────────
+WECHAT_APP_ID = os.getenv("WECHAT_APP_ID", "")
+WECHAT_APP_SECRET = os.getenv("WECHAT_APP_SECRET", "")
