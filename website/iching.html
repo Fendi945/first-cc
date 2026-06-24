@@ -1,0 +1,2424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>易经的二进制算法 — 六十四卦完整推演</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    color: #e0d8c8;
+    font-family: 'Noto Sans SC', sans-serif;
+    line-height: 1.8;
+    overflow-x: hidden;
+  }
+
+  /* ===== Scrollbar ===== */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #0a0a0f; }
+  ::-webkit-scrollbar-thumb { background: #8b7355; border-radius: 4px; }
+
+  /* ===== Hero ===== */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    background: radial-gradient(ellipse at center, #1a1410 0%, #0a0a0f 70%);
+  }
+  .hero::before {
+    content: '⚊ ⚋ ⚊ ⚋ ⚊ ⚋ ⚊ ⚋ ⚊ ⚋ ⚊ ⚋ ⚊ ⚋ ⚊ ⚋ ⚊ ⚋';
+    position: absolute;
+    top: 2rem;
+    letter-spacing: 1rem;
+    font-size: 1.2rem;
+    color: #8b735544;
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '⚋ ⚊ ⚋ ⚊ ⚋ ⚊ ⚋ ⚊ ⚋ ⚊ ⚋ ⚊ ⚋ ⚊ ⚋ ⚊ ⚋ ⚊';
+    position: absolute;
+    bottom: 2rem;
+    letter-spacing: 1rem;
+    font-size: 1.2rem;
+    color: #8b735544;
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+  }
+  .hero h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, #f0d68a, #d4a055, #f0d68a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    letter-spacing: 0.15em;
+  }
+  .hero .subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.6rem);
+    color: #b8aa8a;
+    font-weight: 300;
+    letter-spacing: 0.5em;
+    margin-bottom: 2rem;
+  }
+  .hero .insight {
+    max-width: 720px;
+    color: #8b7a6a;
+    font-size: 1rem;
+    line-height: 2;
+    border-top: 1px solid #8b735544;
+    border-bottom: 1px solid #8b735544;
+    padding: 1.5rem 2rem;
+    margin-top: 1rem;
+  }
+  .hero .insight strong { color: #d4a055; }
+  .scroll-hint {
+    position: absolute;
+    bottom: 3rem;
+    animation: bounce 2s infinite;
+    color: #8b7355;
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+  }
+
+  /* ===== Container ===== */
+  .section { max-width: 1100px; margin: 0 auto; padding: 4rem 2rem; }
+  .section-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 700;
+    color: #f0d68a;
+    margin-bottom: 0.5rem;
+    position: relative;
+    padding-left: 1.2rem;
+  }
+  .section-title::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: #d4a055;
+  }
+  .section-sub {
+    color: #8b7a6a;
+    margin-bottom: 2.5rem;
+    padding-left: 1.2rem;
+    font-size: 0.95rem;
+  }
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #8b735544, #8b7355, #8b735544, transparent);
+    margin: 0 2rem;
+  }
+
+  /* ===== Trigrams Table ===== */
+  .trigram-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.2rem;
+    margin: 2rem 0;
+  }
+  .trigram-card {
+    background: linear-gradient(145deg, #12111a, #1a1620);
+    border: 1px solid #2a2530;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+  .trigram-card:hover {
+    border-color: #d4a05566;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(212,160,85,0.1);
+  }
+  .trigram-card .symbol {
+    font-size: 2.8rem;
+    color: #d4a055;
+    margin-bottom: 0.3rem;
+  }
+  .trigram-card .name {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #f0d68a;
+  }
+  .trigram-card .element {
+    color: #8b7a6a;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  .trigram-card .lines {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin: 0.6rem 0;
+  }
+  .trigram-card .bits {
+    color: #6a6a7a;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+  }
+  .trigram-card .bits .bit-val {
+    display: inline-block;
+    margin: 0 2px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 700;
+  }
+  .trigram-card .bits .bit-0 { background: #1a2a1a; color: #66bb6a; }
+  .trigram-card .bits .bit-1 { background: #2a1a1a; color: #ef5350; }
+  .trigram-card .decimal {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #d4a055;
+    margin-top: 0.4rem;
+  }
+  .trigram-card .decimal small {
+    font-size: 0.75rem;
+    color: #6a6a7a;
+    font-weight: 400;
+  }
+
+  .line-solid {
+    width: 60px;
+    height: 6px;
+    background: #d4a055;
+    border-radius: 3px;
+  }
+  .line-broken {
+    width: 60px;
+    height: 6px;
+    display: flex;
+    gap: 12px;
+  }
+  .line-broken::before, .line-broken::after {
+    content: '';
+    flex: 1;
+    height: 100%;
+    background: #d4a055;
+    border-radius: 3px;
+  }
+
+  /* ===== Note Box ===== */
+  .note-box {
+    background: #1a1420;
+    border-left: 3px solid #d4a055;
+    padding: 1.2rem 1.5rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+    color: #b8aa8a;
+  }
+  .note-box .error {
+    color: #ef5350;
+    font-weight: 700;
+  }
+  .note-box .correct {
+    color: #66bb6a;
+    font-weight: 700;
+  }
+  .note-box strong { color: #f0d68a; }
+
+  /* ===== Formula Display ===== */
+  .formula-box {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem 3rem;
+    margin: 2.5rem 0;
+    padding: 2rem;
+    background: linear-gradient(135deg, #12111a, #0f0e15);
+    border: 1px solid #2a2530;
+    border-radius: 12px;
+  }
+  .formula-item {
+    text-align: center;
+  }
+  .formula-item .expr {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.8rem;
+    color: #f0d68a;
+    font-weight: 700;
+  }
+  .formula-item .label {
+    font-size: 0.85rem;
+    color: #6a6a7a;
+    margin-top: 0.3rem;
+  }
+
+  /* ===== 64 Hexagrams Grid ===== */
+  .hex-grid-wrapper {
+    overflow-x: auto;
+    margin: 2rem 0;
+    border: 1px solid #2a2530;
+    border-radius: 12px;
+    background: #0d0c12;
+  }
+  .hex-grid {
+    display: grid;
+    grid-template-columns: 50px repeat(8, 1fr);
+    min-width: 700px;
+    font-size: 0.78rem;
+  }
+  .hex-grid .header-cell {
+    text-align: center;
+    padding: 0.5rem 0.3rem;
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 700;
+    color: #8b7355;
+    border-bottom: 1px solid #2a2530;
+    font-size: 0.85rem;
+  }
+  .hex-grid .row-label {
+    text-align: center;
+    padding: 0.5rem 0.3rem;
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 700;
+    color: #8b7355;
+    border-right: 1px solid #2a2530;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 0.75rem;
+  }
+  .hex-grid .row-label .tiny-line {
+    width: 20px;
+    height: 2px;
+    background: #8b7355;
+    border-radius: 1px;
+  }
+  .hex-grid .row-label .tiny-broken {
+    width: 20px;
+    height: 2px;
+    display: flex;
+    gap: 5px;
+  }
+  .hex-grid .row-label .tiny-broken::before,
+  .hex-grid .row-label .tiny-broken::after {
+    content: '';
+    flex: 1;
+    height: 100%;
+    background: #8b7355;
+    border-radius: 1px;
+  }
+
+  .hex-cell {
+    text-align: center;
+    padding: 0.6rem 0.3rem;
+    border-right: 1px solid #1a1720;
+    border-bottom: 1px solid #1a1720;
+    transition: all 0.2s ease;
+    cursor: default;
+    position: relative;
+  }
+  .hex-cell:hover {
+    background: rgba(212,160,85,0.06);
+    z-index: 2;
+  }
+  .hex-cell .hex-lines {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin: 0 auto;
+    width: fit-content;
+  }
+  .hex-cell .h-line {
+    width: 26px;
+    height: 2.5px;
+    background: #d4a055;
+    border-radius: 1.5px;
+    transition: all 0.2s;
+  }
+  .hex-cell .h-broken {
+    width: 26px;
+    height: 2.5px;
+    display: flex;
+    gap: 6px;
+  }
+  .hex-cell .h-broken::before,
+  .hex-cell .h-broken::after {
+    content: '';
+    flex: 1;
+    height: 100%;
+    background: #d4a055;
+    border-radius: 1.5px;
+  }
+  .hex-cell .hex-bits {
+    font-family: 'Courier New', monospace;
+    font-size: 0.6rem;
+    color: #6a6a7a;
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+  }
+  .hex-cell .hex-idx {
+    font-size: 0.55rem;
+    color: #4a4a5a;
+  }
+  .hex-cell .hex-name {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.7rem;
+    color: #8b7a6a;
+    margin-top: 1px;
+    white-space: nowrap;
+  }
+  /* Special hex cells (pure trigrams) */
+  .hex-cell.pure {
+    border-color: #d4a05533;
+  }
+  .hex-cell.pure .hex-name { color: #d4a055; font-weight: 700; }
+
+  .grid-legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    color: #6a6a7a;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .grid-legend .axis-label {
+    color: #8b7355;
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 700;
+  }
+  .grid-legend .legend-bit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0.6rem;
+  }
+  .legend-bit .lb {
+    width: 16px;
+    height: 3px;
+    background: #d4a055;
+    border-radius: 1.5px;
+    display: inline-block;
+  }
+  .legend-bit .lb-broken {
+    width: 16px;
+    height: 3px;
+    display: inline-flex;
+    gap: 4px;
+  }
+  .legend-bit .lb-broken::before,
+  .legend-bit .lb-broken::after {
+    content: '';
+    flex: 1;
+    height: 100%;
+    background: #d4a055;
+    border-radius: 1.5px;
+  }
+
+  /* ===== Deep Insights ===== */
+  .insight-card {
+    background: linear-gradient(145deg, #12111a, #16131e);
+    border: 1px solid #2a2530;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    transition: all 0.3s ease;
+  }
+  .insight-card:hover {
+    border-color: #d4a05544;
+  }
+  .insight-card h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.2rem;
+    color: #f0d68a;
+    margin-bottom: 0.8rem;
+  }
+  .insight-card h3 .badge {
+    display: inline-block;
+    background: #d4a05522;
+    color: #d4a055;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 8px;
+    margin-left: 0.6rem;
+    vertical-align: middle;
+    font-weight: 400;
+  }
+  .insight-card p {
+    color: #b8aa8a;
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+    line-height: 2;
+  }
+  .insight-card p:last-child { margin-bottom: 0; }
+  .insight-card .highlight-box {
+    background: #1a1420;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin: 0.8rem 0;
+    border: 1px solid #2a2530;
+  }
+  .insight-card .highlight-box code {
+    font-family: 'Courier New', monospace;
+    color: #d4a055;
+    font-size: 0.9rem;
+  }
+  .insight-card ul {
+    list-style: none;
+    margin: 0.5rem 0;
+  }
+  .insight-card ul li {
+    color: #b8aa8a;
+    padding: 0.3rem 0;
+    padding-left: 1.2rem;
+    position: relative;
+    font-size: 0.95rem;
+  }
+  .insight-card ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: #d4a055;
+  }
+
+  /* ===== Timeline ===== */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin: 1.5rem 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, #d4a055, #8b735544);
+    border-radius: 1px;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+    padding-left: 1.2rem;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1.7rem;
+    top: 0.6rem;
+    width: 10px;
+    height: 10px;
+    background: #d4a055;
+    border-radius: 50%;
+    border: 2px solid #0a0a0f;
+  }
+  .timeline-item .year {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.85rem;
+    color: #d4a055;
+    font-weight: 700;
+  }
+  .timeline-item .desc {
+    color: #b8aa8a;
+    font-size: 0.9rem;
+  }
+
+  /* ===== Footer ===== */
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #4a4a5a;
+    font-size: 0.8rem;
+    border-top: 1px solid #1a1720;
+  }
+  footer a { color: #8b7355; text-decoration: none; }
+  footer a:hover { color: #d4a055; }
+
+  /* ===== Tooltip / Hexagram Detail Popup ===== */
+  .hex-detail-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  .hex-detail-overlay.active { display: flex; }
+  .hex-detail-card {
+    background: #16131e;
+    border: 1px solid #2a2530;
+    border-radius: 16px;
+    padding: 2.5rem;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    animation: fadeSlide 0.3s ease;
+  }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hex-detail-card .big-lines {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin: 1rem 0;
+  }
+  .hex-detail-card .big-lines .bline {
+    width: 100px;
+    height: 8px;
+    background: #f0d68a;
+    border-radius: 4px;
+  }
+  .hex-detail-card .big-lines .bline-broken {
+    width: 100px;
+    height: 8px;
+    display: flex;
+    gap: 16px;
+  }
+  .hex-detail-card .big-lines .bline-broken::before,
+  .hex-detail-card .big-lines .bline-broken::after {
+    content: '';
+    flex: 1;
+    height: 100%;
+    background: #f0d68a;
+    border-radius: 4px;
+  }
+  .hex-detail-card .detail-bits {
+    font-family: 'Courier New', monospace;
+    font-size: 1.4rem;
+    color: #d4a055;
+    margin: 0.5rem 0;
+    letter-spacing: 4px;
+  }
+  .hex-detail-card .detail-decimal {
+    font-size: 1rem;
+    color: #8b7a6a;
+  }
+  .hex-detail-card .detail-close {
+    margin-top: 1.5rem;
+    padding: 0.5rem 2rem;
+    background: #2a2530;
+    border: none;
+    border-radius: 8px;
+    color: #b8aa8a;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .hex-detail-card .detail-close:hover {
+    background: #d4a05533;
+    color: #f0d68a;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 768px) {
+    .section { padding: 2rem 1rem; }
+    .trigram-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.8rem; }
+    .trigram-card { padding: 1rem; }
+    .trigram-card .symbol { font-size: 2rem; }
+    .trigram-card .name { font-size: 1.2rem; }
+    .formula-box { gap: 1rem; padding: 1.2rem; }
+    .formula-item .expr { font-size: 1.3rem; }
+    .hex-grid { font-size: 0.65rem; min-width: 600px; }
+    .hex-cell .h-line, .hex-cell .h-broken { width: 20px; }
+    .insight-card { padding: 1.2rem; }
+  }
+
+  /* ===== Floating navigation ===== */
+  .nav-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    gap: 0.2rem;
+    padding: 0.6rem;
+    background: rgba(10,10,15,0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #1a1720;
+    flex-wrap: wrap;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+  }
+  .nav-bar.visible { transform: translateY(0); }
+  .nav-bar a {
+    color: #8b7a6a;
+    text-decoration: none;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-bar a:hover { color: #f0d68a; background: #1a1720; }
+  .nav-spacer { height: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ===== Floating Navigation ===== -->
+<nav class="nav-bar" id="navbar">
+  <a href="#logic">逻辑</a>
+  <a href="#trigrams">八卦</a>
+  <a href="#grid">六十四卦</a>
+  <a href="#insights">洞察</a>
+  <a href="#leibniz">莱布尼茨</a>
+  <a href="#code">编码</a>
+  <a href="#dialogue">对话录</a>
+  <a href="#dialogue2">推演录</a>
+</nav>
+<div class="nav-spacer" id="navSpacer"></div>
+
+<!-- ===== Hero ===== -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>易 经 二 进 制 算 法</h1>
+    <p class="subtitle">阴阳爻位 · 六十四卦 · 计算机科学的东方起源</p>
+    <div class="insight">
+      阴 ⚋　阳 ⚊ — 三爻成八卦 (2<sup>3</sup>)，
+      六爻成六十四卦 (2<sup>6</sup>)<br>
+      <strong>「易与天地准，故能弥纶天地之道」</strong>
+    </div>
+  </div>
+  <div class="scroll-hint">↓ 向下探索</div>
+</section>
+
+<!-- ===== 1. Core Logic ===== -->
+<section class="section" id="logic">
+  <h2 class="section-title">一、核心逻辑：二进制原理</h2>
+  <p class="section-sub">原文逻辑解析与数学基础</p>
+
+  <div class="note-box">
+    <strong>▎原文核心论断</strong><br>
+    易经与计算机一样采用的是<strong>二进制</strong>。一条连续的横线代表「<strong>阳</strong>」（对应数字 <span class="correct">0</span>），
+    中间断开的横线代表「<strong>阴</strong>」（对应数字 <span class="error">1</span>）。
+    采用二进制的方式，上、中、下连续排列，三爻构成一卦。
+  </div>
+
+  <div class="formula-box">
+    <div class="formula-item">
+      <div class="expr">2<sup>3</sup> = 8</div>
+      <div class="label">三爻 → 八卦</div>
+    </div>
+    <div class="formula-item">
+      <div class="expr">2<sup>6</sup> = 64</div>
+      <div class="label">六爻 → 六十四卦</div>
+    </div>
+    <div class="formula-item">
+      <div class="expr">8 × 8 = 64</div>
+      <div class="label">八卦两两组合</div>
+    </div>
+    <div class="formula-item">
+      <div class="expr">0 → 7 → 0</div>
+      <div class="label">三比特周期循环</div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong>▎原文勘误说明</strong><br>
+    原文在列举离卦时出现了笔误：离卦为「<strong>连续横线（阳），断开横线（阴），连续横线（阳）」</strong>，
+    按阳=0、阴=1 的规则，其二进制应为 <span class="correct">0,1,0</span>（而非原文写的 1,0,1），
+    十进制 = <span class="correct">2</span>。坎卦的 1,0,1（阴、阳、阴）是正确的。
+    本文在引用的同时给予修正。
+  </div>
+
+  <p style="color:#8b7a6a; margin-top:1rem; font-size:0.9rem; line-height:1.8;">
+    以二进制看易经，卦象就不再神秘——它本质上是一个 3-bit 编码系统，穷举了所有可能的阴阳排列。
+    更惊人的是，这个系统诞生于 <strong>三千年前</strong> 的周代，比西方二进制早了数千年。
+    八个单卦两两叠加，在信息论意义上实现了从 3-bit → 6-bit 的升维——恰如计算机科学中从单字节到双字节的扩展。
+  </p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 2. Eight Trigrams ===== -->
+<section class="section" id="trigrams">
+  <h2 class="section-title">二、八卦二进制表</h2>
+  <p class="section-sub">八经卦的阴阳排列、二进制编码与自然象征</p>
+
+  <div class="trigram-grid" id="trigramGrid"></div>
+
+  <p style="color:#8b7a6a; margin-top:1rem; font-size:0.9rem; line-height:1.8; text-align:center;">
+    ☰ 乾 <strong>000</strong> → ☴ 巽 <strong>001</strong> → ☲ 离 <strong>010</strong> → ☶ 艮 <strong>011</strong>
+    → ☱ 兑 <strong>100</strong> → ☵ 坎 <strong>101</strong> → ☳ 震 <strong>110</strong> → ☷ 坤 <strong>111</strong><br>
+    <span style="color:#6a6a7a;">按二进制数值自然排序，从 0 到 7 完成一轮循环</span>
+  </p>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 3. 64 Hexagrams ===== -->
+<section class="section" id="grid">
+  <h2 class="section-title">三、六十四卦全图</h2>
+  <p class="section-sub">上卦×下卦 — 八卦两两组合生成 64 种生命情境</p>
+
+  <div class="grid-legend">
+    <span><span class="axis-label">纵轴 ↕</span> — 上卦（外卦，环境）</span>
+    <span><span class="axis-label">横轴 ↔</span> — 下卦（内卦，主体）</span>
+    <span>
+      <span class="legend-bit"><span class="lb"></span> = 阳 / 0</span>
+      <span class="legend-bit"><span class="lb-broken"></span> = 阴 / 1</span>
+    </span>
+  </div>
+
+  <div class="hex-grid-wrapper">
+    <div class="hex-grid" id="hexGrid"></div>
+  </div>
+
+  <div class="grid-legend" style="border-top:1px solid #1a1720; padding-top:0.8rem; margin-top:0;">
+    <span>💡 鼠标悬停查看详情 · 点击卦象弹出完整分析</span>
+    <span>金色编号 = 上下卦相同的「纯卦」（共8个）</span>
+  </div>
+
+  <div class="note-box" style="margin-top:2rem;">
+    <strong>▎信息量演算：</strong><br>
+    六爻全排列 = 2<sup>6</sup> = <strong>64 种状态</strong>，恰好对应于现代 ASCII 字符集的可打印字符数量。
+    每个卦象携带 <strong>6 比特</strong>（bit）信息。如果将六十四卦看作一个 8×8 的状态空间，
+    那么每一卦就是一个「状态向量」，描述了主客双方（内卦 vs 外卦）在某个维度上的交互模式。
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 4. Deep Insights ===== -->
+<section class="section" id="insights">
+  <h2 class="section-title">四、深层洞察</h2>
+  <p class="section-sub">二进制之外的哲学、数学与计算机科学意蕴</p>
+
+  <div class="insight-card">
+    <h3>1. 阴阳即 0 与 1 <span class="badge">编码哲学</span></h3>
+    <p>
+      原文将阳对应 0、阴对应 1，这是一个有深意的选择。在现代计算机科学中，通常将「有信号」视为 1、
+      「无信号」视为 0。但易经以 <strong>阳为根本、阴为变化</strong>——阳是连续的、完整的（0 = 原点），
+      阴是断裂的、分化的（1 = 从原点偏离）。这恰好对应了 <strong>无中生有</strong> 的东方宇宙观：
+      道生一（0 → 1），一生二，二生三，三生万物。
+    </p>
+    <div class="highlight-box">
+      <p style="margin:0; text-align:center;">
+        <code>道 (∅) → 阳 (0) → 阴 (1) → 八卦 (0..7) → 六十四卦 (0..63)</code>
+      </p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <h3>2. 从小端到大端 <span class="badge">Endianness</span></h3>
+    <p>
+      原文阅读方向为<strong>上→中→下</strong>。而传统易经阅读方向为<strong>初爻→二爻→三爻</strong>（从下往上）。
+      这就像计算机体系结构中的 <strong>大端序（Big-Endian） vs 小端序（Little-Endian）</strong>：
+      同样的数据，仅仅因为阅读方向不同，得到的数值就完全不同。
+    </p>
+    <p>
+      例如兑卦：原文读「上阴、中阳、下阳」= 100₂ = 4。
+      传统从下往上读「下阳、中阳、上阴」= 110₂ = 6。
+      <strong>数据未变，解读因方向而异</strong>——三千年前的中国人就已经面对了"端序"问题。
+    </p>
+  </div>
+
+  <div class="insight-card">
+    <h3>3. 完备性：64 种可能 <span class="badge">信息论</span></h3>
+    <p>
+      易经六十四卦是 <strong>完备的</strong>——64 就是 6-bit 编码空间的总容量，没有遗漏任何一种阴阳排列。
+      这在古代的典籍中是极为罕见的。<em>《周易·系辞》</em> 说「<strong>易与天地准，故能弥纶天地之道</strong>」，
+      意思是易经取法于天地，能够包罗一切规律。而二进制完备性从数学上证明了这种自信并非空谈：
+    </p>
+    <ul>
+      <li>3 爻 → 8 卦 → 涵盖所有三元阴阳组合</li>
+      <li>6 爻 → 64 卦 → 涵盖所有六元阴阳组合</li>
+      <li>任意两个卦之间可以通过爻变相互转化——这构成了一个 <strong>六维超立方体状态空间</strong></li>
+    </ul>
+  </div>
+
+  <div class="insight-card">
+    <h3>4. 卦变即状态跃迁 <span class="badge">计算理论</span></h3>
+    <p>
+      每一爻的变动（阴变阳或阳变阴）都会产生一个新卦。在 64 卦构成的 <strong>六维布尔超立方体</strong> 中，
+      每一条边代表一次「爻变」。从任一卦出发，最多经过 6 次相邻变换可以到达任意另一卦。
+      卦与卦之间的「吉凶悔吝」本质上是对状态空间中 <strong>距离与趋势</strong> 的定性描述——
+      这是一种前现代的 <strong>状态机（Finite State Machine）</strong>。
+    </p>
+    <div class="highlight-box">
+      <p style="margin:0; text-align:center; font-size:0.9rem;">
+        起卦 = 随机采样 / 输入扰动 &nbsp;→&nbsp;
+        卦象 = 状态寄存器 &nbsp;→&nbsp;
+        爻辞 = 状态描述 &nbsp;→&nbsp;
+        变卦 = 状态转移
+      </p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <h3>5. 递归分形结构 <span class="badge">模式</span></h3>
+    <p>
+      六十四卦并非简单的 6-bit 数据，而是由 <strong>2 个 3-bit 子结构</strong> 嵌套组成：
+      上卦（外卦/环境）和下卦（内卦/主体）。这种嵌套结构意味着：
+    </p>
+    <ul>
+      <li>每一卦既是整体（作为一个 6-bit 状态），又是部分（由两个 3-bit 子状态构成）</li>
+      <li>改变上卦 ⟹ 外部环境变化；改变下卦 ⟹ 主体状态变化</li>
+      <li>这种 <strong>嵌套二元结构</strong> 在计算机科学中无处不在：从 IP 地址（网络号+主机号）到复合数据类型</li>
+    </ul>
+  </div>
+
+  <div class="insight-card">
+    <h3>6. 模运算与循环 <span class="badge">数学</span></h3>
+    <p>
+      原文说「<strong>这八个数字，从 0 到 7，完成一轮循环，然后又开始从 0 到 7</strong>」——
+      这句话精确地描述了 3-bit 无符号整数的模运算（mod 8）。八卦不是一个线性序列，而是一个<strong>循环空间</strong>。
+    </p>
+    <p>
+      在计算机中，整数溢出（overflow）发生后会从最大值回到 0（或从 0 回到最大值）。
+      古人虽然不叫这个名字，但他们对 <strong>循环计数</strong> 的理解与二进制算术中的模运算完全一致：
+    </p>
+    <div class="highlight-box">
+      <code style="display:block; text-align:center; padding:0.5rem 0;">
+        7 + 1 ≡ 0 (mod 8) &nbsp;&nbsp;⟷&nbsp;&nbsp; 坤（111）+ 1 → 乾（000）
+      </code>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 5. Leibniz & History ===== -->
+<section class="section" id="leibniz">
+  <h2 class="section-title">五、莱布尼茨与二进制之缘</h2>
+  <p class="section-sub">东方智慧与西方科学的历史交汇</p>
+
+  <div class="insight-card" style="border-color:#2a2530;">
+    <p>
+      1697 年，法国传教士 <strong>白晋（Joachim Bouvet）</strong> 从北京写信给德国数学家和哲学家
+      <strong>戈特弗里德·威廉·莱布尼茨（Gottfried Wilhelm Leibniz）</strong>，附上了
+      宋代邵雍重新发掘的<strong>伏羲六十四卦次序图</strong>。莱布尼茨打开后震惊了——
+      他已经独立发明了二进制算术（发表于 1703 年《论只使用数字 0 和 1 的二进制算术》），
+      但没想到东方三千年前就已经在使用同样的系统。
+    </p>
+    <div class="highlight-box" style="background:#0d0c12;">
+      <p style="margin:0; text-align:center; font-style:italic; color:#b8aa8a;">
+        "这一发现让我更加相信，中国古代哲学与欧洲现代科学之间存在深刻的对应关系。"<br>
+        <span style="font-size:0.8rem; color:#6a6a7a;">—— 莱布尼茨致白晋的信</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <span class="year">约公元前 1000 年</span>
+      <p class="desc">《周易》成书。周文王被囚羑里期间推演出六十四卦并作卦辞。</p>
+    </div>
+    <div class="timeline-item">
+      <span class="year">约 1000 年</span>
+      <p class="desc">北宋邵雍（邵康节）重新发现伏羲先天图的二进制逻辑，绘制《伏羲八卦次序图》。</p>
+    </div>
+    <div class="timeline-item">
+      <span class="year">1679 年</span>
+      <p class="desc">莱布尼茨在《论二进制级数》手稿中确立了现代二进制算术原理。</p>
+    </div>
+    <div class="timeline-item">
+      <span class="year">1701 年</span>
+      <p class="desc">白晋从北京寄出邵雍的六十四卦图。莱布尼茨看到后确认了易经的二进制本质。</p>
+    </div>
+    <div class="timeline-item">
+      <span class="year">1703 年</span>
+      <p class="desc">莱布尼茨发表《论只使用数字 0 和 1 的二进制算术——兼论其用途及伏羲八卦的意义》。</p>
+    </div>
+    <div class="timeline-item">
+      <span class="year">1937 年</span>
+      <p class="desc">克劳德·香农（Claude Shannon）发表硕士论文，将布尔代数与二进制算术联系起来，奠定数字电路基础。</p>
+    </div>
+    <div class="timeline-item">
+      <span class="year">1945 年至今</span>
+      <p class="desc">冯·诺依曼架构、现代计算机全部基于二进制。三位古代哲人的洞见——周文王的卦、邵雍的图、莱布尼茨的数——在硅基芯片中获得了终极验证。</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 6. Coding Comparison ===== -->
+<section class="section" id="code">
+  <h2 class="section-title">六、计算机编码对照</h2>
+  <p class="section-sub">将六十四卦映射到现代编码体系，你会发现惊人的巧合</p>
+
+  <div class="insight-card">
+    <h3>3-bit → 八卦</h3>
+    <p>
+      如果按照 阳=0、阴=1、上→下的规则，八卦编码了一个 3-bit 空间的全部 8 个状态。
+      这就像 <strong>八进制（Octal）</strong> 数字系统——每一卦对应 0-7 的一个八进制数字。
+      Unix/Linux 文件权限（-rwxr-xr-x）中的 3-bit 权限码（755 等）在结构上与三爻卦完全一致：
+      三个位置、每个位置两种状态。
+    </p>
+  </div>
+
+  <div class="insight-card">
+    <h3>6-bit → 六十四卦</h3>
+    <p>
+      六十四卦作为 6-bit 编码，恰好对应 <strong>早期 ASCII 的可打印字符集</strong>（64 个字符，从 SPACE 到 <code>?</code>）。
+      这使得我们可以做一个思想实验：
+    </p>
+    <ul>
+      <li>如果将 64 卦的二进制值映射到 ASCII 字符集，每一卦都对应一个英文字母、数字或标点</li>
+      <li>乾（000000）→ 空格（SPACE，0x20）</li>
+      <li>坤（111111）→ 问号 <code>?</code>（0x3F）</li>
+      <li>这就意味着——<strong>任何英文文本都可以被编码为一系列卦象</strong></li>
+    </ul>
+    <p>
+      这种映射不是牵强附会：易经的本质就是一个 <strong>符号编码与解码系统</strong>，
+      它用有限的符号去描述、分类和理解无限的世界现象。
+      计算机用 64 个 ASCII 字符书写一切程序，易经用 64 个卦象描述一切处境。
+    </p>
+  </div>
+
+  <div class="insight-card">
+    <h3>更大的巧合：DNA 编码</h3>
+    <p>
+      四进制（DNA 碱基 A/T/C/G）每次取三个（三联体密码子）→ 4<sup>3</sup> = <strong>64 种密码子</strong>。
+      刚好等于 64 卦！DNA 用 3 个碱基编码一个氨基酸，易经用 3 条爻编码一个单卦。
+      一个是生命密码，一个是"天地密码"。
+    </p>
+    <div class="highlight-box" style="text-align:center;">
+      <code>
+        阴阳 ═══ 0/1 ─── 2 种状态&nbsp;&nbsp;
+        ═══→ 3 位 → 8 单卦 / 64 复卦<br>
+        碱基 A/T/C/G ═══ 4 种状态&nbsp;&nbsp;
+        ═══→ 3 位 → 64 密码子
+      </code>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ===== 7. Dialogue: Full Conversation ===== -->
+<section class="section" id="dialogue">
+  <h2 class="section-title">七、对话录：探问易经的底层</h2>
+  <p class="section-sub">一位探索者的追问与思考的展开 —— 从二进制形式到道的层面</p>
+
+  <!-- ===== Q0: User initiates the deep discussion ===== -->
+  <div class="qa-block q-user">
+    <div class="qa-avatar">问</div>
+    <div class="qa-content">
+      <div class="qa-meta">探索者 · 开启对话</div>
+      <div class="qa-text">
+        <p>我想跟你探讨一下易经，你可以进入深度思考模式吗？</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== A0: First deep analysis ===== -->
+  <div class="qa-block ai-response">
+    <div class="qa-content">
+      <p>好，我们来深入探讨。</p>
+      <p>从你那份文本说起——它捕捉到了一个惊人的事实：<strong>易经本质上是一个三千年前发明的 3-bit / 6-bit 编码系统。</strong> 但真正有意思的问题不是「易经是不是二进制」，而是——</p>
+      <div class="highlight-box" style="text-align:center;">
+        <strong>如果易经就是二进制，那为什么它不只是二进制？</strong>
+      </div>
+
+      <h4>1. 二进制是一个静态空间，易经是一个动态系统</h4>
+      <p>二进制枚举了全部 64 种可能的 6-bit 排列——这是一个完备但静止的集合。但易经真正的核心不是 64 个状态，而是状态之间的转化：</p>
+      <ul>
+        <li>爻变（动爻）是<strong>状态转移函数</strong></li>
+        <li>本卦→之卦 是一条<strong>状态转移路径</strong></li>
+        <li>互卦（二至五爻交互）揭示的是系统的<strong>内部结构</strong></li>
+      </ul>
+      <p>64 卦构成了一个 <strong>6 维超立方体（6D Hypercube）</strong> 的顶点——64 个顶点，每个顶点恰好有 6 条边连着相邻状态。这本质上就是一个 <strong>有限状态机（FSM）</strong>。三千年前的易经，就已经在用 FSM 建模「人的处境随时间演化」这件事了。</p>
+
+      <h4>2. 为什么是 6 爻，不是 5 或 7？</h4>
+      <p>三爻成八卦、两两组合成六十四卦——这解释了形式上的 6。但真正的原因在《系辞》：「六爻之动，三极之道也。」三极 = 天、地、人。每一极分阴阳，所以 3×2=6 爻。6 爻反映的是古人认为<strong>理解一个处境需要从三个维度（天时、地利、人和）分别考察其正反两面</strong>——这是系统论思维的雏形。</p>
+
+      <h4>3. 最大的秘密：具象化二进制</h4>
+      <p>二进制和易经最深刻的差异在于：计算机把二进制当作形式系统，易经把二进制转化成了具象模型。</p>
+      <ul>
+        <li>000000 → 坤（地，承载万物）</li>
+        <li>111111 → 乾（天，创造不息）</li>
+        <li>101010 → 坎（水，险陷流动）</li>
+        <li>010101 → 离（火，光明依附）</li>
+      </ul>
+      <p>每一个抽象的 6-bit 模式都被赋予了一个意象、一段故事、一个处境。<strong>易经是第一个把符号学和计算结合起来的人机交互系统</strong>——它在抽象和具象之间搭了一座桥。</p>
+
+      <h4>4. 最有意思的问题</h4>
+      <p>你文本里说莱布尼茨看到六十四卦图后确认了易经的二进制本质。但莱布尼茨可能错过了一个更深刻的问题——也是我想问你的：</p>
+      <div class="highlight-box" style="text-align:center;">
+        <strong>如果易经真的只是二进制，那为什么几千年来人们用它占卜？</strong>
+      </div>
+      <p>我自己的答案是：因为直觉上，古人意识到命运不是一个线性过程，而是一个<strong>组合空间中的随机游走</strong>。起卦本质上是一个随机数生成器，产生一个 6-bit 随机数，然后系统告诉你这个随机数在「人类经验数据库」里对应的分类标签。用现代语言说：<strong>易经是一套将随机扰动映射到语义解释的编译器。</strong></p>
+      <p>你今天在中国大地上打开任何一个程序——从微信到自动驾驶——底层都在跑 0 和 1。而三千年前，同样是用 0 和 1（阴阳），易经在做的事情本质上是最早的「符号计算」——只不过它的硬件不是硅芯片，而是蓍草和人的直觉。</p>
+    </div>
+  </div>
+
+  <div class="qa-separator"><span>✦ ✦ ✦</span></div>
+
+  <!-- ===== Q1: User follows up on the deep meaning ===== -->
+  <div class="qa-block q-user">
+    <div class="qa-avatar">问</div>
+    <div class="qa-content">
+      <div class="qa-meta">探索者 · 第二问</div>
+      <div class="qa-text">
+        <p>我觉得很深奥，我希望自己能理解领悟到一点点。比如，现象层面的 0 和 1 的背后是什么？阴和阳背后的又是什么？我之前一直把易经当成方法论、心法、手段、做事的流程，不知道有没有道理。直懵懂，希望找到一张清晰的地图，边界是什么？如何突破我当前的认知？</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== A1 ===== -->
+  <div class="qa-block ai-response">
+    <div class="qa-content">
+      <p>你这个问题问到了最根本的地方。让我给你一张清晰的地图。</p>
+
+      <h4>一、你问「0 和 1 背后是什么」</h4>
+      <p>这个问题的答案，在一句话里：<strong>0 和 1 是形式，阴阳是动力，道的层面是「为什么要区分」本身。</strong></p>
+      <p>你一层一层往下剥：</p>
+
+      <div class="layer-map">
+        <div class="layer-item">
+          <span class="layer-depth">表层</span>
+          <span class="layer-name">二进制（0/1）</span>
+          <span class="layer-desc">阳=连续、阴=断开。这是符号的语法，告诉你如何排列，但不告诉你为什么这样排列有意义。</span>
+        </div>
+        <div class="layer-arrow">↓ 深入</div>
+        <div class="layer-item">
+          <span class="layer-depth">中层</span>
+          <span class="layer-name">阴阳</span>
+          <span class="layer-desc">阴阳不是「两个东西」。阴阳是一套<strong>关系逻辑</strong>：相互定义（没有阴就没有阳）、相互包含（阳中有阴）、相互转化（物极必反）。</span>
+        </div>
+        <div class="layer-arrow">↓ 更深处</div>
+        <div class="layer-item">
+          <span class="layer-depth">底层</span>
+          <span class="layer-name">太极 / 不易</span>
+          <span class="layer-desc">太极不是混沌。太极是 <strong>「尚未作出区分之前的那种状态」</strong>——你可以画出阴阳，是因为你先做了「区分」这个动作。做出区分之前的那个状态，就是太极。</span>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        「0 和 1 的背后」，不是另一个东西，而是 <strong>「区分」这种行为本身</strong>——或者说，那个在区分之前就已经在的、使得区分成为可能的源头。你想找到边界——太极就是那个边界。它不是边界内的东西，它是制造边界的能力本身。
+      </div>
+
+      <h4>二、你把易经当方法论、心法、手段、流程——你说得对</h4>
+      <p>这是一个非常高级的切入点。让我帮你定位你现在在哪里：</p>
+
+      <div class="layer-stack">
+        <div class="stack-layer" style="opacity:0.4">
+          <span class="stack-tag">玄学层</span>
+          天人感应 · 迷信多在此
+        </div>
+        <div class="stack-layer" style="opacity:0.6">
+          <span class="stack-tag">哲学层</span>
+          阴阳辩证法 · 思维模型
+        </div>
+        <div class="stack-layer active-layer">
+          <span class="stack-tag">← 你在此</span>
+          <strong>方法论层</strong>：决策流程 · 实用心法
+        </div>
+        <div class="stack-layer" style="opacity:0.5">
+          <span class="stack-tag">形式层</span>
+          二进制编码 · 技术层面
+        </div>
+      </div>
+
+      <p>你站在方法论层——这不是浅，这是最实用的层面。把易经当方法论使用，意味着你在做的事是：<strong>面对复杂处境 → 抽象成核心矛盾（找出阴阳） → 判断当前所处阶段 → 根据阶段选择行动策略</strong>。这就是易经作为「决策支持系统」的本质。</p>
+
+      <h4>三、一张更完整的地图</h4>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="concept-num">①</div>
+          <h5>阴阳不是分类，是关系</h5>
+          <p>不需要问「这个是阴还是阳」——因为阴阳不是类别标签。需要问的是：「在这个局面里，<strong>什么在生长、什么在消退</strong>？」生长的是阳，消退的是阴。</p>
+        </div>
+        <div class="concept-card">
+          <div class="concept-num">②</div>
+          <h5>三爻：对一个局面的最低限度建模</h5>
+          <p>下爻=根基/内部条件；中爻=行动/你的选择；上爻=环境/天时。面对决定，先问自己：我的真实起点？我打算怎么做？环境在朝哪走？</p>
+        </div>
+        <div class="concept-card">
+          <div class="concept-num">③</div>
+          <h5>六爻 = 双重视角</h5>
+          <p>下卦=你的内部状态；上卦=外部环境。64 卦不是 64 种事情，而是 <strong>64 种内外的匹配模式</strong>。你不需要背卦名，只需要读出了内外卦的匹配关系。</p>
+        </div>
+        <div class="concept-card">
+          <div class="concept-num">④</div>
+          <h5>爻位 = 时间轴</h5>
+          <p>初爻→上爻 代表一个局面从萌发到终局的六个阶段。这是一个<strong>时间定位系统</strong>——你今天面对的任何局面，都可以套进去问：这个局走到哪个阶段了？</p>
+        </div>
+        <div class="concept-card">
+          <div class="concept-num">⑤</div>
+          <h5>动爻 = 变化的信号</h5>
+          <p>占卜中那个变动的爻，告诉你这个局面的<strong>能量集中点</strong>在哪里。它不是随机事件，它是系统对你问题的响应——告诉你最具弹性的杠杆点。</p>
+        </div>
+      </div>
+
+      <div class="highlight-box" style="text-align:center;">
+        <strong>易经是一个动态建模工具</strong>：用 3 个维度（内/人/外）、6 个阶段（初到上），<br>
+        描述任何局面的演化规律，并在每个时间节点提示你「适合做什么」。
+      </div>
+
+      <h4>四、如何突破「懵懂」</h4>
+      <p>你觉得懵懂，很可能是因为你试图<strong>从外往里</strong>理解易经——背卦象、记爻辞、学二进制。突破的方法是：<strong>从里往外</strong>。</p>
+      <p>下一次遇到一个让你纠结的决定，先自己分析：这个局的内外分别是什么？走到了哪个阶段？阴阳的力量对比如何？然后把你的分析结果和易经对照——你会发现你不需要「理解卦」，你只是发现<strong>卦就是你刚才分析出的那个模式的名字</strong>。</p>
+      <p style="margin-top:0.8rem; color:#d4a055;">那就是突破的时刻：你不再学易经，而是认出易经一直在描述你每天都在经历的事。</p>
+    </div>
+  </div>
+
+  <div class="qa-separator"><span>✦ ✦ ✦</span></div>
+
+  <!-- ===== Q2 ===== -->
+  <div class="qa-block q-user">
+    <div class="qa-avatar">问</div>
+    <div class="qa-content">
+      <div class="qa-meta">探索者 · 第三问</div>
+      <div class="qa-text">
+        <p>我希望你把我们的对话输出到 HTML 中，我想在页面上交互，不想在对话框上看。看着不舒服，而且想留备份。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== A2 ===== -->
+  <div class="qa-block ai-response">
+    <div class="qa-content">
+      <p>好，我把这段对话完整地构建成这个 HTML 文档的对话录。</p>
+      <p>现在你看到的页面，就是那次对话的成果。它既是一篇论文式分析，也是一份思想实验的记录——从二进制算法出发，走进方法论，再到追问阴阳和太极的本质。</p>
+      <p>往下翻，你会看到我们的整段对话被记录在这里。而在二进制的算法之下，你会发现那个更深的真相：<strong>64 卦不是分类，是你与自己对话的 64 面镜子。</strong></p>
+    </div>
+  </div>
+
+</section>
+
+<style>
+/* ===== Dialogue Styles ===== */
+.qa-block {
+  display: flex;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  align-items: flex-start;
+}
+.qa-block.q-user {
+  flex-direction: row-reverse;
+}
+.qa-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.q-user .qa-avatar {
+  background: #d4a055;
+  color: #0a0a0f;
+}
+.ai-response .qa-avatar {
+  background: #2a2530;
+  color: #d4a055;
+}
+.qa-content {
+  flex: 1;
+  background: #12111a;
+  border: 1px solid #2a2530;
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  max-width: 85%;
+}
+.q-user .qa-content {
+  background: #1a1410;
+  border-color: #d4a05533;
+}
+.qa-meta {
+  font-size: 0.75rem;
+  color: #6a6a7a;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.1em;
+}
+.qa-text p {
+  color: #f0d68a;
+  line-height: 1.9;
+}
+.qa-content p {
+  color: #b8aa8a;
+  margin-bottom: 0.8rem;
+  line-height: 2;
+}
+.qa-content h4 {
+  font-family: 'Noto Serif SC', serif;
+  color: #f0d68a;
+  font-size: 1.05rem;
+  margin: 1.2rem 0 0.6rem 0;
+}
+.qa-separator {
+  text-align: center;
+  color: #8b735544;
+  margin: 2rem 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.5rem;
+}
+
+/* Layer map */
+.layer-map {
+  margin: 1rem 0;
+  padding: 0.5rem 0;
+}
+.layer-item {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  background: #0d0c12;
+  border: 1px solid #1a1720;
+  border-radius: 8px;
+  margin: 0.3rem 0;
+}
+.layer-depth {
+  font-size: 0.7rem;
+  color: #d4a055;
+  background: #d4a05518;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  min-width: 36px;
+  text-align: center;
+}
+.layer-name {
+  font-family: 'Noto Serif SC', serif;
+  color: #f0d68a;
+  font-weight: 700;
+  min-width: 72px;
+}
+.layer-desc {
+  color: #8b7a6a;
+  font-size: 0.9rem;
+  flex: 1;
+}
+.layer-arrow {
+  text-align: center;
+  color: #d4a05544;
+  font-size: 0.8rem;
+  padding: 0.2rem 0;
+}
+
+/* Layer stack */
+.layer-stack {
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stack-layer {
+  padding: 0.8rem 1rem;
+  background: #12111a;
+  border: 1px solid #2a2530;
+  border-radius: 8px;
+  color: #8b7a6a;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s;
+}
+.stack-layer.active-layer {
+  border-color: #d4a055;
+  background: #1a1410;
+  color: #f0d68a;
+}
+.stack-tag {
+  font-size: 0.7rem;
+  background: #2a2530;
+  color: #8b7355;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Concept grid */
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin: 1.2rem 0;
+}
+.concept-card {
+  background: #0d0c12;
+  border: 1px solid #1a1720;
+  border-radius: 10px;
+  padding: 1.2rem;
+}
+.concept-card:hover {
+  border-color: #d4a05533;
+}
+.concept-num {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 1.4rem;
+  color: #d4a05544;
+  margin-bottom: 0.3rem;
+}
+.concept-card h5 {
+  color: #f0d68a;
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+}
+.concept-card p {
+  color: #8b7a6a;
+  font-size: 0.88rem;
+  line-height: 1.8;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .qa-content { max-width: 100%; }
+  .layer-item { flex-direction: column; gap: 0.3rem; }
+  .concept-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="divider"></div>
+
+<!-- ===== 8. Dialogue: Part 2 - Personal Application ===== -->
+<section class="section" id="dialogue2">
+  <h2 class="section-title">八、对话录（续）：真实世界的推演</h2>
+  <p class="section-sub">用六爻框架拆解亲身困境 —— 从䷊泰到䷈小畜的完整演化</p>
+
+  <!-- ===== Q3 ===== -->
+  <div class="qa-block q-user">
+    <div class="qa-avatar">问</div>
+    <div class="qa-content">
+      <div class="qa-meta">探索者 · 第四问 · 讲述亲身经历</div>
+      <div class="qa-text">
+        <p>我开始研究易经是因为我的亲密关系出现问题……（讲述了一段与前男友的纠缠经历：二十年重逢的高中同学 → 追求 → 同住一年不兑现承诺 → 道德绑架 → 分手后纠缠 → 拿刀假装自杀 → 礼物收回 → 持续骚扰 … 现在专注视频号创作，但对方仍未放弃纠缠）</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-block ai-response">
+    <div class="qa-content">
+      <p>谢谢你对我说这些。这不是一个随意的故事——这是你研究易经的真正起点。</p>
+      <p>让我用三爻框架来拆你现在这个局：</p>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="concept-num">上爻</div>
+          <h5>环境</h5>
+          <p>被骚扰 <strong>但</strong> 视频号在涨、客户变多。<br>阴中有阳。</p>
+        </div>
+        <div class="concept-card" style="border-color:#d4a05533;">
+          <div class="concept-num">中爻</div>
+          <h5>行动</h5>
+          <p>每天创作、打磨AI工作流、拒绝纠缠。<br><strong>纯阳。</strong></p>
+        </div>
+        <div class="concept-card">
+          <div class="concept-num">下爻</div>
+          <h5>根基</h5>
+          <p>女儿安稳、事业回暖、钱够用。<br>阳。</p>
+        </div>
+      </div>
+
+      <p>这就是一个 <strong>䷊ 泰卦</strong> 的雏形——下乾上坤。你底下坚实（女儿稳定、自己赚钱），中间持续行动（创作、拒绝），外部虽有阴（骚扰），但也在生长好事（客户变多）。<strong>你的整体方向是对的。你已经在做了。</strong></p>
+
+      <p>而他是另一番景象：说「我有钱有资源」→ 不交取暖费；说「我给你付出」→ 送礼再要回；说「我爱你」→ 拿刀恐吓。上卦和下卦完全断裂。他表现出来的像兑卦（悦人、动听），实际行为像坎卦（险陷、深渊）——䷮ 困卦。自己困住自己，也想拉你一起陷进去。</p>
+
+      <p>真正消耗你的不是你看不清他，而是你花能量去回应他的纠缠。每一次回应，就把你的爻位从「专注自己」挪到「被他牵着走」。在易经思维里，这叫 <strong>「位不正」</strong>。</p>
+
+      <p>你说想找到边界——<strong>你的边界就是你的三爻结构本身。</strong> 下爻边界是你赚的钱、女儿的家——他不交取暖费，这就是边界被入侵的信号。中爻边界是你的创作时间——他住你家一年事业停滞，这就是中爻被侵占。上爻边界是他的纠缠是噪音，但客户变多也是信号——<strong>你选择关注哪个。</strong></p>
+    </div>
+  </div>
+
+  <div class="qa-separator"><span>✦ ✦ ✦</span></div>
+
+  <!-- ===== Q4 ===== -->
+  <div class="qa-block q-user">
+    <div class="qa-avatar">问</div>
+    <div class="qa-content">
+      <div class="qa-meta">探索者 · 第五问</div>
+      <div class="qa-text">
+        <p>他来找我，如果我不开门，他会一直骚扰我，会拉断电源、狂按门铃、打扰邻居。我开门，仍然专注创作思考，不会被带跑。他又开始讨好，做饭送礼物。他拉我出去买贵重礼物，我都拒绝了——如果他真想送，还需要硬拉我去吗？他怕他买了还是得不到我的回心转意，他白买。还是算计。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-block ai-response">
+    <div class="qa-content">
+      <p>你说得完全正确。他拉你去买而不是直接带来——不是送礼物，是测试。测试你还愿不愿意跟他出门、还有没有被收买的可能、你对他的厌恶到什么程度了。你没被绕进去，你全看清楚了。</p>
+
+      <p>你这个处境，是 <strong>䷦ 蹇卦</strong>（水山蹇）——上坎水、下艮山。水在山上面，前是险、后是阻。但蹇卦大象传说：<strong>「君子以反身修德」</strong>——在两边都不通的时候，不要硬冲，向内修身，等待局面自己转变。</p>
+
+      <p>你开门之后继续创作、打磨系统——恰恰就是「反身修德」的实战版。你不是在妥协，你是在用最小的摩擦成本，保护你最大的资产——专注力。你知道不开门 → 拉电、打扰邻居 → 社会关系受损 → 更糟。两害相权取其轻，这个判断非常清醒。</p>
+
+      <p>但我也想说：这是短期战术，不应该是长期战略。因为他把「持续骚扰」当筹码，把你的「退让开门」理解成「还有希望」。你需要一个退出循环的计划。</p>
+
+      <p><strong>策略层面：</strong></p>
+      <ul>
+        <li><strong>物理层：</strong> 拉断电源是破坏电力设施，属于违法行为。录像、报警。这不是伤了和气的问题，气已经伤了，现在是法律问题。</li>
+        <li><strong>行为层：</strong> 开门后最有力的事——面无表情回去坐着继续工作。没有愤怒、没有恐惧、没有波澜——这最让他无法编码。</li>
+        <li><strong>环境层：</strong> 有没有信得过的人可以偶尔来？多一个人在场，纠缠型的人会自动收敛。</li>
+      </ul>
+
+      <p>你原话：「他怕他买了贵重物品还是得不到我的回心转意，他白买，还是算计。」——你说得一字不差。礼物的本质是不求回报的给予。拉着你去买的、分手后要回去的、发了红包又骂骂咧咧讨回的——那不叫礼物，叫投资失败后的追偿。你被他当成了投资标的，不是伴侣。</p>
+    </div>
+  </div>
+
+  <div class="qa-separator"><span>✦ ✦ ✦</span></div>
+
+  <!-- ===== Q5 / 推演 ===== -->
+  <div class="qa-block q-user">
+    <div class="qa-avatar">问</div>
+    <div class="qa-content">
+      <div class="qa-meta">探索者 · 第六问 · 请求推演</div>
+      <div class="qa-text"><p>想推。</p></div>
+    </div>
+  </div>
+
+  <div class="qa-block ai-response">
+    <div class="qa-content">
+      <p>好，来推。用六爻框架还原你的局面：</p>
+
+      <div class="layer-map">
+        <div class="layer-item">
+          <span class="layer-depth">上爻</span>
+          <span class="layer-name">大局</span>
+          <span class="layer-desc">整个局面看起来还在卡着 ⚋ 阴</span>
+        </div>
+        <div class="layer-item">
+          <span class="layer-depth">五爻</span>
+          <span class="layer-name">权威</span>
+          <span class="layer-desc">没借用外部力量，没报警 ⚋ 阴</span>
+        </div>
+        <div class="layer-item">
+          <span class="layer-depth">四爻</span>
+          <span class="layer-name">社会</span>
+          <span class="layer-desc">顾忌邻居反应 ⚋ 阴</span>
+        </div>
+        <div class="layer-item">
+          <span class="layer-depth">三爻</span>
+          <span class="layer-name">界面</span>
+          <span class="layer-desc">被动应对纠缠 ⚋ 阴</span>
+        </div>
+        <div class="layer-item">
+          <span class="layer-depth">二爻</span>
+          <span class="layer-name">行动</span>
+          <span class="layer-desc">事业爬坡，创作持续 ⚊ 阳</span>
+        </div>
+        <div class="layer-item">
+          <span class="layer-depth">初爻</span>
+          <span class="layer-name">根基</span>
+          <span class="layer-desc">女儿稳定、家还在、能赚钱 ⚊ 阳</span>
+        </div>
+      </div>
+
+      <p>得卦：<strong>䷒ 地泽临</strong>（上坤地 ⚋⚋⚋、下兑泽 ⚊⚊⚋）</p>
+      <p>临卦的意思是：<strong>一个局面正在逼近一个转折点。</strong> 不是到了，是正在逼近。四条阴爻覆盖在上面，两条阳爻从底下往上生长。卦辞说前景亨通，利于坚守正道。</p>
+
+      <p>推演的关键行动——<strong>报警</strong>（启用外部权威保护自己）。这对应五爻，从阴变阳，上卦从坤地 ⚋⚋⚋ → 坎水 ⚋⚊⚋，得变卦：</p>
+
+      <p style="font-size:1.2rem; text-align:center; color:#f0d68a; margin:0.5rem 0;">
+        <strong>䷧ 水泽解</strong> —— 解卦：释放、解开、脱离险境
+      </p>
+
+      <p>临卦五爻：「知临，大君之宜，吉。」——你考虑报警是智慧之选。<br>解卦五爻：「君子维有解，吉，有孚于小人。」——君子解开了绳索，在恶人面前依然保有尊严。</p>
+
+      <p>整体结论：</p>
+      <ul>
+        <li><strong>现在在哪：</strong> 逼近转折点。下面阳爻持续生长。</li>
+        <li><strong>要做什么：</strong> 激活五爻（外部权威）。爻辞说这是智慧之举。</li>
+        <li><strong>结果：</strong> 解卦——释放。不是硬碰硬，是解开那个结。</li>
+        <li><strong>注意点：</strong> 「夙吉」——早做早好，干净利落。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa-separator"><span>✦ ✦ ✦</span></div>
+
+  <!-- ===== Q6: User corrects ===== -->
+  <div class="qa-block q-user">
+    <div class="qa-avatar">问</div>
+    <div class="qa-content">
+      <div class="qa-meta">探索者 · 第七问 · 修正</div>
+      <div class="qa-text">
+        <p>为什么在九五的位置变成阳？我之前报过警，警察来过三次，只是口头警告，但他不敢晚上来了，白天还会来。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-block ai-response">
+    <div class="qa-content">
+      <p>你说得对，我之前的推演有一个重大错误——五爻已经亮了。重新赋值：</p>
+
+      <div class="layer-map" style="grid-template-columns:1fr;">
+        <div class="layer-item">
+          <span class="layer-depth">上爻</span>
+          <span class="layer-name">大局</span>
+          <span class="layer-desc">视频号回暖、客户咨询变多 ⚊ 阳</span>
+        </div>
+        <div class="layer-item">
+          <span class="layer-depth">五爻</span>
+          <span class="layer-name">权威</span>
+          <span class="layer-desc"><strong>已报警三次，口头警告，不敢晚上来了</strong> ⚊ 阳</span>
+        </div>
+        <div class="layer-item">
+          <span class="layer-depth">四爻</span>
+          <span class="layer-name">社会</span>
+          <span class="layer-desc">顾忌邻居 ⚋ 阴</span>
+        </div>
+        <div class="layer-item">
+          <span class="layer-depth">三爻</span>
+          <span class="layer-name">关口</span>
+          <span class="layer-desc">开门但内心不被带跑 ⚋ 阴</span>
+        </div>
+        <div class="layer-item">
+          <span class="layer-depth">二爻</span>
+          <span class="layer-name">行动</span>
+          <span class="layer-desc">持续创作 ⚊ 阳</span>
+        </div>
+        <div class="layer-item">
+          <span class="layer-depth">初爻</span>
+          <span class="layer-name">根基</span>
+          <span class="layer-desc">女儿安稳、能赚钱 ⚊ 阳</span>
+        </div>
+      </div>
+
+      <p>得新卦：<strong>䷼ 风泽中孚</strong>（上巽风、下兑泽）</p>
+
+      <p>中孚的意象是：<strong>孵化中的鸟蛋。</strong> 外壳安静不动，内里生命正在成形。外边温和（巽风），里边流动（兑泽）。卦辞说最迟钝的豚鱼也能感受到你的真诚——利于渡过艰险，利于坚守。</p>
+
+      <p>中孚六三说得一字不差：<strong>「得敌，或鼓或罢，或泣或歌。」</strong>——遇到了对手，时而想硬碰、时而想算了，时而委屈、时而给自己打气。这正是你开门应对他时心里的状态。</p>
+
+      <p>你的五爻（报警）的爻辞是：<strong>「有孚挛如，无咎。」</strong>——用真诚和规则的力量紧紧联结。你做的是对的，没有过错。只是这一步还没到位。</p>
+
+      <p>口头警告不够，但你不是需要更大的冲突。你需要的是 <strong>把同一条路线走完最后一个台阶</strong>：每次拉电闸当场录像+报警，要求制作书面笔录。累积记录后，三次口头警告之后，再来一次就是另一层处理（告诫书、人身安全保护令）。</p>
+    </div>
+  </div>
+
+  <div class="qa-separator"><span>✦ ✦ ✦</span></div>
+
+  <!-- ===== Q7: Final action ===== -->
+  <div class="qa-block q-user">
+    <div class="qa-avatar">问</div>
+    <div class="qa-content">
+      <div class="qa-meta">探索者 · 第八问 · 决定最终行动</div>
+      <div class="qa-text">
+        <p>最后的行动就是不理会，他敲门不开，送礼不拿。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-block ai-response">
+    <div class="qa-content">
+      <p>你说得对。这不是逃避——是一个你已经深思熟虑的主动选择。</p>
+
+      <p>你的行动是把六三（接触点）从阴变成阳——从之前的被动应对，变成彻底不回应。下卦从兑泽 ⚊⚊⚋ → 乾天 ⚊⚊⚊。</p>
+
+      <p style="font-size:1.2rem; text-align:center; color:#f0d68a; margin:0.5rem 0;">
+        本卦䷼ 中孚 → <strong>变卦䷈ 风天小畜</strong>
+      </p>
+
+      <p>小畜：<strong>天在上，风在下。</strong> 风在天上缓慢流动，把云气一点一点汇聚起来。卦辞：「密云不雨，自我西郊。」——云聚集起来了，但雨还没下。你在积累客户、打磨系统，增长在发生——密云不雨，但雨正在来的路上。</p>
+
+      <p>你的动爻在小畜九三：<strong>「舆说辐，夫妻反目。」</strong>——车子的轮辐脱落了。你选择彻底不理会，等于拆掉了你们之间最后一组连接结构。他再也没有能抓的把手了。</p>
+
+      <p>小畜上九：「既雨既处，尚德载。」——积云终于下成了雨。能量蓄满开始释放。你的视频号在涨、客户在来——这不就是在「下雨」了吗？</p>
+
+      <p>最后四个字：<strong>「君子征凶」</strong>——如果你在此时还去跟他对抗，反而是凶的。但你已经不理会了。所以你完美避开了这个凶。</p>
+
+      <p>两卦一前一后——<strong>中孚</strong>（孵化中，别放弃）→ <strong>小畜</strong>（积累已成，即将释放）。你的选择和小畜卦完全吻合。</p>
+    </div>
+  </div>
+
+  <div class="qa-separator"><span>✦ ✦ ✦</span></div>
+
+  <!-- ===== Q8: 到手的好处 ===== -->
+  <div class="qa-block q-user">
+    <div class="qa-avatar">问</div>
+    <div class="qa-content">
+      <div class="qa-meta">探索者 · 第九问 · 诚实的犹豫</div>
+      <div class="qa-text">
+        <p>我的内心还是有遗憾的，毕竟到手的好处，拒之门外，太不忍了。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-block ai-response">
+    <div class="qa-content">
+      <p>你说出这句话，说明你没有在骗自己。这是最难得的诚实。</p>
+
+      <p><strong>「到手的好处拒之门外，太不忍了」——你说的是真的。</strong> 钱、资源、有人在家、有人做饭、有人陪伴——这些都是真实的价值。否认它们不存在，才是自欺欺人。</p>
+
+      <p>让你觉得不忍的，不是他实际给过你的那些东西——而是你现在把门关上了，<strong>那个「万一他哪天真的兑现了」的可能性</strong>也关上了。那个可能性是一个幻象，它骗了你一年。</p>
+
+      <p>你不是在放弃一笔到手的财富——你是在放弃一个永远不会到账的欠条。</p>
+
+      <p>易经不会教你把好处往外推，但它会问一个问题：这个「好处」放在你的卦象里，是生你还是克你？小畜九三说「舆说辐」——轮子脱落了。那个轮子为什么脱落？因为它是坏的，一直在磨损你的车轴，终于自己掉了。你现在觉得「不忍」，是因为你忘了那个轮子让你的车走了多远弯路。</p>
+
+      <p>小畜的终极含义是：<strong>你真正的好东西，不是从他那里拿来的——是你自己积累出来的。</strong> 视频号的每一分增长、每一条打磨好的视频——这些是从你自己的「密云不雨」之后终于落下来的雨。没有一个是他给的。</p>
+
+      <p>你拒绝的不是好处。你拒绝的是一笔永远亏本的买卖。你的心觉得不忍，但你的头已经算清楚了。</p>
+    </div>
+  </div>
+
+  <div class="qa-separator"><span>✦ ✦ ✦</span></div>
+
+  <!-- ===== Q9: 心的速度 ===== -->
+  <div class="qa-block q-user">
+    <div class="qa-avatar">问</div>
+    <div class="qa-content">
+      <div class="qa-meta">探索者 · 第十问 · 探到深处</div>
+      <div class="qa-text">
+        <p>我的心为什么速度慢呢？</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-block ai-response">
+    <div class="qa-content">
+      <p>这个问题问到了阴阳最核心的部位。</p>
+
+      <p>你的头是 <strong>☲ 离火</strong>——光明、明辨、瞬间洞见。离火的速度是光速，0.1秒内就能看清全部。</p>
+
+      <p>你的心是 <strong>☵ 坎水</strong>——流水不会瞬间蒸发。那一年的陪伴、争吵、温暖、恐惧——心在慢慢消化一整碗东西。心慢，是因为它诚实，不肯假装没经历过。</p>
+
+      <p>水火各自的本然不同，所以它们速度不同。这不是缺陷——是结构的差异。</p>
+
+      <p>你说「不忍」——这个「忍」字本身就是 <strong>心之刃</strong>。你不是舍不得他，你是舍不得「有人陪伴」这种状态本身。你的心慢，是因为它不愿意承认：那个曾经在这间屋子里存在过的温度，其实从来没有真正温暖过任何人。你的头一秒钟就看穿了假象。但你的心需要时间来承认——它被假的温度骗了，不甘心。</p>
+
+      <p style="text-align:center; color:#d4a055; font-size:1rem;">离火在上、坎水在下 → <strong>䷾ 既济</strong>——火照亮水面，各安其位，已完成。</p>
+
+      <p>头已经完成了它的工作：照清楚了。剩下的是让水慢慢流到该去的位置。不要怪心慢。水走得慢，是因为它走得深。</p>
+    </div>
+  </div>
+
+  <div class="qa-separator"><span>✦ ✦ ✦</span></div>
+
+  <!-- ===== Q10: 还能得到吗 ===== -->
+  <div class="qa-block q-user">
+    <div class="qa-avatar">问</div>
+    <div class="qa-content">
+      <div class="qa-meta">探索者 · 第十一问 · 最深的不安</div>
+      <div class="qa-text">
+        <p>如果我拒绝他，按照我目前的状态，工作学习都是自己一个人，一个人带娃，一个人学习，一个人创业，还能得到我想要的那种不算计的真正的感情温暖的状态吗？</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-block ai-response">
+    <div class="qa-content">
+      <p>这不是一个需要用卦象绕弯子的问题。我直接回答你。</p>
+
+      <p>你真正害怕的：你拒绝了他，同时拒绝了一个谎言——但谎言里面掺着一点真的东西：有人在这间屋子里、有人在餐桌对面。你担心这是全部。所以你真正在问的是：<strong>如果连这种掺了假的温暖都不要了，那是不是活该什么都没有？</strong></p>
+
+      <p>你过去那一年得到的「温暖」——他做饭但你得忍受道德绑架，他陪你但他消耗你的安全感。这不是温暖。这是高利贷。高利贷给钱时也笑脸相迎，但不叫善意。你现在空落落的不是因为失去了他——是因为那个位置空出来了，你还没放新的东西进去。</p>
+
+      <p>你不是活在一个荒岛上。你只是没有了一个成年人的亲密陪伴。这二者有本质区别。</p>
+
+      <p>真正不计算的感情有几个特征——不是凭感觉，凭结构判断：</p>
+      <ul>
+        <li>它不会让你经常产生「他到底是不是真心的」这种疑问——因为不计算的人你不需要猜</li>
+        <li>它不会让你觉得欠了什么——真正的善意一次性给出，不需要回报</li>
+        <li>你的直觉不会持续报警——不计算的感情不会让你持续处于警惕状态</li>
+      </ul>
+      <p><strong>你不是不知道什么是真正的温暖。你只是太久没遇到过，以至于以为自己要求太高了。</strong></p>
+
+      <p>你现在的状态不是通往孤独的路。是 <strong>䷂ 屯卦</strong>——万物初生，艰难破土。初九爻辞：<strong>「盘桓，利居贞，利建侯。」</strong>——盘桓就是在原地打转。爻辞说这是正常的，刚开始的时候，你只需要守住自己（居贞），正在建立根基（建侯）。</p>
+
+      <p>屯卦九五：<strong>「小贞吉，大贞凶。」</strong>——小事上坚持是对的：每天创作、每天陪孩子、每天把能量收回来。但非要立刻得到一个大结果——强迫自己马上找到那个人——反而凶。你不急着解决「终身有没有人」这个问题。你只需要解决今天的问题：今天创作了没有？孩子开心了没有？</p>
+
+      <p>你把自己放稳了，那个不计算的人才能找到你的坐标。</p>
+    </div>
+  </div>
+
+</section>
+
+<!-- ===== 9. Conclusion ===== -->
+<section class="section" style="text-align:center;">
+  <h2 class="section-title" style="border:none; padding-left:0;">九、结语</h2>
+  <p class="section-sub" style="padding-left:0;">从阴阳到比特——人类求索的同一颗星辰</p>
+
+  <div style="max-width:800px; margin:0 auto; padding:2rem 0;">
+    <div style="font-size:3rem; letter-spacing:0.5rem; color:#d4a055; margin-bottom:1.5rem;">
+      ⚊ ⚋ ⚊ ⚋ ⚊ ⚋
+    </div>
+    <p style="color:#b8aa8a; font-size:1rem; line-height:2.2; margin-bottom:1.5rem;">
+      易经与二进制的贯通，是人类思想史上一场跨越三千年的对话。
+      周文王在羑里推演卦象时，绝想不到他正在铺设一条通往计算机科学的思维之路；
+      莱布尼茨发明二进制时，也想不到自己在追随着东方圣人的足迹。
+    </p>
+    <p style="color:#b8aa8a; font-size:1rem; line-height:2.2;">
+      <strong>阳与阴、0 与 1、是与否、开与关</strong>——二元性根植于宇宙的底层架构，
+      而人类的智慧在不同的时空分别触碰到了这一真理。今天，
+      当我们用 0 和 1 构建数字文明时，回望那 64 个卦象，
+      仍能看到古人用最简单的工具（一条连续的线和一条断开的线）完成了一次
+      <strong>从有限到无限</strong> 的跳跃：
+    </p>
+    <div style="font-family:'Noto Serif SC',serif; font-size:1.3rem; color:#f0d68a; margin:2rem 0; line-height:2;">
+      <p>太极生两仪（0 → 1）</p>
+      <p>两仪生四象（00, 01, 10, 11）</p>
+      <p>四象生八卦（000 ... 111）</p>
+      <p><strong>八卦定吉凶，吉凶生大业</strong></p>
+    </div>
+    <p style="color:#8b7355; font-size:0.9rem; font-style:italic; margin-top:1.5rem;">
+      计算机科学只是古老智慧在新的材料载体上的复兴。
+      每一个比特都携带着一丝阴阳的气息。
+    </p>
+  </div>
+</section>
+
+<!-- ===== Detail Popup ===== -->
+<div class="hex-detail-overlay" id="hexPopup">
+  <div class="hex-detail-card">
+    <div class="big-lines" id="popupLines"></div>
+    <div class="detail-bits" id="popupBits"></div>
+    <div class="detail-decimal" id="popupDecimal"></div>
+    <div style="color:#8b7a6a; font-size:0.85rem; margin-top:0.5rem;">
+      上卦：<span id="popupUpper"></span> &nbsp;·&nbsp; 下卦：<span id="popupLower"></span>
+    </div>
+    <button class="detail-close" onclick="closePopup()">关 闭</button>
+  </div>
+</div>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <p>基于 <em>D:\Documents\Desktop\易经的二进制算法.txt</em> 深度分析推演</p>
+  <p style="margin-top:0.5rem;">
+    乾 ☰ · 兑 ☱ · 离 ☲ · 震 ☳ · 巽 ☴ · 坎 ☵ · 艮 ☶ · 坤 ☷ &nbsp;—&nbsp; 万物皆比特
+  </p>
+  <p style="margin-top:0.5rem; font-size:0.7rem;">
+    Generated with Claude · 壬寅 · 2026 夏至
+  </p>
+</footer>
+
+<script>
+// ============================================================
+// DATA: 8 Trigrams (author's convention: 阳=0, 阴=1, top→bottom)
+// Corrected from the source text (离's binary corrected)
+// ============================================================
+const TRIGRAMS = [
+  { name: '乾', symbol: '☰', binary: [0,0,0], element: '天', family: '父', meaning: '刚健 · 创造 · 不息' },
+  { name: '兑', symbol: '☱', binary: [1,0,0], element: '泽', family: '少女', meaning: '悦乐 · 交流 · 开口' },
+  { name: '离', symbol: '☲', binary: [0,1,0], element: '火', family: '中女', meaning: '光明 · 依附 · 文明' },
+  { name: '震', symbol: '☳', binary: [1,1,0], element: '雷', family: '长男', meaning: '震动 · 奋起 · 行动' },
+  { name: '巽', symbol: '☴', binary: [0,0,1], element: '风', family: '长女', meaning: '顺入 · 渗透 · 谦逊' },
+  { name: '坎', symbol: '☵', binary: [1,0,1], element: '水', family: '中男', meaning: '险陷 · 流动 · 深渊' },
+  { name: '艮', symbol: '☶', binary: [0,1,1], element: '山', family: '少男', meaning: '停止 · 稳固 · 静观' },
+  { name: '坤', symbol: '☷', binary: [1,1,1], element: '地', family: '母', meaning: '柔顺 · 承载 · 养育' },
+];
+
+// Order by binary numeric value (0→7)
+const TRIGRAM_ORDER = [0, 4, 2, 6, 1, 5, 3, 7]; // indices sorted by binary: 乾巽离艮兑坎震坤
+// Actually, let me recheck. The author's order is: 乾(0),兑(4),离(2),震(6),巽(1),坎(5),艮(3),坤(7)
+// Numeric order: 乾(0),巽(1),离(2),艮(3),兑(4),坎(5),震(6),坤(7)
+
+// But for the grid, I'll use the traditional order the author presents: 乾兑离震巽坎艮坤
+const GRID_ORDER = [0, 1, 2, 3, 4, 5, 6, 7]; // indices in TRIGRAMS array (the author's listed order)
+
+// ============================================================
+// RENDER: 8 Trigrams
+// ============================================================
+function renderTrigrams() {
+  const grid = document.getElementById('trigramGrid');
+  // Sort by binary value
+  const sorted = TRIGRAMS.map((t, i) => ({ ...t, idx: i }))
+    .sort((a, b) => {
+      const va = parseInt(a.binary.join(''), 2);
+      const vb = parseInt(b.binary.join(''), 2);
+      return va - vb;
+    });
+
+  sorted.forEach(t => {
+    const decimal = parseInt(t.binary.join(''), 2);
+    const card = document.createElement('div');
+    card.className = 'trigram-card';
+    card.innerHTML = `
+      <div class="symbol">${t.symbol}</div>
+      <div class="name">${t.name}</div>
+      <div class="element">${t.element} · ${t.family} · ${t.meaning}</div>
+      <div class="lines">
+        ${t.binary.map(b => b === 0
+          ? '<div class="line-solid"></div>'
+          : '<div class="line-broken"></div>'
+        ).join('')}
+      </div>
+      <div class="bits">
+        ${t.binary.map((b, i) =>
+          `<span class="bit-val bit-${b}">${b}</span>${i < 2 ? ' ' : ''}`
+        ).join('')}
+      </div>
+      <div class="decimal">${decimal} <small>/ 7</small></div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ============================================================
+// RENDER: 64 Hexagrams Grid
+// ============================================================
+function renderHexGrid() {
+  const grid = document.getElementById('hexGrid');
+
+  // Header row: labels
+  const fragment = document.createDocumentFragment();
+
+  // Empty top-left corner
+  const corner = document.createElement('div');
+  corner.className = 'header-cell';
+  corner.textContent = '上\\下';
+  fragment.appendChild(corner);
+
+  // Column headers: lower trigrams
+  GRID_ORDER.forEach(idx => {
+    const t = TRIGRAMS[idx];
+    const cell = document.createElement('div');
+    cell.className = 'header-cell';
+    cell.textContent = `${t.symbol} ${t.name}`;
+    fragment.appendChild(cell);
+  });
+
+  // Row labels and cells
+  GRID_ORDER.forEach((upperIdx, ri) => {
+    const upper = TRIGRAMS[upperIdx];
+
+    // Row label
+    const label = document.createElement('div');
+    label.className = 'row-label';
+    label.innerHTML = `${upper.symbol}<br>${upper.name}`;
+    fragment.appendChild(label);
+
+    // Cells
+    GRID_ORDER.forEach((lowerIdx, ci) => {
+      const lower = TRIGRAMS[lowerIdx];
+      const hexagram = [...upper.binary, ...lower.binary]; // top 3 = upper, bottom 3 = lower
+      const decimal = parseInt(hexagram.join(''), 2);
+      const isPure = upperIdx === lowerIdx;
+
+      const cell = document.createElement('div');
+      cell.className = `hex-cell${isPure ? ' pure' : ''}`;
+
+      // Lines
+      const linesHtml = hexagram.map(b =>
+        b === 0 ? '<div class="h-line"></div>' : '<div class="h-broken"></div>'
+      ).join('');
+
+      // Name: just binary + decimal for now
+      const nameStr = `${upper.name}${lower.name}`;
+
+      cell.innerHTML = `
+        <div class="hex-lines">${linesHtml}</div>
+        <div class="hex-bits">${hexagram.join('')}</div>
+        <div class="hex-name">${isPure ? `☯ ${nameStr}` : nameStr}</div>
+        <div class="hex-idx">${decimal}</div>
+      `;
+
+      cell.addEventListener('click', () => showDetail(upper, lower, hexagram, decimal));
+      cell.title = `${upper.name}为上卦·${lower.name}为下卦\n二进制：${hexagram.join('')} = ${decimal}`;
+
+      fragment.appendChild(cell);
+    });
+  });
+
+  grid.appendChild(fragment);
+
+  // Add axis labels below grid
+  // (already added via legend)
+}
+
+// ============================================================
+// DETAIL POPUP
+// ============================================================
+function showDetail(upper, lower, hexagram, decimal) {
+  const popup = document.getElementById('hexPopup');
+  const lines = document.getElementById('popupLines');
+  const bits = document.getElementById('popupBits');
+  const dec = document.getElementById('popupDecimal');
+  const upperEl = document.getElementById('popupUpper');
+  const lowerEl = document.getElementById('popupLower');
+
+  lines.innerHTML = hexagram.map(b =>
+    b === 0
+      ? '<div class="bline"></div>'
+      : '<div class="bline-broken"></div>'
+  ).join('');
+
+  bits.textContent = `${hexagram.join('')}₂ = ${decimal}₁₀`;
+  dec.textContent = `${upper.symbol}${lower.symbol}  ${upper.name}·${lower.symbol + lower.name}`;
+  upperEl.textContent = `${upper.symbol} ${upper.name}（${upper.element}）`;
+  lowerEl.textContent = `${lower.symbol} ${lower.name}（${lower.element}）`;
+
+  popup.classList.add('active');
+}
+
+function closePopup() {
+  document.getElementById('hexPopup').classList.remove('active');
+}
+document.getElementById('hexPopup').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closePopup();
+});
+
+// ============================================================
+// FLOATING NAV
+// ============================================================
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  const spacer = document.getElementById('navSpacer');
+  if (window.scrollY > 200) {
+    nav.classList.add('visible');
+    spacer.style.height = nav.offsetHeight + 'px';
+  } else {
+    nav.classList.remove('visible');
+    spacer.style.height = '2px';
+  }
+});
+
+// ============================================================
+// KEYBOARD SUPPORT
+// ============================================================
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePopup();
+});
+
+// ============================================================
+// INIT
+// ============================================================
+renderTrigrams();
+renderHexGrid();
+</script>
+
+<!-- ===== Floating Chat Widget ===== -->
+<div class="chat-toggle" id="chatToggle" onclick="toggleChat()">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span class="chat-badge" id="chatBadge">聊</span>
+</div>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <div>
+      <div class="chat-header-title">⚊⚋ 与易经对话</div>
+      <div class="chat-header-sub">问任何关于阴阳 · 卦象 · 二进制的问题</div>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg chat-msg-bot">
+      <div class="msg-avatar">易</div>
+      <div>
+        <div class="msg-bubble">
+          <strong>你好，探索者。</strong> 我们可以继续聊易经。<br>
+          你可以问我：
+        </div>
+        <div class="chat-chips" id="chatChips">
+          <span class="chip" onclick="sendChip('0和1背后是什么？')">0和1背后是什么？</span>
+          <span class="chip" onclick="sendChip('怎么把易经当方法论用？')">怎么当方法论用？</span>
+          <span class="chip" onclick="sendChip('易经和计算机什么关系？')">与计算机的关系</span>
+          <span class="chip" onclick="sendChip('六十四卦怎么来的？')">64卦怎么来的？</span>
+          <span class="chip" onclick="sendChip('什么是太极？')">什么是太极？</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chat-input-area">
+    <input type="text" class="chat-input" id="chatInput" placeholder="输入你的问题..." onkeydown="if(event.key==='Enter')sendMessage()">
+    <button class="chat-send" onclick="sendMessage()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<style>
+/* ===== Chat Widget ===== */
+.chat-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d4a055, #b8863a);
+  color: #0a0a0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(212,160,85,0.3);
+  z-index: 2000;
+  transition: all 0.3s ease;
+  border: none;
+}
+.chat-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 30px rgba(212,160,85,0.5);
+}
+.chat-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef5350;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 8px;
+  line-height: 1;
+}
+
+.chat-panel {
+  position: fixed;
+  bottom: 24px;
+  right: 90px;
+  width: 400px;
+  height: 600px;
+  max-height: calc(100vh - 80px);
+  background: #12111a;
+  border: 1px solid #2a2530;
+  border-radius: 16px;
+  display: none;
+  flex-direction: column;
+  z-index: 2000;
+  box-shadow: 0 10px 60px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+.chat-panel.active { display: flex; }
+
+.chat-header {
+  padding: 1rem 1.2rem;
+  background: linear-gradient(135deg, #1a1410, #16131e);
+  border-bottom: 1px solid #2a2530;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.chat-header-title {
+  font-family: 'Noto Serif SC', serif;
+  color: #f0d68a;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.chat-header-sub {
+  font-size: 0.7rem;
+  color: #6a6a7a;
+  margin-top: 2px;
+}
+.chat-close {
+  background: none;
+  border: none;
+  color: #6a6a7a;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.chat-close:hover { color: #f0d68a; background: #2a2530; }
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-thumb { background: #2a2530; border-radius: 2px; }
+
+.chat-msg {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  max-width: 100%;
+}
+.chat-msg.chat-msg-user { flex-direction: row-reverse; }
+.msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.chat-msg-bot .msg-avatar { background: #2a2530; color: #d4a055; }
+.chat-msg-user .msg-avatar { background: #d4a055; color: #0a0a0f; }
+
+.msg-bubble {
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  line-height: 1.8;
+  color: #b8aa8a;
+  max-width: 380px;
+  word-wrap: break-word;
+}
+.chat-msg-bot .msg-bubble {
+  background: #0d0c12;
+  border: 1px solid #1a1720;
+  border-top-left-radius: 2px;
+}
+.chat-msg-user .msg-bubble {
+  background: #1a1410;
+  border: 1px solid #d4a05533;
+  border-top-right-radius: 2px;
+  color: #e0d8c8;
+}
+.msg-bubble strong { color: #f0d68a; }
+.msg-bubble em { color: #d4a055; font-style: normal; }
+.msg-bubble ul { margin: 0.3rem 0; padding-left: 1.2rem; }
+.msg-bubble li { margin: 0.15rem 0; }
+
+.chat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.chip {
+  background: #1a1720;
+  border: 1px solid #2a2530;
+  border-radius: 14px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  color: #8b7a6a;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.chip:hover {
+  background: #d4a05518;
+  border-color: #d4a05544;
+  color: #f0d68a;
+}
+
+.chat-input-area {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.8rem 1rem;
+  border-top: 1px solid #1a1720;
+  background: #0d0c12;
+  flex-shrink: 0;
+}
+.chat-input {
+  flex: 1;
+  background: #12111a;
+  border: 1px solid #2a2530;
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  color: #e0d8c8;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.chat-input:focus { border-color: #d4a05566; }
+.chat-input::placeholder { color: #4a4a5a; }
+.chat-send {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #d4a055;
+  border: none;
+  color: #0a0a0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.chat-send:hover { background: #f0d68a; }
+
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 0.3rem 0;
+}
+.typing-indicator span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6a6a7a;
+  animation: typingDot 1.4s infinite ease-in-out;
+}
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingDot {
+  0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+  30% { opacity: 1; transform: scale(1.2); }
+}
+
+@media (max-width: 480px) {
+  .chat-panel { width: calc(100vw - 24px); right: 12px; bottom: 12px; max-height: calc(100vh - 24px); }
+  .chat-toggle { bottom: 12px; right: 12px; }
+}
+</style>
+
+<script>
+// ============================================================
+// CHAT ENGINE — 易经对话知识系统
+// ============================================================
+const YI_JING_KB = {
+  'default': [
+    '这是个好问题。易经的智慧在于它不是一个固定答案系统，而是一个帮助你 <strong>看清自己在局中位置</strong> 的工具。',
+    '从更深的层面看，<strong>阴阳不是二元对立，而是相互定义、相互包含、相互转化的动态关系</strong>。「一阴一阳之谓道」——交替本身才是道。',
+    '想想你面前的任何「局面」：它一定有正在生长的部分（阳）和正在消退的部分（阴）。你能同时看到这两面，你就超越了二元对立。',
+    '易经的本质是 <strong>符号计算</strong>：把处境抽象为爻（0和1），在 64 种模式中找到匹配，然后读那个模式的故事。它是三千年前的决策支持系统。',
+    '<strong>64 卦不是 64 种事情，而是 64 种「内外匹配模式」。</strong> 下卦是你自己，上卦是环境。你只需要问：我现在的内部状态和外部环境是什么关系？',
+  ],
+  'binary|0.*1|二进制|比特|计算机|算法': [
+    '易经和计算机用的确实是同一种底层语言：<strong>二元编码</strong>。<br><br>3 爻 = 3 bit → 2³ = 8 卦<br>6 爻 = 6 bit → 2⁶ = 64 卦<br><br>但关键区别在于：计算机把二进制当作 <strong>形式系统</strong>，易经把二进制转化成了 <strong>具象模型</strong>——每个模式都有一个意象、一个故事。',
+    '你说到的莱布尼茨，1701 年看到邵雍的六十四卦图时大为震惊。但莱布尼茨的二进制是 <strong>水平线性</strong> 的（0→1→2→3...），而易经是 <strong>空间结构</strong> 的（上中下三层嵌套）。后者其实更像今天的 <strong>高维向量编码</strong>。',
+    '一个惊人的巧合：DNA 密码子也是 4³ = 64 种。生命用了 64 种三碱基组合来编码所有氨基酸，易经用了 64 种三爻组合来编码所有处境。<br><br>64 这个数字，在信息和生命两个层面都出现了。<br><br>这是巧合，还是某种深层结构？',
+  ],
+  '0和1背后|阴阳.*背后|太极|道|本质': [
+    '这是最根本的问题。我给你一个三层框架：<br><br><strong>表层：</strong> 0 和 1（二进制形式）——符号的语法<br><strong>中层：</strong> 阴阳（动力关系）——你中有我，我中有你<br><strong>底层：</strong> 太极（区分之前的状态）——能区分而不区分<br><br>太极不是混沌。太极是 <strong>「尚未做出区分的那种状态」</strong>。你可以画出阴阳，是因为你先做了「区分」这个动作。那个区分之前的源头，就是太极。',
+    '<strong>「易有太极，是生两仪」</strong>——这句话的字面意思是：变化本身有一个源头，它生出两种基本力量。<br><br>换个角度：0 和 1 的背后不是另一个数字，而是 <strong>「区分」这个行为本身</strong>。在区分之前的状态，无名、无相、无阴阳，那就是太极。<br><br>所以「道生一，一生二，二生三，三生万物」——道（太极）→ 阳（一）→ 阴（二）→ 三爻（三）→ 八卦（万物）。',
+  ],
+  '方法论|心法|流程|手段|做事|决策|实用': [
+    '你把易经当方法论用，不仅没错，而且用对了。<br><br>我帮你理一下这个用法：<br><br><strong>① 拆局面：</strong> 下爻=你的起点，中爻=你的行动，上爻=外部环境<br><strong>② 定阶段：</strong> 初爻萌发 → 二爻崭露 → 三爻谨慎 → 四爻近转折 → 五爻鼎盛 → 上爻收尾<br><strong>③ 看内外：</strong> 下卦=你内部状态，上卦=外部环境<br><strong>④ 读匹配：</strong> 内外都刚健（乾乾）？内刚外险（需卦）？<br><br>每次做决定前走完这四步，你就是在用易经思维了。',
+    '有个实战技巧：<strong>把问题写下来，然后问自己三个问题</strong>——<br><br>1. 我现在的真实起点是什么？（不美化也不贬低）<br>2. 我打算怎么做？（具体动作）<br>3. 外部环境在朝哪个方向走？（天时/趋势）<br><br>这就是三爻框架。不用翻书、不记卦名，你已经用上了易经的核心方法论。',
+  ],
+  '六十四卦|64卦|怎么来|如何生成|从0到7': [
+    '六十四卦的生成是 <strong>组合数学</strong> 和 <strong>嵌套建模</strong> 的双重结果。<br><br><strong>数学上：</strong> 八卦 × 八卦 = 64 种可能。3-bit × 2 = 6-bit 编码空间。<br><br><strong>模型上：</strong> 每一个六爻卦 = 上卦（环境/外） + 下卦（主体/内）。64 种内外匹配模式。<br><br>原文说「这八个数字从 0 到 7，完成一轮循环，然后又开始从 0 到 7」——这句话描述的是 <strong>3-bit 无符号整数的模 8 运算</strong>，和计算机的整数溢出原理完全一致。',
+    '<strong>从 0 到 7 再回到 0：</strong><br><br>乾(000) → 巽(001) → 离(010) → 艮(011) → 兑(100) → 坎(101) → 震(110) → 坤(111) → 乾(000)...<br><br>这不只是循环——这是个 <strong>格雷码（Gray Code）</strong> 序列：每一步只变一爻。相邻两卦之间只差一个比特。<br><br>三千年前的古人在排卦序时，已经在用现代编码理论里「相邻状态最小变化」的原则了。',
+  ],
+  '太极|taiji|两仪|四象|八卦': [
+    '<strong>太极 → 两仪 → 四象 → 八卦</strong> 是中国版的「从一到多」生成模型。<br><br>太极（无区分）→ 两仪（阴阳/0和1）→ 四象（00,01,10,11/太阳,少阴,少阳,太阴）→ 八卦（000...111）。<br><br>这本质上是一个 <strong>递归分形结构</strong>：每一次分裂都产生两种可能，三次分裂后得到 8 种模式。<br><br>邵雍的「加一倍法」说的就是：<strong>每一层都是上一层的两倍</strong>。2 → 4 → 8 → 16 → 32 → 64。',
+    '「易有太极，是生两仪，两仪生四象，四象生八卦」——这是《系辞》里的话。它不是哲学隐喻，它是一段 <strong>算法描述</strong>：<br><br>太极 = 初始状态（空集）<br>两仪 = 对初始区分（划分出 2 个子集）<br>四象 = 再区分（2×2=4）<br>八卦 = 三次区分后（2³=8）<br><br>这是一段用自然语言写的 <strong>递归算法伪代码</strong>。',
+  ],
+  '卦象|读卦|怎么用|如何理解': [
+    '读卦有个核心心法：<strong>不要背卦辞，要读关系。</strong><br><br>每卦六爻，你先看三件事：<br><br>1. <strong>阴阳比例</strong>：几个阳几个阴？刚多还是柔多？<br>2. <strong>关键爻位</strong>：二爻（中正之位）和五爻（尊位）是阴是阳？<br>3. <strong>内外关系</strong>：下卦和上卦是相生还是相克？<br><br>比如䷄（水天需）：内乾外坎——你内心刚健有力，但外部环境险陷未平。所以卦名叫「需」——<strong>等待</strong>。不是让你不动，是让你在动的准备中等待时机。',
+    '64 卦可以分为 <strong>八宫</strong>，每宫 8 卦。八宫就是 8 个纯卦（上下相同）：<br><br>☰乾宫 · ☱兑宫 · ☲离宫 · ☳震宫 · ☴巽宫 · ☵坎宫 · ☶艮宫 · ☷坤宫<br><br>每宫的第一个卦是「纯卦」，后面七个是它的一爻变、二爻变……直到六爻全变（归魂）。<br><br>这又是计算机思维：<strong>一个「基态」加上所有可能的扰动</strong>，构成一个完整的状态机。',
+  ],
+};
+
+// Tokenize and match
+function matchKB(input) {
+  for (const [patterns, responses] of Object.entries(YI_JING_KB)) {
+    const keywords = patterns.split('|');
+    const matched = keywords.some(kw => input.includes(kw));
+    if (matched) {
+      const idx = Math.floor(Math.random() * responses.length);
+      return responses[idx];
+    }
+  }
+  // Fallback
+  const fallbacks = YI_JING_KB['default'];
+  return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+}
+
+// ============================================================
+// CHAT UI
+// ============================================================
+let chatHistory = [];
+
+function toggleChat() {
+  const panel = document.getElementById('chatPanel');
+  panel.classList.toggle('active');
+  if (panel.classList.contains('active')) {
+    document.getElementById('chatInput').focus();
+    document.getElementById('chatBadge').style.display = 'none';
+  }
+}
+
+function addMessage(text, isUser) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${isUser ? 'chat-msg-user' : 'chat-msg-bot'}`;
+  div.innerHTML = `
+    <div class="msg-avatar">${isUser ? '你' : '易'}</div>
+    <div class="msg-bubble">${text}</div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  chatHistory.push({ text, isUser, time: Date.now() });
+  try { localStorage.setItem('yiChatHistory', JSON.stringify(chatHistory)); } catch(e) {}
+}
+
+function showTyping() {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg chat-msg-bot';
+  div.id = 'typingMsg';
+  div.innerHTML = `
+    <div class="msg-avatar">易</div>
+    <div class="typing-indicator"><span></span><span></span><span></span></div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typingMsg');
+  if (el) el.remove();
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  // Remove chips after first message
+  const chips = document.getElementById('chatChips');
+  if (chips) chips.style.display = 'none';
+
+  addMessage(text, true);
+  showTyping();
+
+  setTimeout(() => {
+    removeTyping();
+    const reply = matchKB(text);
+    addMessage(reply, false);
+  }, 600 + Math.random() * 400);
+}
+
+function sendChip(text) {
+  document.getElementById('chatInput').value = text;
+  sendMessage();
+}
+
+// Load history
+try {
+  const saved = JSON.parse(localStorage.getItem('yiChatHistory'));
+  if (saved && saved.length > 0) {
+    chatHistory = saved;
+    // Only show last 10 from history to avoid clutter on reload
+    const recent = saved.slice(-10);
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = '';
+    recent.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = `chat-msg ${msg.isUser ? 'chat-msg-user' : 'chat-msg-bot'}`;
+      div.innerHTML = `
+        <div class="msg-avatar">${msg.isUser ? '你' : '易'}</div>
+        <div class="msg-bubble">${msg.text}</div>
+      `;
+      container.appendChild(div);
+    });
+    // Re-add chips
+    const chips = document.getElementById('chatChips');
+    if (chips) chips.style.display = 'flex';
+    container.scrollTop = container.scrollHeight;
+  }
+} catch(e) {}
+</script>
+
+</body>
+</html>
