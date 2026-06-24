@@ -328,9 +328,9 @@
   <div class="iching-trigrams" id="trigramGrid"></div>
 
   <p style="color:#8b7a6a; margin-top:1rem; font-size:0.9rem; line-height:1.8; text-align:center;">
-    ☰ 乾 <strong>000</strong> → ☴ 巽 <strong>001</strong> → ☲ 离 <strong>010</strong> → ☶ 艮 <strong>011</strong>
-    → ☱ 兑 <strong>100</strong> → ☵ 坎 <strong>101</strong> → ☳ 震 <strong>110</strong> → ☷ 坤 <strong>111</strong><br>
-    <span style="color:#6a6a7a;">按二进制数值自然排序，从 0 到 7 完成一轮循环</span>
+    ☰ 乾 <strong>000</strong> → ☱ 兑 <strong>001</strong> → ☲ 离 <strong>010</strong> → ☳ 震 <strong>011</strong>
+    → ☴ 巽 <strong>100</strong> → ☵ 坎 <strong>101</strong> → ☶ 艮 <strong>110</strong> → ☷ 坤 <strong>111</strong><br>
+    <span style="color:var(--text-muted);">从下往上读，初爻=最低位：阳=0, 阴=1 → 自然序 0→7</span>
   </p>
 </section>
 
@@ -1191,22 +1191,19 @@
 // ============================================================
 const TRIGRAMS = [
   { name: '乾', symbol: '☰', binary: [0,0,0], element: '天', family: '父', meaning: '刚健 · 创造 · 不息' },
-  { name: '兑', symbol: '☱', binary: [1,0,0], element: '泽', family: '少女', meaning: '悦乐 · 交流 · 开口' },
+  { name: '兑', symbol: '☱', binary: [0,0,1], element: '泽', family: '少女', meaning: '悦乐 · 交流 · 开口' },
   { name: '离', symbol: '☲', binary: [0,1,0], element: '火', family: '中女', meaning: '光明 · 依附 · 文明' },
-  { name: '震', symbol: '☳', binary: [1,1,0], element: '雷', family: '长男', meaning: '震动 · 奋起 · 行动' },
-  { name: '巽', symbol: '☴', binary: [0,0,1], element: '风', family: '长女', meaning: '顺入 · 渗透 · 谦逊' },
+  { name: '震', symbol: '☳', binary: [0,1,1], element: '雷', family: '长男', meaning: '震动 · 奋起 · 行动' },
+  { name: '巽', symbol: '☴', binary: [1,0,0], element: '风', family: '长女', meaning: '顺入 · 渗透 · 谦逊' },
   { name: '坎', symbol: '☵', binary: [1,0,1], element: '水', family: '中男', meaning: '险陷 · 流动 · 深渊' },
-  { name: '艮', symbol: '☶', binary: [0,1,1], element: '山', family: '少男', meaning: '停止 · 稳固 · 静观' },
+  { name: '艮', symbol: '☶', binary: [1,1,0], element: '山', family: '少男', meaning: '停止 · 稳固 · 静观' },
   { name: '坤', symbol: '☷', binary: [1,1,1], element: '地', family: '母', meaning: '柔顺 · 承载 · 养育' },
 ];
 
-// Order by binary numeric value (0→7)
-const TRIGRAM_ORDER = [0, 4, 2, 6, 1, 5, 3, 7]; // indices sorted by binary: 乾巽离艮兑坎震坤
-// Actually, let me recheck. The author's order is: 乾(0),兑(4),离(2),震(6),巽(1),坎(5),艮(3),坤(7)
-// Numeric order: 乾(0),巽(1),离(2),艮(3),兑(4),坎(5),震(6),坤(7)
-
-// But for the grid, I'll use the traditional order the author presents: 乾兑离震巽坎艮坤
-const GRID_ORDER = [0, 1, 2, 3, 4, 5, 6, 7]; // indices in TRIGRAMS array (the author's listed order)
+// binary[n] = 下爻(n=0), 中爻(n=1), 上爻(n=2) — 从下往上读
+// 阳=0, 阴=1 → 自然数值排序 = 乾兑离震巽坎艮坤 (0→7)
+const TRIGRAM_ORDER = [0, 1, 2, 3, 4, 5, 6, 7];
+const GRID_ORDER = [0, 1, 2, 3, 4, 5, 6, 7];
 
 // ============================================================
 // RENDER: 8 Trigrams
@@ -1230,13 +1227,13 @@ function renderTrigrams() {
       <div class="name">${t.name}</div>
       <div class="element">${t.element} · ${t.family} · ${t.meaning}</div>
       <div class="lines">
-        ${t.binary.map(b => b === 0
+        ${[...t.binary].reverse().map(b => b === 0
           ? '<div class="iching-line-solid"></div>'
           : '<div class="iching-line-broken"></div>'
         ).join('')}
       </div>
       <div class="bits">
-        ${t.binary.map((b, i) =>
+        ${[...t.binary].reverse().map((b, i) =>
           `<span class="bit-val bit-${b}">${b}</span>${i < 2 ? ' ' : ''}`
         ).join('')}
       </div>
@@ -1283,7 +1280,8 @@ function renderHexGrid() {
     // Cells
     GRID_ORDER.forEach((lowerIdx, ci) => {
       const lower = TRIGRAMS[lowerIdx];
-      const hexagram = [...upper.binary, ...lower.binary]; // top 3 = upper, bottom 3 = lower
+      // Reverse for display: 上爻在顶部, 下爻在底部
+      const hexagram = [...upper.binary].reverse().concat([...lower.binary].reverse());
       const decimal = parseInt(hexagram.join(''), 2);
       const isPure = upperIdx === lowerIdx;
 
@@ -1348,22 +1346,6 @@ function closePopup() {
 }
 document.getElementById('hexPopup').addEventListener('click', e => {
   if (e.target === e.currentTarget) closePopup();
-});
-
-// ============================================================
-// FLOATING NAV
-// ============================================================
-let lastScroll = 0;
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('navbar');
-  const spacer = document.getElementById('navSpacer');
-  if (window.scrollY > 200) {
-    nav.classList.add('visible');
-    spacer.style.height = nav.offsetHeight + 'px';
-  } else {
-    nav.classList.remove('visible');
-    spacer.style.height = '2px';
-  }
 });
 
 // ============================================================
