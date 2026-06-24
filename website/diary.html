@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>工作日志 · 元演心智</title>
+<meta name="description" content="和 AI 协作的日常——对话实录、决策记录、问题排查。">
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;600;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<style>
+/* diary 页面专用样式 */
+.entry{display:none;padding:36px 0;border-bottom:1px solid var(--border)}
+.entry.show{display:block}
+.entry:last-child{border-bottom:none}
+.entry-date{font-size:12px;color:var(--text-muted);letter-spacing:.08em;margin-bottom:10px}
+.entry-title{font-size:20px;font-weight:700;letter-spacing:-.01em;margin-bottom:20px;color:var(--text)}
+.entry .tag{
+  display:inline-block;font-size:11px;padding:2px 12px;border-radius:100px;
+  margin-bottom:12px;font-weight:500;letter-spacing:.06em
+}
+.tag.dialog{background:var(--accent-subtle);color:var(--accent)}
+.tag.decision{background:rgba(196,155,92,.1);color:var(--accent)}
+.tag.debug{background:var(--purple-subtle);color:var(--purple)}
+.dialog .code{font-size:13px;padding:2px 6px;background:var(--accent-subtle);border-radius:4px;color:var(--accent);font-family:'JetBrains Mono','Fira Code',monospace}
+.problem .code{font-size:13px;padding:2px 6px;background:var(--purple-subtle);border-radius:4px;color:var(--purple);font-family:'JetBrains Mono','Fira Code',monospace}
+.monologue .highlight{color:var(--accent);font-weight:500}
+.monologue .mute{color:var(--text-muted)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html">主页</a><a href="yuanyan.html">系统</a><a href="diary.html">日志</a>
+  <a href="ai.html">AI</a><a href="log.html">复盘</a>
+</nav>
+<div class="wrap-narrow">
+  <div class="banner">
+    <a href="index.html" class="back">← 返回主页</a>
+    <h1>📝 工作日志</h1>
+    <p>渔樵问对 · 一问一答之间，把问题聊透。<br>🎣 Fendi · 🪵 Claude</p>
+  </div>
+
+  <!-- 筛选 -->
+  <div class="filters">
+    <div class="filter-card active" onclick="filter('dialog')">
+      <span class="f-icon">💬</span>
+      <div class="f-label">对话实录</div>
+      <div class="f-count">3 篇</div>
+    </div>
+    <div class="filter-card" onclick="filter('decision')">
+      <span class="f-icon">🎯</span>
+      <div class="f-label">决策记录</div>
+      <div class="f-count">3 篇</div>
+    </div>
+    <div class="filter-card" onclick="filter('debug')">
+      <span class="f-icon">🔍</span>
+      <div class="f-label">问题排查</div>
+      <div class="f-count">3 篇</div>
+    </div>
+  </div>
+
+  <!-- ===== 对话实录 ===== -->
+  <div class="entry show" data-type="dialog">
+    <div class="entry-date">2026-06-22</div>
+    <span class="tag dialog">💬 对话实录</span>
+    <div class="entry-title">做个什么风格的网站？</div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>我有个想法，想把学 AI 和做元演系统这些东西做成个人网站。用什么工具做？</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>有好几个路子。Penpot 做设计稿、Figma 也行、或者我直接写 HTML。你要什么风格？</p></div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>暗色科技风，黑底亮字那种极客感。</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>行。我先用 Penpot 画个稿子给你看看？</p></div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>Penpot 能不能换脸做数字人？</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>……不能，Penpot 是做 UI 界面设计的。换脸是另外的工具。</p></div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>那就在 Penpot 上画设计稿。</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>注册一下？</p></div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>GitHub 登录——打不开。邮箱注册——打不开。</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>被墙了。那我直接手写 HTML 吧，更快。</p></div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>搞起。</p></div>
+  </div>
+
+  <div class="entry" data-type="dialog">
+    <div class="entry-date">2026-06-21</div>
+    <span class="tag dialog">💬 对话实录</span>
+    <div class="entry-title">把 Flomo 笔记全搬进来</div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>我想把 Flomo 的所有笔记都同步到 Obsidian 里。</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>Flomo 有 API 吗？我去看看。</p></div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>给你地址：<span class="code">POST https://flomoapp.com/iwh/...</span></p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>那是写入 API，不能读。Flomo 用的是 MCP 协议，需要 OAuth 认证。</p></div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>我找不到 Token 设置。</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>Flomo 没有个人 Token，只能走 OAuth 授权码流程。我写个脚本做 PKCE 认证。</p></div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>搞吧。</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>搞定了！同步了 10 条笔记到捕获目录。</p></div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>我总共有 290 条，全部搞进去。</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>Flomo MCP 一次最多返回 10 条，得分批次按月拉取。</p></div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>算了，以后同步吧。</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>记下了。</p></div>
+  </div>
+
+  <div class="entry" data-type="dialog">
+    <div class="entry-date">2026-06-22</div>
+    <span class="tag dialog">💬 对话实录</span>
+    <div class="entry-title">复盘这件事怎么做？</div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>以后每一天咱们得复盘，有价值的内容、遇到的问题、解决的方法，都记到网站上。</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>好习惯。我做一个每日复盘页面，今天就开始记第一篇。</p></div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>我希望有咱俩对话交流的过程。</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>那我把复盘分成两部分：简短摘要记在复盘页，完整的对话过程展开到工作日志里。</p></div>
+    <div class="dialog fisher"><div class="speaker">🎣 Fendi</div><p>就像《渔樵问对》那样，一问一答，口语化，大白话。</p></div>
+    <div class="dialog woodsman"><div class="speaker">🪵 Claude</div><p>明白了。你是渔夫我是樵夫，把探讨问题的过程留痕。</p></div>
+  </div>
+
+  <!-- ===== 决策记录 ===== -->
+  <div class="entry" data-type="decision">
+    <div class="entry-date">2026-06-22</div>
+    <span class="tag decision">🎯 决策记录</span>
+    <div class="entry-title">为什么要做个人网页？</div>
+    <div class="monologue">
+      <p>学 AI 这段时间踩了不少坑，也积累了很多经验。这些东西如果只是记在本子里，就只有我自己能看到。</p>
+      <p>我想把这些内容公开出来——<span class="highlight">把走过的路变成别人的地图</span>。不只是 AI 笔记，还有元演系统的架构思路，以及和 AI 协作的真实记录。</p>
+      <p>网站分几个板块：AI 学习笔记、元演系统、工作日记、项目案例，再加上图片和视频素材库。后期还可以加 AI 每日资讯和复盘。</p>
+      <p><span class="mute">先本地打磨，满意了再上线。</span></p>
+    </div>
+  </div>
+
+  <div class="entry" data-type="decision">
+    <div class="entry-date">2026-06-22</div>
+    <span class="tag decision">🎯 决策记录</span>
+    <div class="entry-title">侧边栏到底放哪？</div>
+    <div class="monologue">
+      <p>一开始 Claude 把导航栏做在顶部，加了毛玻璃效果。但我觉得那个横条挡视线，位置不对。</p>
+      <p>我说要侧边栏——竖向贯穿上下那种。他改了，但我又觉得比例失衡。</p>
+      <p>最后我让他参考苹果官网的设计。看了 Apple 的风格之后确定了方向：<span class="highlight">顶部极简导航、全幅板块、大字标题、内容居中</span>。</p>
+      <p><span class="mute">前后改了 3 次，最终版才满意。</span></p>
+    </div>
+  </div>
+
+  <div class="entry" data-type="decision">
+    <div class="entry-date">2026-06-22</div>
+    <span class="tag decision">🎯 决策记录</span>
+    <div class="entry-title">网站要不要做价值闭环？</div>
+    <div class="monologue">
+      <p>网站不能只是一个展示架子。我的目的是<span class="highlight">让更多人用、看、学</span>。</p>
+      <p>所以我让 Claude 在首页加了三个入口：👀 先看看（浏览精华）、📚 开始学（进入 AI 笔记）、🛠️ 拿去用（看项目案例）。再加一个邮箱订阅，有更新能通知访客。</p>
+      <p>页脚放上 GitHub、公众号和邮件联系方式。这样就形成了一个闭环：<span class="mute">来 → 看/学/用 → 带走 → 订阅 → 再来</span>。</p>
+    </div>
+  </div>
+
+  <!-- ===== 问题排查 ===== -->
+  <div class="entry" data-type="debug">
+    <div class="entry-date">2026-06-22</div>
+    <span class="tag debug">🔍 问题排查</span>
+    <div class="entry-title">插件装了但看不到 Flomo 设置</div>
+    <div class="problem">
+      <div class="q">Obsidian 插件设置里没有 Flomo 相关选项</div>
+      <div class="a">
+        <p>安装目录里的 <span class="code">main.js</span> 是旧版编译文件，还没有 Flomo 代码。</p>
+        <span class="step">把项目源码中最新编译的 <span class="code">main.js</span> 复制到 <span class="code">.obsidian/plugins/yuanyan-engine/</span></span>
+        <span class="step">重启 Obsidian，Flomo 配置项出现</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="entry" data-type="debug">
+    <div class="entry-date">2026-06-22</div>
+    <span class="tag debug">🔍 问题排查</span>
+    <div class="entry-title">网站部署到 GitHub Pages 打不开</div>
+    <div class="problem">
+      <div class="q"><span class="code">https://fendi945.github.io</span> 无法访问</div>
+      <div class="a">
+        <p>DNS 解析正常，Pages 状态显示已部署。GitHub 在国内部分网络环境下访问不稳定。</p>
+        <span class="step">尝试 Vercel、Netlify——均需交互登录，无法自动化</span>
+        <span class="step">改用本地 HTTP 服务器：<span class="code">python -m http.server 8080</span></span>
+        <span class="step">通过 <span class="code">http://localhost:8080/</span> 本地预览，无需联网</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="entry" data-type="debug">
+    <div class="entry-date">2026-06-22</div>
+    <span class="tag debug">🔍 问题排查</span>
+    <div class="entry-title">Penpot 注册登录失败</div>
+    <div class="problem">
+      <div class="q">Penpot 官网打不开，GitHub 登录报错「不允许使用此域名」</div>
+      <div class="a">
+        <p>域名 penpot.app 被 DNS 污染或网络限制，GitHub OAuth 回调被拦截。</p>
+        <span class="step">检查是否支持邮箱注册——同样被墙</span>
+        <span class="step">放弃 Penpot，直接手写 HTML/CSS，零依赖</span>
+        <span class="step">后续需要专业设计工具时，考虑国内替代品「即时设计」</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function filter(type){
+  document.querySelectorAll('.filter-card').forEach(c=>c.classList.remove('active'))
+  event.currentTarget.classList.add('active')
+  document.querySelectorAll('.entry').forEach(e=>{
+    e.classList.toggle('show', e.dataset.type===type)
+  })
+}
+</script>
+
+<footer>
+  <div class="social">
+    <a href="https://github.com/Fendi945" target="_blank">GitHub</a>
+    <a href="mailto:hello@yuanyan.cc">邮件</a>
+  </div>
+  <p>元演心智 · 持续进化中</p>
+  <p style="margin-top:4px;">Built with &hearts; by Fendi + Claude</p>
+  <p class="signature">慢慢走，欣赏啊</p>
+</footer>
+<div class="sig-float">慢慢走，欣赏啊</div>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>AI 每日资讯 · 元演心智</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;600;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<style>
+/* daily 页面专用 */
+.section-title{font-size:20px;font-weight:600;margin-bottom:16px;color:var(--text);letter-spacing:-.01em;margin-top:48px}
+.section-title:first-of-type{margin-top:0}
+.news-list{display:flex;flex-direction:column;gap:12px;margin-bottom:48px}
+.news-item{background:var(--surface);border:1px solid var(--border-card);border-radius:var(--radius-card);padding:20px 24px;transition:all var(--ease-quick)}
+.news-item:hover{background:var(--surface-hover);border-color:var(--accent)}
+.news-item .source{font-size:11px;color:var(--text-muted);letter-spacing:.06em;margin-bottom:4px}
+.news-item h3{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--text);letter-spacing:-.01em}
+.news-item p{font-size:14px;color:var(--text-secondary);line-height:1.6}
+.news-item .meta{display:flex;gap:12px;margin-top:8px;font-size:12px;color:var(--text-muted)}
+.repo-list{display:flex;flex-direction:column;gap:12px;padding-bottom:80px}
+.repo{background:var(--surface);border:1px solid var(--border-card);border-radius:var(--radius-card);padding:20px 24px;transition:all var(--ease-quick)}
+.repo:hover{background:var(--surface-hover);border-color:var(--accent)}
+.repo-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.repo h3{font-size:16px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.repo .stars{font-size:13px;color:#f5c518;letter-spacing:.02em}
+.repo p{font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:6px}
+.repo .tags{display:flex;gap:8px;flex-wrap:wrap}
+.repo .tags span{font-size:11px;padding:3px 10px;border-radius:100px;background:var(--primary-subtle);color:var(--primary);letter-spacing:.03em}
+.repo .lang{font-size:12px;color:var(--text-muted)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html">主页</a><a href="yuanyan.html">系统</a><a href="diary.html">日志</a>
+  <a href="ai.html">AI</a><a href="log.html">复盘</a>
+</nav>
+<div class="wrap-narrow">
+  <div class="banner">
+    <a href="index.html" class="back">← 返回主页</a>
+    <h1>📰 AI 每日资讯</h1>
+    <p>每日 5 条 AI 头条、GitHub 热门项目与插件 —— 保持对前沿的感知。</p>
+  </div>
+
+  <!-- 每日自动刷新区域 -->
+  <div class="section-title">📰 今日 AI 头条</div>
+  <div class="news-list">
+    <div class="news-item">
+      <div class="source">TechCrunch · 1 小时前</div>
+      <h3>Claude 发布 Fable 5：推理能力大幅提升</h3>
+      <p>Anthropic 推出 Claude Fable 5，在复杂推理和长上下文任务上超越前代，支持 200K token 上下文窗口。</p>
+      <div class="meta"><span>🔥 热议</span><span>💬 2.3k</span></div>
+    </div>
+    <div class="news-item">
+      <div class="source">The Verge · 3 小时前</div>
+      <h3>OpenAI 宣布 GPT-5 训练计划细节</h3>
+      <p>Sam Altman 透露 GPT-5 将引入新的架构改进，重点提升多模态推理和 Agent 能力。</p>
+      <div class="meta"><span>🔥 热议</span><span>💬 4.1k</span></div>
+    </div>
+    <div class="news-item">
+      <div class="source">GitHub Blog · 5 小时前</div>
+      <h3>GitHub Copilot 升级：支持多文件编辑</h3>
+      <p>Copilot 新增 Workspace 模式，可一次性理解和修改整个代码库中的多个文件。</p>
+      <div class="meta"><span>⚡ 更新</span><span>💬 1.8k</span></div>
+    </div>
+    <div class="news-item">
+      <div class="source">Google AI · 8 小时前</div>
+      <h3>Gemini 2.5 Pro 正式上线</h3>
+      <p>Google 发布 Gemini 2.5 Pro，在推理、编程和多语言能力上全面升级。</p>
+      <div class="meta"><span>🚀 发布</span><span>💬 3.2k</span></div>
+    </div>
+    <div class="news-item">
+      <div class="source">Hugging Face · 12 小时前</div>
+      <h3>开源模型排行榜更新：Qwen3 登顶</h3>
+      <p>通义千问 Qwen3 在多项基准测试中超越 Llama 4，成为最受欢迎的开源模型。</p>
+      <div class="meta"><span>📊 排行</span><span>💬 1.5k</span></div>
+    </div>
+  </div>
+
+  <div class="section-title">⭐ GitHub 热门项目</div>
+  <div class="repo-list">
+    <div class="repo">
+      <div class="repo-top"><h3>claude-code</h3><span class="stars">★ 48.2k</span></div>
+      <p>Anthropic 官方 CLI 工具，在终端中与 Claude 进行 AI 结对编程。</p>
+      <div class="tags"><span>AI</span><span>CLI</span><span>Tool</span></div>
+      <div class="lang">TypeScript</div>
+    </div>
+    <div class="repo">
+      <div class="repo-top"><h3>open-interpreter</h3><span class="stars">★ 56.7k</span></div>
+      <p>让 LLM 在本地运行代码，实现自然语言操作电脑的开源方案。</p>
+      <div class="tags"><span>AI</span><span>Agent</span><span>Automation</span></div>
+      <div class="lang">Python</div>
+    </div>
+    <div class="repo">
+      <div class="repo-top"><h3>LangChain</h3><span class="stars">★ 98.3k</span></div>
+      <p>构建 LLM 应用的最流行框架，支持 Agent、Chain、RAG 等模式。</p>
+      <div class="tags"><span>AI</span><span>Framework</span><span>LLM</span></div>
+      <div class="lang">Python</div>
+    </div>
+    <div class="repo">
+      <div class="repo-top"><h3>ollama</h3><span class="stars">★ 105k</span></div>
+      <p>在本地轻松运行大语言模型，支持 Llama、Qwen、DeepSeek 等。</p>
+      <div class="tags"><span>AI</span><span>Local</span><span>Docker</span></div>
+      <div class="lang">Go</div>
+    </div>
+    <div class="repo">
+      <div class="repo-top"><h3>cline</h3><span class="stars">★ 32.1k</span></div>
+      <p>VS Code 中的 AI 编码助手，自主编辑文件、运行命令、使用浏览器。</p>
+      <div class="tags"><span>AI</span><span>IDE</span><span>Plugin</span></div>
+      <div class="lang">TypeScript</div>
+    </div>
+  </div>
+</div>
+<footer>
+  <div class="social">
+    <a href="https://github.com/Fendi945" target="_blank">GitHub</a>
+    <a href="mailto:hello@yuanyan.cc">邮件</a>
+  </div>
+  <p>元演心智 · 持续进化中</p>
+  <p style="margin-top:4px;">Built with &hearts; by Fendi + Claude</p>
+  <p class="signature">慢慢走，欣赏啊</p>
+</footer>
+<div class="sig-float">慢慢走，欣赏啊</div>
+</body>
+</html>

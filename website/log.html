@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>每日复盘 · 元演心智</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;600;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<style>
+/* log 页面专用 */
+.day{padding-bottom:48px;margin-bottom:48px;border-bottom:1px solid var(--border)}
+.day:last-child{border-bottom:none}
+.day-date{font-size:13px;color:var(--accent);letter-spacing:.1em;margin-bottom:16px;font-weight:600}
+.day h2{font-size:20px;font-weight:600;letter-spacing:-.01em;margin-bottom:16px;color:var(--text)}
+.block{margin-bottom:20px}
+.block-label{font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:.1em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.block-label .tag{display:inline-block;padding:2px 10px;border-radius:100px;font-size:11px;font-weight:500}
+.block-label .tag.green{background:var(--green-subtle);color:var(--green)}
+.block-label .tag.amber{background:rgba(196,155,92,.1);color:var(--accent)}
+.block-label .tag.cyan{background:var(--accent-subtle);color:var(--accent)}
+.block-content{font-size:14px;color:var(--text-secondary);line-height:1.85;padding-left:4px}
+.block-content li{margin-left:20px;margin-bottom:4px}
+.block-content code{font-size:13px;padding:2px 6px;background:var(--accent-subtle);border-radius:4px;color:var(--accent);font-family:'JetBrains Mono','Fira Code',monospace}
+
+/* 渔樵问对 · 居中对话体 */
+.dialogue{max-width:520px;margin:0 auto;text-align:center;padding:12px 0}
+.dialogue .speaker{font-size:12px;font-weight:600;color:var(--accent);margin:20px 0 4px;letter-spacing:.08em}
+.dialogue .speaker.first{margin-top:0}
+.dialogue .line{font-size:15px;line-height:1.9;color:var(--text-secondary);margin-bottom:8px}
+.dialogue .line:last-child{margin-bottom:0}
+.dialogue .line .hl{color:var(--text);font-weight:500}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html">主页</a><a href="yuanyan.html">系统</a><a href="diary.html">日志</a>
+  <a href="ai.html">AI</a><a href="log.html">复盘</a>
+</nav>
+<div class="wrap-narrow">
+  <div class="banner">
+    <a href="index.html" class="back">← 返回主页</a>
+    <h1>📋 每日复盘</h1>
+    <p>每天记录：对话过程、有价值的内容、遇到的问题、解决的方案。<br>积累才是复利的来源。</p>
+  </div>
+
+  <!-- ============ 第 1 天：2026-06-21 ============ -->
+  <div class="day">
+    <div class="day-date">2026-06-21 · 第 1 天</div>
+    <h2>Flomo 同步 + OAuth 认证 + Obsidian 插件</h2>
+
+    <div class="block">
+      <div class="block-label"><span class="tag cyan">💬 对话过程</span></div>
+      <div class="block-content">
+        <p style="margin-bottom:8px;"><b>开始：</b>我说想接入 Flomo 笔记 → Claude 查了 Flomo API → 发现没有 REST API，只能走 MCP 协议</p>
+        <p style="margin-bottom:8px;"><b>OAuth 踩坑：</b>以为有个人 Token → 找不到 → 才发现 Flomo 只有 OAuth 授权码流程 → 注册客户端 → PKCE 认证</p>
+        <p style="margin-bottom:8px;"><b>MCP 连接：</b>用了 flomo_sync.py 连接 https://flomoapp.com/mcp → memo_search 一次只能搜 10 条</p>
+        <p style="margin-bottom:8px;"><b>插件集成：</b> Obsidian 插件加了捕获目录监控 + 确认弹窗 + 移入日输入逻辑</p>
+        <p><b>引擎测试：</b>跑了一遍分类引擎——成功分类了院子那篇文章</p>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag green">有价值</span> 今日收获</div>
+      <div class="block-content">
+        <ul>
+          <li>Flomo MCP OAuth 完整流程跑通（动态客户端注册 + PKCE + Token 刷新）</li>
+          <li>10 条 Flomo 笔记成功同步到捕获目录</li>
+          <li>Obsidian 插件 Flomo 弹窗 + 捕获监控完成</li>
+          <li>引擎扫描分类正常工作</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag amber">问题</span> 踩坑记录</div>
+      <div class="block-content">
+        <ul>
+          <li>Flomo 没有 REST API，只能用 MCP 协议</li>
+          <li>OAuth 首次注册返回 invalid_client，原因是用了伪造的 client_id</li>
+          <li>Python f-string 嵌套大括号报语法错误</li>
+          <li>memo_search 参数名猜错（query → keywords, timeRange → start_date）</li>
+          <li>Flomo 没有「个人 Token」设置入口</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag cyan">解决</span> 处理方法</div>
+      <div class="block-content">
+        <ul>
+          <li>改用 MCP Python SDK，走 OAuth 授权码流程</li>
+          <li>实现动态客户端注册（POST /oauth/register）</li>
+          <li>PKCE S256 验证 + 本地回调服务器（端口 18765）</li>
+          <li>通过调试工具查 Flomo inputSchema，确定正确参数名</li>
+          <li>Token 自动刷新机制（refresh_token）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 第 2 天：2026-06-22 ============ -->
+  <div class="day">
+    <div class="day-date">2026-06-22 · 第 2 天</div>
+    <h2>个人网站搭建 + 渔樵问对工作日志</h2>
+
+    <div class="block">
+      <div class="block-label"><span class="tag cyan">💬 对话过程</span></div>
+      <div class="block-content">
+        <p style="margin-bottom:8px;"><b>开始：</b>我问 Penpot 能不能换脸做数字人 → 发现是做 UI 设计的 → 决定用它设计个人网站 → Penpot 注册被墙 → 直接写 HTML</p>
+        <p style="margin-bottom:8px;"><b>迭代：</b>暗色科技风 → 调字间距 → 全屏布局 → 侧边栏反复 3 次 → 参考 Apple 官网 → 极简顶部导航</p>
+        <p style="margin-bottom:8px;"><b>价值闭环：</b>我说「做价值闭环」→ 你说是「让更多人用·看·学」→ 加了三入口 + 订阅 + 精选推荐</p>
+        <p style="margin-bottom:8px;"><b>Flomo：</b>你说「全部同步」→ 发现 MCP 每次限 10 条 → 尝试分批 → 你说「先不搞了」</p>
+        <p><b>复盘习惯：</b>你说「以后每天复盘」→ 我创建复盘页 → 你说要保留对话过程 → 就是这段</p>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag green">有价值</span> 今日收获</div>
+      <div class="block-content">
+        <ul>
+          <li>完成暗色科技风个人网站 1.0，7 个内容板块 + 详情页</li>
+          <li>应用 Apple 设计理念：大字标题、全幅板块、极简导航</li>
+          <li>网站加入价值闭环：看·学·用三入口 + 订阅 + 精华推荐</li>
+          <li>Flomo MCP 同步成功（OAuth 认证），10 条笔记自动流入日输入</li>
+          <li>发现 frontend-design 技能并学习其设计方法论</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag amber">问题</span> 踩坑记录</div>
+      <div class="block-content">
+        <ul>
+          <li>GitHub Pages 在国内被封，无法直接部署上线</li>
+          <li>侧边栏设计反复 3 次才找到平衡方案（最终采用顶部极简导航）</li>
+          <li>Flomo MCP memo_search 每次最多返回 10 条，无法一次拉取全部 290 条笔记</li>
+          <li>Obsidian 插件版本未更新导致 Flomo 设置不显示</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag cyan">解决</span> 处理方法</div>
+      <div class="block-content">
+        <ul>
+          <li>本地 <code>python -m http.server 8080</code> 预览，暂不上线</li>
+          <li>侧边栏改为顶部粘性导航，内容全幅居中（借鉴 Apple 官网布局）</li>
+          <li>全量同步留待后续优化（按月份分批 + 去重策略）</li>
+          <li>手动复制新版 <code>main.js</code> 到 Obsidian 插件目录</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 第 3 天：2026-06-22 ============ -->
+  <div class="day">
+    <div class="day-date">2026-06-22 · 第 3 天</div>
+    <h2>朱光潜美学 · 无所为而为</h2>
+
+    <div class="block">
+      <div class="block-label"><span class="tag cyan">💬 对话过程</span></div>
+      <div class="block-content">
+
+<div class="dialogue">
+  <p class="speaker first">🎣 Fendi</p>
+  <p class="line">读《谈美》第十五章，想做一期美学专栏。你去系统学一下朱光潜，然后帮我注入网站设计。</p>
+
+  <p class="speaker">🪵 Claude</p>
+  <p class="line">朱光潜美学四命题：<span class="hl">无所为而为</span>→<span class="hl">距离说</span>→<span class="hl">移情说</span>→<span class="hl">人生艺术化</span>。据此改版：纯黑+青的「科技冷」→暖墨+金的「文人暖」；去统计数字；每板块加朱光潜语录题记；右下角「慢慢走，欣赏啊」浮签。</p>
+</div>
+
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag green">有价值</span> 今日收获</div>
+      <div class="block-content">
+        <ul>
+          <li>系统学习了朱光潜美学哲学，整理成完整总结文档</li>
+          <li>网站从「暗色科技风」改造为「暖墨文人风」——暖墨黑+金色+语录题记+浮签</li>
+          <li>提取公共样式到 <code>style.css</code>，从此改配色只需改一个文件</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 第 4 天：2026-06-22 ============ -->
+  <div class="day">
+    <div class="day-date">2026-06-22 · 第 4 天</div>
+    <h2>渔樵问对方法论 · 以物观物</h2>
+
+    <div class="block">
+      <div class="block-label"><span class="tag cyan">💬 对话过程</span></div>
+      <div class="block-content">
+
+<div class="dialogue">
+  <p class="speaker first">🎣 Fendi</p>
+  <p class="line">发来15篇《渔樵问对》PDF扫描件。你帮我提炼核心方法论。</p>
+
+  <p class="speaker">🪵 Claude</p>
+  <p class="line">渔樵问对=五段对话协议：起于日常→锚定具体→逐层追问→揭示范畴关系→回归于道。最有意思的是「以物观物」与朱光潜「无所为而为」指向同一内核——去掉主观功利心，让事物本身显现。</p>
+</div>
+
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag green">有价值</span> 今日收获</div>
+      <div class="block-content">
+        <ul>
+          <li>系统梳理了邵雍《渔樵问对》15篇的完整方法论，蒸馏成「五段对话协议」</li>
+          <li>发现了渔樵问对「以物观物」与朱光潜「无所为而为」的内在呼应</li>
+          <li>总结文档保存到桌面和网站目录</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag amber">问题</span> 踩坑记录</div>
+      <div class="block-content">
+        <ul>
+          <li>渔樵问对PDF是扫描件，无法直接OCR提取文字</li>
+          <li>端口8080被7个僵尸进程占用</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag cyan">解决</span> 处理方法</div>
+      <div class="block-content">
+        <ul>
+          <li>通过Web搜索获取渔樵问对完整原文与学术解读</li>
+          <li>使用8081端口继续本地预览</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 第 5 天：2026-06-22 ============ -->
+  <div class="day">
+    <div class="day-date">2026-06-22 · 第 5 天</div>
+    <h2>渔樵问对推演 · 从内容选题到认准人生方向</h2>
+
+    <div class="block">
+      <div class="block-label"><span class="tag cyan">💬 渔樵问对 · 推演全过程</span></div>
+      <div class="block-content">
+
+<div class="dialogue">
+  <p class="speaker first">🎣 樵者</p>
+  <p class="line">用渔樵问对的方法，推演我的公众号选题、视频号主题和人设方向。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">先问——你做过什么内容，做的时候什么感觉最来劲？</p>
+
+  <p class="speaker">🎣 樵者</p>
+  <p class="line">公众号25篇，视频号更杂——山海经、历史、园林手作、口播。都没有来劲的感觉。反而是和你推演系统、建网站让我兴奋得睡不着。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">用体用分析：你之前做的事都是「用」，让你兴奋的是「体」——通过对话从无到有营造系统。选一个：造物者(A)、布道者(B)、建造者(C)、对话者(D)？</p>
+
+  <p class="speaker">🎣 樵者</p>
+  <p class="line">ACD。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">帮别人造园是体，现在造自己的系统也是体——体完全没变。那你怕什么？</p>
+
+  <p class="speaker">🎣 樵者</p>
+  <p class="line">怕手艺生疏，怕别人不信任，怕赚不到钱。之前被老客户拖欠设计款，打过官司。我是自己断了一条腿。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">这句「自己断了一条腿」最诚实。你不是怕做不好——是怕重蹈覆辙。你真正想要的是换一种活法：从「先干活再等别人给钱」到「我造我的园子，价值我自己说了算」。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">第一个果子是什么？</p>
+
+  <p class="speaker">🎣 樵者</p>
+  <p class="line">我最想教人的不是AI怎么用——是教他从哪里思考，先认清楚自己，诚实地面对自己。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">这就是你的第一个果子——《对话认知课》。不是AI课，是让人通过对话认识自己的脚手架。</p>
+</div>
+
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag green">推演成果</span> 方向定稿</div>
+      <div class="block-content">
+        <ul>
+          <li><b>人设：</b>一个造园师的AI造系统实录——不是老师、不是专家，是在园子里干活的人，偶尔抬头说一句「你看，这一步我是这么干的」</li>
+          <li><b>公众号：</b>渔樵问对·对话认知系列——不用写不用编，截取精彩对话整理就是一篇</li>
+          <li><b>视频号：</b>「我在造什么」的过程记录——系统界面演进、对话片段</li>
+          <li><b>第一个产品：</b>《对话认知课》——让人通过AI对话先诚实地面对自己</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag amber">关键认知</span> 三重恐惧的本质</div>
+      <div class="block-content">
+        <ul>
+          <li>怕手艺生疏 → 实际驾轻就熟（技术长在身上了）</li>
+          <li>怕不被人信任 → 实质是怕再次被辜负</li>
+          <li>怕赚不到钱 → 实质是怕新路也是先付出后拿钱的老路</li>
+          <li><b>终极答案：</b>互联网不会拖欠你的「内容款」——做一分，就有一分在</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag cyan">最终认知</span> 渔樵问对式收尾</div>
+      <div class="block-content">
+
+<div class="dialogue">
+  <p class="speaker first">🪵 渔者</p>
+  <p class="line">土壤没有肥沃贫瘠之分，只有适合种什么之分。物理土壤适合种需要慢生长、高信任、高单价的东西。互联网土壤适合种可以长长久久、不怕被辜负、每一寸根都属于自己的东西。</p>
+
+  <p class="speaker">🎣 樵者</p>
+  <p class="line">我的根是我的认知，我的诚实。互联网缺的就是这个。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">这句话就够了。互联网不缺信息、不缺工具、不缺课——缺的就是一个诚实的人，老老实实说「我是这么问自己的」。</p>
+</div>
+
+        <p style="color:var(--accent);font-style:italic;text-align:center;margin-top:16px;">—— 方向不是选出来的，是走着走着，自己显现的 ——</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 第 6 天：2026-06-22 ============ -->
+  <div class="day">
+    <div class="day-date">2026-06-22 · 第 6 天</div>
+    <h2>钓鱼六件套框架 · 从工具分析到认知差定锚</h2>
+
+    <div class="block">
+      <div class="block-label"><span class="tag cyan">💬 渔樵问对 · 推演全过程</span></div>
+      <div class="block-content">
+
+<div class="dialogue">
+  <p class="speaker first">🎣 樵者</p>
+  <p class="line">渔樵问对中说命分——我们想在微信钓鱼（公众号+视频号），鱼竿鱼钩鱼饵齐全了吗？</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">六件套拆了一轮：钓竿（平台+人设）✅完整。钓线（内容生产线）✅已跑通，缺节奏。钓钩（人设钩子）✅有，标题钩子没打磨。钓饵（内容价值）⚠️需要从「秀结果」换到「拆过程」。浮漂（数据反馈）——等等，你说有数据？</p>
+
+  <p class="speaker">🎣 樵者</p>
+  <p class="line">我有看板v2啊——你忘了？监控视频号数据的。我刚更新了，AI分析了。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">（读完数据沉默）我错了。浮漂在动——而且动得很清楚。</p>
+</div>
+
+<div class="dialogue">
+  <p class="speaker first">🪵 渔者</p>
+  <p class="line">水景系列占84%播放——该不该做水景16k，懒人水景14k。锦鲤池劝退6.7k。宽话题远胜窄话题。</p>
+
+  <p class="speaker">🎣 樵者</p>
+  <p class="line">锦鲤池劝退那条——一半人说中肯，一半人骂我不懂养鱼、学艺不精。有人支持有人挖苦。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">你站到了「专业人士」的位置上，就要接受「够不够专业」的审判。劝退型内容天然挑战别人的选择——同意你的人认同你，反驳你的人只能攻击你的专业能力。这不是你的问题，是站这个位置要承受的代价。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">看看你的数据曲线：6/13爆到16k，之后一路跌到1k。爆款不可复制。但AI方法论不是靠爆款活着——网站每天更新，是日积月累的长尾资产。</p>
+</div>
+
+<div class="dialogue">
+  <p class="speaker first">🎣 樵者</p>
+  <p class="line">如果AllIn AI方法论，就得放弃原来的园林专业知识普及——粉丝会不一样。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">关键不是「园林还是AI」——关键是「秀肌肉还是拆过程」。你以前发的是「我做完了你看」，现在改发「我是怎么做的你看」。这个转换跟内容领域无关，跟心态有关。</p>
+</div>
+
+<div class="dialogue">
+  <p class="speaker first">🪵 渔者</p>
+  <p class="line">你的客户是谁？</p>
+
+  <p class="speaker">🎣 樵者</p>
+  <p class="line">跟我一样深处迷茫，但不轻易言败，还在困惑中寻找方向、建造自己的人。我能给他们的是一张地图，一缕微光，一副我从坑里爬出来的脚手架。我叫他们攀登者，同路人。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">（停顿）这句话要存档——从「我想做什么」推到「谁需要我做的东西」，逻辑是通的：你的体（从对话从无到有造系统）→ 你克服的三怕 → 你造出的渔樵问对方法论 → 谁需要这个：正在迷茫、还在造、不要答案要方法的人。</p>
+</div>
+
+<div class="dialogue">
+  <p class="speaker first">🎣 樵者</p>
+  <p class="line">AI方法论是我亲手干出来的，我特喜欢，成本低，有认知门槛，不是谁都能做，也不是谁都能短时间复制的。</p>
+
+  <p class="speaker">🪵 渔者</p>
+  <p class="line">认知差——这三个字比「渔樵问对」更值钱。渔樵问对是方法，认知差是你的壁垒。这五条叠在一起就是护城河：亲手干出来的 × 喜欢的 × 成本低的 × 有认知门槛的 × 不能短时间复制的。</p>
+</div>
+
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag green">推演成果</span> 定稿补全</div>
+      <div class="block-content">
+        <ul>
+          <li><b>客户画像：</b>「攀登者·同路人」——深处迷茫但不轻易言败，在困惑中找方向、建造自己的人</li>
+          <li><b>核心壁垒：</b>认知差——亲手干出来的 × 喜欢的 × 成本低的 × 有认知门槛的 × 不能短时间复制的</li>
+          <li><b>视频号定位：</b>第二战场，做引流口播（60秒讲怎么用渔樵问对推演方向）——不站「专家」位置，不接专业审判</li>
+          <li><b>主战场：</b>认知长内容——渔樵问对系列 + AI方法论推演记录，网站+公众号累积长尾</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-label"><span class="tag amber">关键认知</span> 数据验证</div>
+      <div class="block-content">
+        <ul>
+          <li>视频号8条数据：水景系列占84%播放（16k+14k），但整体呈下降趋势（16k→1k）</li>
+          <li>宽话题压倒性胜窄话题——「该不该做水景」16k vs 「洗手盆值一万」873</li>
+          <li>「专业人士」人设要接受专业审判——锦鲤池劝退一半人骂学艺不精</li>
+          <li>劝退型内容本身就会分裂评论区——不是内容好坏的问题</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+<footer>
+  <div class="social">
+    <a href="https://github.com/Fendi945" target="_blank">GitHub</a>
+    <a href="mailto:hello@yuanyan.cc">邮件</a>
+  </div>
+  <p>元演心智 · 持续进化中</p>
+  <p style="margin-top:4px;">Built with &hearts; by Fendi + Claude</p>
+  <p class="signature">慢慢走，欣赏啊</p>
+</footer>
+<div class="sig-float">慢慢走，欣赏啊</div>
+</body>
+</html>

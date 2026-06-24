@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>元演心智 — Fendi 的 AI 学习系统</title>
+<meta name="description" content="元演心智系统：AI 学习、Obsidian 自动化、内容生产的踩坑实录与完整架构。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;600;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 鼠标辉光 -->
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- ============ HERO — 终端 ============ -->
+<section class="hero">
+  <div class="terminal-window">
+    <div class="terminal-header">
+      <div class="terminal-dot terminal-dot--red"></div>
+      <div class="terminal-dot terminal-dot--yellow"></div>
+      <div class="terminal-dot terminal-dot--green"></div>
+      <div class="terminal-header-title">fendi@yuanyan ~ %</div>
+    </div>
+    <div class="terminal-body" id="terminalBody"></div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+</section>
+
+<!-- ============ 导航 ============ -->
+<nav>
+  <a href="#about">关于</a>
+  <a href="#featured">精选</a>
+  <a href="#modules">系统</a>
+  <a href="#projects">项目</a>
+  <a href="#diary">日记</a>
+  <a href="#ai">AI 笔记</a>
+  <a href="#log">复盘</a>
+</nav>
+
+<!-- ============ 关于 / 我来处 ============ -->
+<section class="content-section" id="about">
+  <div class="wrap">
+    <p class="section-label fade-up">About</p>
+    <h2 class="sec-headline fade-up">把走过的路<br>变成<em>别人的地图</em></h2>
+    <p class="sec-desc fade-up" style="max-width:620px;">
+      一个 AI 学习者兼创作者的完整系统——从 Obsidian 原料输入到 DeepSeek 分类、飞书审批看板、多管道产出的全流程自动化。这里记录踩过的每一个坑、做过的每一次决策。
+    </p>
+    <div class="hero-actions fade-up">
+      <a href="#featured" class="btn btn-primary">👀 精选内容</a>
+      <a href="#modules" class="btn btn-outline">🏗️ 系统架构</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 引用幻灯片 ============ -->
+<section class="opinion-section">
+  <div class="opinion-slide">
+    <div class="opinion-number">✦</div>
+    <p class="opinion-text">把自己的系统打开，<br>就是给别人的最好礼物</p>
+    <span class="opinion-deco">— 元演心智</span>
+  </div>
+  <div class="opinion-slide">
+    <div class="opinion-number">✦</div>
+    <p class="opinion-text">人要有出世的精神，<br>才可以做入世的事业</p>
+    <span class="opinion-deco">— 朱光潜</span>
+  </div>
+  <div class="opinion-slide">
+    <div class="opinion-number">✦</div>
+    <p class="opinion-text">最会用 AI 的，<br>是最知道自己想要什么的人</p>
+    <span class="opinion-deco">— from Esther</span>
+  </div>
+  <div class="opinion-slide">
+    <div class="opinion-number">✦</div>
+    <p class="opinion-text">慢慢走，欣赏啊</p>
+    <span class="opinion-deco">— 朱光潜《谈美》</span>
+  </div>
+</section>
+
+<!-- ============ 精选内容 ============ -->
+<section class="content-section" id="featured">
+  <div class="wrap">
+    <p class="section-label fade-up">Recommended</p>
+    <h2 class="sec-headline fade-up">精选内容</h2>
+    <p class="sec-desc fade-up">访问量最高、最受欢迎的干货，从这里开始。</p>
+    <div class="featured-grid">
+      <div class="featured-item fade-up">
+        <div class="meta">🔥 热门 · 2.3k 阅读</div>
+        <h3>Flomo MCP OAuth 踩坑全过程</h3>
+        <p>从注册客户端到 PKCE 授权，从 Token 刷新到 refresh_token 策略。</p>
+        <span class="views">📖 15 分钟阅读</span>
+      </div>
+      <div class="featured-item fade-up fade-up-delay-1">
+        <div class="meta">⭐ 推荐 · 1.8k 阅读</div>
+        <h3>元演系统：为什么是三层分类？</h3>
+        <p>认知层、操作层、内容规范层——每一层解决什么问题。</p>
+        <span class="views">📖 10 分钟阅读</span>
+      </div>
+      <div class="featured-item fade-up fade-up-delay-1">
+        <div class="meta">🔥 热门 · 1.5k 阅读</div>
+        <h3>口播视频剪辑流水线完全指南</h3>
+        <p>FFmpeg 参数、字幕同步、人物分割的完整配置。</p>
+        <span class="views">📖 20 分钟阅读</span>
+      </div>
+      <div class="featured-item fade-up fade-up-delay-2">
+        <div class="meta">🆕 最新 · 892 阅读</div>
+        <h3>与 AI 协作的日常：冲突与共识</h3>
+        <p>当需求翻了三倍而技术方案要重构时，和 Claude 的对话实录。</p>
+        <span class="views">📖 8 分钟阅读</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 系统模块 ============ -->
+<section class="content-section" id="modules" style="background:#faf8f2;">
+  <div class="wrap">
+    <p class="section-label fade-up">Architecture</p>
+    <h2 class="sec-headline fade-up">元演心智系统</h2>
+    <p class="sec-desc fade-up">从原料到成品——输入、分类、审批、多管道输出的自动化流水线。</p>
+    <div class="grid">
+      <a href="yuanyan.html" class="card fade-up" data-tilt>
+        <span class="icon">🏗️</span>
+        <h3>系统架构</h3>
+        <p>三层分类、反哺弧看板、五层认知结构——为什么这样设计，每层解决什么问题。</p>
+        <span class="foot">→ 架构文档</span>
+      </a>
+      <a href="yuanyan.html" class="card fade-up fade-up-delay-1" data-tilt>
+        <span class="icon">🔄</span>
+        <h3>自动化流水线</h3>
+        <p>Flomo → Obsidian → DeepSeek 分类 → 飞书看板审批 → 多管道产出的完整链路。</p>
+        <span class="foot">→ 技术实现</span>
+      </a>
+      <a href="yuanyan.html" class="card fade-up fade-up-delay-2" data-tilt>
+        <span class="icon">📈</span>
+        <h3>健康与进化</h3>
+        <p>循环率监控、归档策略、规则审计——系统如何持续进化而非腐烂。</p>
+        <span class="foot">→ 运维记录</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AI 学习笔记 ============ -->
+<section class="content-section" id="ai">
+  <div class="wrap">
+    <p class="section-label fade-up">Learning</p>
+    <h2 class="sec-headline fade-up">AI 学习笔记</h2>
+    <p class="sec-desc fade-up">从 Prompt 到部署，从 API 到 Agent——每一次踩坑都是财富。</p>
+    <div class="grid">
+      <a href="ai.html" class="card fade-up" data-tilt>
+        <span class="icon">🧠</span>
+        <h3>模型与 API</h3>
+        <p>DeepSeek、Claude、OpenAI 的使用经验与优化方案。</p>
+        <span class="foot">→ 12 篇文章</span>
+      </a>
+      <a href="ai.html" class="card fade-up fade-up-delay-1" data-tilt>
+        <span class="icon">⚡</span>
+        <h3>Agent 开发</h3>
+        <p>MCP 协议、工具调用、多 Agent 协作的完整记录。</p>
+        <span class="foot">→ 8 篇文章</span>
+      </a>
+      <a href="ai.html" class="card fade-up fade-up-delay-2" data-tilt>
+        <span class="icon">🔧</span>
+        <h3>踩坑合集</h3>
+        <p>OAuth、插件开发、Windows 环境下的各种问题与解法。</p>
+        <span class="foot">→ 23 个问题</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 任务/项目 ============ -->
+<section class="content-section" id="projects" style="background:#faf8f2;">
+  <div class="wrap">
+    <p class="section-label fade-up">Projects</p>
+    <h2 class="sec-headline fade-up">正在做的事</h2>
+    <p class="sec-desc fade-up">从想法到落地——产品、工具、内容的完整项目记录。</p>
+    <div class="grid">
+      <a href="garden.html" class="card fade-up" data-tilt>
+        <span class="icon">📱</span>
+        <h3>AI 工具开发</h3>
+        <p>元演系统、自动化流水线、桌面提醒等轻量级工具。</p>
+        <span class="foot">→ 查看案例</span>
+      </a>
+      <a href="garden.html" class="card fade-up fade-up-delay-1" data-tilt>
+        <span class="icon">🎬</span>
+        <h3>内容生产流水线</h3>
+        <p>公众号文章、口播视频、字幕同步——AI 辅助的全流程。</p>
+        <span class="foot">→ 查看流程</span>
+      </a>
+      <a href="garden.html" class="card fade-up fade-up-delay-2" data-tilt>
+        <span class="icon">🏗️</span>
+        <h3>系统搭建</h3>
+        <p>Obsidian 插件、Flomo 同步、飞书审批看板等基础设施。</p>
+        <span class="foot">→ 搭建记录</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 工作日记 ============ -->
+<section class="content-section" id="diary">
+  <div class="wrap">
+    <p class="section-label fade-up">Records</p>
+    <h2 class="sec-headline fade-up">和 AI 协作的日常</h2>
+    <p class="sec-desc fade-up">从「我想要一个功能」到「搞定了」的全过程——对话实录、决策记录、问题排查。</p>
+    <div class="grid">
+      <a href="diary.html" class="card fade-up" data-tilt>
+        <span class="icon">💬</span>
+        <h3>对话实录</h3>
+        <p>和 Claude 讨论需求、排查 Bug、重构代码的完整记录。</p>
+        <span class="foot">→ 精选片段</span>
+      </a>
+      <a href="diary.html" class="card fade-up fade-up-delay-1" data-tilt>
+        <span class="icon">🎯</span>
+        <h3>决策记录</h3>
+        <p>技术选型、方案取舍——为什么选 A 不选 B 的完整思考。</p>
+        <span class="foot">→ 方案对比</span>
+      </a>
+      <a href="diary.html" class="card fade-up fade-up-delay-2" data-tilt>
+        <span class="icon">🔍</span>
+        <h3>问题排查</h3>
+        <p>从「报错了」到「修好了」的完整排查过程。</p>
+        <span class="foot">→ 错误日志</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 每日复盘 ============ -->
+<section class="content-section" id="log" style="background:#faf8f2;">
+  <div class="wrap" style="text-align:center;">
+    <p class="section-label fade-up">Daily Review</p>
+    <h2 class="sec-headline fade-up">每日复盘</h2>
+    <p class="sec-desc fade-up">有价值的内容、遇到的问题、解决的方法——每天积累，每天进化。</p>
+    <div class="hero-actions fade-up" style="margin-top:2rem;">
+      <a href="log.html" class="btn btn-primary">📖 查看复盘记录</a>
+      <a href="daily.html" class="btn btn-outline">📰 AI 每日资讯</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 底部引用 ============ -->
+<section class="opinion-section">
+  <div class="opinion-slide" style="min-height:40vh;background:var(--esther-dark);color:#fff;">
+    <div class="opinion-number" style="opacity:0.05;">✦</div>
+    <p class="opinion-text" style="font-size:clamp(1rem,3vw,1.8rem);opacity:1;transform:none;font-weight:400;">
+      「每个人的生命史就是他自己的作品」
+    </p>
+    <span class="opinion-deco" style="opacity:0.4;">— 朱光潜</span>
+  </div>
+</section>
+
+<!-- ============ 页脚 ============ -->
+<footer>
+  <div class="social">
+    <a href="https://github.com/Fendi945" target="_blank">GitHub</a>
+    <a href="mailto:hello@yuanyan.cc">邮件</a>
+  </div>
+  <p>元演心智 · 持续进化中</p>
+  <p style="margin-top:4px;">Built with &hearts; by Fendi + Claude</p>
+  <p class="signature">慢慢走，欣赏啊</p>
+</footer>
+
+<div class="sig-float">慢慢走，欣赏啊</div>
+
+<script>
+/* ============ 终端打字机 ============ */
+(function() {
+  const body = document.getElementById('terminalBody');
+
+  const lines = [
+    { type: 'cmd',    text: '$ whoami' },
+    { type: 'output', html: '<span class="output">Fendi · 元演心智</span>' },
+    { type: 'blank' },
+    { type: 'cmd',    text: '$ cat system.md' },
+    { type: 'output', html: '<span class="output">AI学习 · Obsidian自动化 · 内容生产流水线</span>' },
+    { type: 'output', html: '<span class="output">从Flomo原料到飞书审批到多管道产出</span>' },
+    { type: 'output', html: '<span class="output">踩坑 · 决策 · 复盘 · 持续进化</span>' },
+    { type: 'blank' },
+    { type: 'cmd',    text: '$ echo "把走过的路变成别人的地图"' },
+    { type: 'output', html: '<span class="highlight">✦</span>' },
+    { type: 'blank' },
+    { type: 'cmd',    text: '$ ls -la /knowledge/' },
+    { type: 'output', html: '<span class="output">3 认知层 · 24 个能力工具 · 56 条规则 · 230+ 事件记录</span>' },
+    { type: 'blank' },
+    { type: 'cmd',    text: '$ cat contact.txt' },
+    { type: 'output', html: '<span class="link">📮 hello@yuanyan.cc</span>' },
+    { type: 'output', html: '<span class="link">💻 github.com/Fendi945</span>' },
+  ];
+
+  const lineEls = [];
+  lines.forEach(line => {
+    const div = document.createElement('div');
+    div.className = 'terminal-line';
+    if (line.type === 'blank') {
+      div.innerHTML = '&nbsp;';
+    }
+    lineEls.push({ el: div, data: line });
+    body.appendChild(div);
+  });
+
+  const cursorLine = document.createElement('div');
+  cursorLine.className = 'terminal-line visible';
+  cursorLine.innerHTML = '<span class="terminal-cursor"></span>';
+  cursorLine.style.opacity = '0';
+  body.appendChild(cursorLine);
+
+  let lineIdx = 0;
+
+  function typeNextLine() {
+    if (lineIdx >= lineEls.length) {
+      cursorLine.style.opacity = '1';
+      return;
+    }
+    const { el, data } = lineEls[lineIdx];
+    el.classList.add('visible');
+    lineIdx++;
+
+    if (data.type === 'blank') {
+      setTimeout(typeNextLine, 120);
+      return;
+    }
+
+    if (data.type === 'cmd') {
+      typeText(el, data.text, 40, () => {
+        setTimeout(typeNextLine, 250);
+      });
+    } else {
+      const prefix = '<span class="cmd">&gt; </span>';
+      el.innerHTML = prefix;
+      setTimeout(() => {
+        el.innerHTML = prefix + data.html;
+        setTimeout(typeNextLine, 150);
+      }, 100);
+    }
+  }
+
+  function typeText(el, text, speed, callback) {
+    const parts = text.match(/^(\$ )(.*)/);
+    if (parts) {
+      el.innerHTML = '<span class="cmd">$ </span>';
+      const restText = parts[2];
+      let charIdx = 0;
+      function typeChar() {
+        if (charIdx < restText.length) {
+          el.innerHTML = '<span class="cmd">$ </span><span class="cmd-text">' + restText.substring(0, charIdx + 1) + '</span>';
+          charIdx++;
+          setTimeout(typeChar, speed + Math.random() * 25);
+        } else {
+          if (callback) callback();
+        }
+      }
+      typeChar();
+    }
+  }
+
+  setTimeout(typeNextLine, 500);
+})();
+
+/* ============ 鼠标辉光跟随 ============ */
+(function() {
+  const glow = document.getElementById('cursorGlow');
+  let mx = 0, my = 0, gx = 0, gy = 0;
+  document.addEventListener('mousemove', (e) => {
+    mx = e.clientX;
+    my = e.clientY;
+  });
+  function animate() {
+    gx += (mx - gx) * 0.08;
+    gy += (my - gy) * 0.08;
+    glow.style.left = gx + 'px';
+    glow.style.top = gy + 'px';
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+/* ============ Intersection Observer ============ */
+(function() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.fade-up, .opinion-text').forEach(el => {
+    observer.observe(el);
+  });
+})();
+
+/* ============ 卡片倾斜 ============ */
+(function() {
+  document.querySelectorAll('[data-tilt]').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(800px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateY(-6px)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(800px) rotateY(0) rotateX(0) translateY(0)';
+    });
+  });
+})();
+
+/* ============ 终端视差 ============ */
+(function() {
+  const terminalWin = document.querySelector('.terminal-window');
+  if (!terminalWin) return;
+  window.addEventListener('scroll', () => {
+    const st = window.pageYOffset;
+    if (st < window.innerHeight) {
+      terminalWin.style.transform = `translateY(${st * 0.12}px)`;
+      terminalWin.style.opacity = 1 - (st / window.innerHeight) * 0.5;
+    }
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

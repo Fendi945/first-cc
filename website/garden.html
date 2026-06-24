@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>项目案例 · 元演心智</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;600;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<style>
+/* garden 页面专用 */
+.item .category{font-size:11px;font-weight:600;color:var(--primary);letter-spacing:.12em;margin-bottom:8px}
+.item .tech{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.item .tech span{font-size:11px;padding:3px 10px;border-radius:100px;background:var(--primary-subtle);color:var(--primary)}
+.item .status{display:inline-block;margin-top:10px;font-size:12px;font-weight:500}
+.status.done{color:var(--green)}
+.status.ongoing{color:var(--esther-yellow)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html">主页</a><a href="yuanyan.html">系统</a><a href="diary.html">日志</a>
+  <a href="ai.html">AI</a><a href="log.html">复盘</a>
+</nav>
+<div class="wrap-narrow">
+  <div class="banner">
+    <a href="index.html" class="back">← 返回主页</a>
+    <h1>🏗️ 项目案例</h1>
+    <p>从想法到落地 —— 产品、工具、内容的完整项目记录。</p>
+  </div>
+  <div class="list">
+    <div class="item">
+      <div class="category">AI 工具</div>
+      <h3>元演引擎 · Flomo 同步集成</h3>
+      <p>基于 MCP 协议和 OAuth 认证，将 Flomo 笔记自动同步到 Obsidian 的完整工具链。</p>
+      <div class="tech"><span>Python</span><span>MCP</span><span>OAuth</span><span>Obsidian</span></div>
+      <span class="status done">✅ 已完成</span>
+    </div>
+    <div class="item">
+      <div class="category">AI 工具</div>
+      <h3>个人网站设计与开发</h3>
+      <p>从零搭建知识网站，多板块 + 详情页，纯前端响应式设计。</p>
+      <div class="tech"><span>HTML/CSS</span><span>响应式</span><span>UI Design</span></div>
+      <span class="status done">✅ 已完成</span>
+    </div>
+    <div class="item">
+      <div class="category">系统搭建</div>
+      <h3>元演心智 · 知识生产流水线</h3>
+      <p>输入→AI分类→看板审批→多管道输出，覆盖日输入到公众号发布的全流程。</p>
+      <div class="tech"><span>DeepSeek</span><span>Obsidian</span><span>Python</span></div>
+      <span class="status ongoing">🔄 持续迭代</span>
+    </div>
+    <div class="item">
+      <div class="category">内容生产</div>
+      <h3>口播视频剪辑流水线</h3>
+      <p>FFmpeg + 人物分割 + 背景模糊 + ASS 字幕的自动化视频生产流程。</p>
+      <div class="tech"><span>FFmpeg</span><span>OpenCV</span><span>ASS</span></div>
+      <span class="status done">✅ 已完成</span>
+    </div>
+    <div class="item">
+      <div class="category">内容生产</div>
+      <h3>公众号图文自动发布</h3>
+      <p>AI 生成文章 + 自动配封面图 + 推送到公众号草稿箱的一键发布流程。</p>
+      <div class="tech"><span>WeChat API</span><span>AI</span><span>自动化</span></div>
+      <span class="status done">✅ 已完成</span>
+    </div>
+  </div>
+</div>
+<footer>
+  <div class="social">
+    <a href="https://github.com/Fendi945" target="_blank">GitHub</a>
+    <a href="mailto:hello@yuanyan.cc">邮件</a>
+  </div>
+  <p>元演心智 · 持续进化中</p>
+  <p style="margin-top:4px;">Built with &hearts; by Fendi + Claude</p>
+  <p class="signature">慢慢走，欣赏啊</p>
+</footer>
+<div class="sig-float">慢慢走，欣赏啊</div>
+</body>
+</html>
