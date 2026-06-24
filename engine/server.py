@@ -28,7 +28,8 @@ from engine.flomo_sync import FlomoSync
 from engine.feishu_sync import FeishuSync
 from engine.feishu_bitable_sync import FeishuBitableSync
 from engine.feishu_kanban_sync import FeishuKanbanSync
-from vault_bridge.vault_utils import read_json, write_json
+from engine.dashboard_analyzer import DashboardAnalyzer
+from vault_bridge.vault_utils import read_json, write_json, safe_read_json, safe_write_json
 
 HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
@@ -39,7 +40,7 @@ DEFAULT_PORT = 8765
 def _read_pending() -> list:
     """读取待审批 JSON，文件不存在或损坏则返回空列表。"""
     try:
-        data = read_json(PENDING_FILE)
+        data = safe_read_json(PENDING_FILE)
         return data if isinstance(data, list) else []
     except Exception as e:
         print(f"  [server] ⚠️ 读取待审批.json 失败: {e}")
@@ -49,7 +50,7 @@ def _read_pending() -> list:
 def _write_pending(data: list) -> bool:
     """写入待审批 JSON，返回是否成功。"""
     try:
-        write_json(PENDING_FILE, data)
+        safe_write_json(PENDING_FILE, data)
         return True
     except Exception as e:
         print(f"  [server] ❌ 写入待审批.json 失败: {e}")
@@ -157,6 +158,12 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                 self._send_json(self.server.feishu_kanban.get_status())
             else:
                 self._send_json({"error": "Feishu kanban not initialized"})
+
+        elif path == "/api/dashboard/status":
+            if hasattr(self.server, "dashboard_analyzer"):
+                self._send_json(self.server.dashboard_analyzer.get_status())
+            else:
+                self._send_json({"running": False, "error": "Dashboard analyzer not initialized"})
 
         else:
             # 非 API 请求：当作静态文件处理
@@ -271,6 +278,16 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 self._send_json({"ok": False, "error": str(e)}, 500)
 
+        elif parsed.path == "/api/dashboard/analyze":
+            try:
+                if hasattr(self.server, "dashboard_analyzer"):
+                    result = self.server.dashboard_analyzer.check_and_analyze()
+                    self._send_json({"ok": True, "result": result})
+                else:
+                    self._send_json({"ok": False, "error": "Dashboard analyzer not initialized"}, 500)
+            except Exception as e:
+                self._send_json({"ok": False, "error": str(e)}, 500)
+
         elif parsed.path == "/api/feishu/bitable/record":
             try:
                 body = self._read_body()
@@ -341,6 +358,11 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
         server.feishu_kanban.sync_local_to_feishu()
     except Exception as e:
         print(f"  [server] ⚠️ 看板同步初始化失败: {e}")
+
+    # -- 初始化 Dashboard 数据分析 --
+    dashboard = DashboardAnalyzer()
+    dashboard.start_scheduler()
+    server.dashboard_analyzer = dashboard
 
     url = f"http://{HOST}:{port}/dashboard/"
 

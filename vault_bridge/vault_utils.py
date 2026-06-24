@@ -1,6 +1,7 @@
 """Vault 文件读写工具函数。"""
 import json
 import re
+import threading
 from pathlib import Path
 from typing import Any, Optional
 from engine.config import DAILY_INPUT_DIR
@@ -63,3 +64,37 @@ def mark_processed(file_path: Path) -> None:
     """标记文件已处理：重命名为 原名_done.md。"""
     new_path = file_path.with_stem(file_path.stem + "_done")
     file_path.rename(new_path)
+
+
+# ── 线程安全 JSON 读写 ──────────────────────────────
+_file_locks: dict[str, threading.Lock] = {}
+_file_locks_lock = threading.Lock()
+
+
+def _get_file_lock(path: Path) -> threading.Lock:
+    """获取或创建文件级线程锁（按路径互斥）。"""
+    key = str(path.resolve())
+    with _file_locks_lock:
+        if key not in _file_locks:
+            _file_locks[key] = threading.Lock()
+        return _file_locks[key]
+
+
+def safe_read_json(path: Path) -> Any:
+    """线程安全地读取 JSON 文件。
+
+    与 read_json() 行为完全一致，但加锁防止并发写导致的数据损坏。
+    """
+    lock = _get_file_lock(path)
+    with lock:
+        return read_json(path)
+
+
+def safe_write_json(path: Path, data: Any) -> None:
+    """线程安全地写入 JSON 文件。
+
+    与 write_json() 行为完全一致，但加锁防止并发写导致的数据损坏。
+    """
+    lock = _get_file_lock(path)
+    with lock:
+        write_json(path, data)

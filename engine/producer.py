@@ -16,9 +16,9 @@ from engine.config import PENDING_FILE, PROCESSING_DIR
 
 def run_production():
     """扫描已审批尚未生产的项目，执行生产。"""
-    from vault_bridge.vault_utils import read_json, write_json
+    from vault_bridge.vault_utils import read_json, write_json, safe_read_json, safe_write_json
 
-    pending = read_json(PENDING_FILE)
+    pending = safe_read_json(PENDING_FILE)
     if not isinstance(pending, list):
         print("  [producer] ⚠️ 待审批数据格式错误")
         return
@@ -39,7 +39,7 @@ def run_production():
                 print(f"    -> 产出: {result.name}")
 
     if produced:
-        write_json(PENDING_FILE, pending)
+        safe_write_json(PENDING_FILE, pending)
         print(f"  [producer] ✅ {produced} 项已生产")
         try:
             from engine.kanban_generator import write_kanban_file

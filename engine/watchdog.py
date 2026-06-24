@@ -13,7 +13,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 from engine.config import DAILY_INPUT_DIR, KANBAN_DIR, CLASSIFY_LOG
-from vault_bridge.vault_utils import get_daily_inputs, read_json, write_json
+from vault_bridge.vault_utils import get_daily_inputs, read_json, write_json, safe_read_json, safe_write_json
 
 # ── 防抖配置 ──────────────────────────────────────
 FILE_COOLDOWN_SECONDS = 3    # 同一文件两次处理的最小间隔
@@ -84,6 +84,15 @@ class InputHandler(FileSystemEventHandler):
             process_file(file_path)
 
 
+def _has_duplicate(pending_items: list, new_item: dict) -> bool:
+    """检查待审批列表中是否已有同源的相同标题项（防重复）。"""
+    for existing in pending_items:
+        if (existing.get("source_file") == new_item.get("source_file")
+                and existing.get("suggested_title") == new_item.get("suggested_title")):
+            return True
+    return False
+
+
 def process_file(file_path: Path) -> None:
     """处理一个日输入文件。
 
@@ -95,6 +104,11 @@ def process_file(file_path: Path) -> None:
 
     # 防抖：如果文件刚刚被处理过，跳过
     if _is_cooldown(file_path):
+        return
+
+    # BUGFIX: 跳过 _done.md 文件——它是由 mark_processed 生成的，内容与源文件重复
+    if file_path.stem.endswith("_done"):
+        print(f"  ⏭️  跳过 _done 文件（防重复）: {file_path.name}")
         return
 
     print(f"  📄 处理: {file_path.name}")
@@ -140,10 +154,12 @@ def process_file(file_path: Path) -> None:
         }
         pending_items.append(item)
 
-    # 写入待审批文件
-    existing = read_json(PENDING_FILE)
-    existing.extend(pending_items)
-    write_json(PENDING_FILE, existing)
+    # 写入待审批文件（去重：同源同标题的不重复添加）
+    existing = safe_read_json(PENDING_FILE)
+    for item in pending_items:
+        if not _has_duplicate(existing, item):
+            existing.append(item)
+    safe_write_json(PENDING_FILE, existing)
 
     # 标记已处理
     try:

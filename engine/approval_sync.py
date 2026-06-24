@@ -69,7 +69,7 @@ def parse_kanban_actions(kanban_path: Path) -> list[dict]:
 
 def sync_approvals() -> int:
     """从看板同步审批状态到 待审批.json，返回处理的项数。"""
-    from vault_bridge.vault_utils import read_json, write_json
+    from vault_bridge.vault_utils import read_json, write_json, safe_read_json, safe_write_json
 
     kanban_file = KANBAN_DIR / "看板.md"
     actions = parse_kanban_actions(kanban_file)
@@ -78,7 +78,7 @@ def sync_approvals() -> int:
         print("  [sync] 📭 看板中未发现状态变更")
         return 0
 
-    data = read_json(PENDING_FILE)
+    data = safe_read_json(PENDING_FILE)
     if not isinstance(data, list):
         print("  [sync] ❌ 待审批数据格式错误")
         return 0
@@ -110,12 +110,12 @@ def sync_approvals() -> int:
                     print(f"        标签改为: {tag_override}")
 
     if count:
-        write_json(PENDING_FILE, data)
+        safe_write_json(PENDING_FILE, data)
         print(f"  [sync] ✅ {count} 项已同步")
 
         # 写入审批日志
         try:
-            from vault_bridge.vault_utils import read_json as rj, write_json as wj
+            from vault_bridge.vault_utils import safe_read_json as rj, safe_write_json as wj
             from engine.config import APPROVED_FILE
             logs = rj(APPROVED_FILE)
             if not isinstance(logs, list):
