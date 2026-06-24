@@ -11,6 +11,7 @@
 
 import argparse
 import http.server
+from socketserver import ThreadingMixIn
 import json
 import os
 import sys
@@ -30,6 +31,12 @@ from engine.feishu_bitable_sync import FeishuBitableSync
 from engine.feishu_kanban_sync import FeishuKanbanSync
 from engine.dashboard_analyzer import DashboardAnalyzer
 from vault_bridge.vault_utils import read_json, write_json, safe_read_json, safe_write_json
+
+
+class ThreadingHTTPServer(ThreadingMixIn, http.server.HTTPServer):
+    """支持并发请求的 HTTP Server（每个请求独立线程）。"""
+    daemon_threads = True
+
 
 HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
@@ -336,7 +343,7 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
     from engine.config import KANBAN_DIR
     KANBAN_DIR.mkdir(parents=True, exist_ok=True)
 
-    server = http.server.HTTPServer((HOST, port), APIHandler)
+    server = ThreadingHTTPServer((HOST, port), APIHandler)
 
     # -- 初始化 Flomo 同步 --
     flomo_sync = FlomoSync()
