@@ -47,11 +47,46 @@
 <section class="content-section" id="about">
   <div class="wrap">
     <p class="section-label fade-up">About</p>
-    <h2 class="sec-headline fade-up">把走过的路<br>变成<em>别人的地图</em></h2>
-    <p class="sec-desc fade-up" style="max-width:620px;">
-      一个 AI 学习者兼创作者的完整系统——从 Obsidian 原料输入到 DeepSeek 分类、飞书审批看板、多管道产出的全流程自动化。这里记录踩过的每一个坑、做过的每一次决策。
-    </p>
-    <div class="hero-actions fade-up">
+
+    <!-- 头像 + 简介：Esther 式聊天气泡 -->
+    <div class="about-layout" style="display:flex;gap:3rem;align-items:flex-start;max-width:860px;margin:0 auto;">
+
+      <!-- 照片区 -->
+      <div style="flex:0 0 200px;display:flex;flex-direction:column;align-items:center;gap:1rem;">
+        <div style="width:180px;height:180px;border-radius:24px;background:#fff;overflow:hidden;border:4px solid var(--accent);box-shadow:0 8px 40px rgba(244,215,88,0.2);display:flex;align-items:center;justify-content:center;">
+          <div style="text-align:center;color:#ddd;font-size:40px;line-height:1.6;">
+            🛠️
+            <span style="display:block;font-size:0.7rem;color:#bbb;font-weight:400;">Fendi</span>
+          </div>
+        </div>
+        <div style="font-family:var(--font-serif);font-size:0.95rem;font-weight:600;color:var(--text);">Fendi</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);text-align:center;line-height:1.6;">
+          AI 学习者 · 造园师<br>建筑系逃兵 · 终身建造者
+        </div>
+      </div>
+
+      <!-- 聊天气泡 -->
+      <div class="about-chat" style="flex:1;display:flex;flex-direction:column;gap:0.8rem;padding-top:0.5rem;">
+        <div class="chat-bubble" style="align-self:flex-start;background:var(--primary);color:#fff;border-bottom-left-radius:6px;">
+          <div class="chat-sender" style="opacity:0.7;margin-bottom:0.3rem;">👤 来访者</div>
+          <p>你是怎么开始做元演系统的？</p>
+        </div>
+        <div class="chat-bubble" style="align-self:flex-end;background:var(--accent);color:var(--esther-dark);border-bottom-right-radius:6px;">
+          <div class="chat-sender" style="opacity:0.6;margin-bottom:0.3rem;text-align:right;">Fendi</div>
+          <p>把走过的路变成别人的地图。学 AI 踩了无数的坑，与其记在本子里，不如做成系统公开出来。</p>
+        </div>
+        <div class="chat-bubble" style="align-self:flex-start;background:var(--primary);color:#fff;border-bottom-left-radius:6px;">
+          <div class="chat-sender" style="opacity:0.7;margin-bottom:0.3rem;">👤 来访者</div>
+          <p>这个网站是做什么的？</p>
+        </div>
+        <div class="chat-bubble" style="align-self:flex-end;background:var(--accent);color:var(--esther-dark);border-bottom-right-radius:6px;">
+          <div class="chat-sender" style="opacity:0.6;margin-bottom:0.3rem;text-align:right;">Fendi</div>
+          <p>AI 学习笔记 + 元演系统架构 + 和 Claude 协作的工作日记。这里记录踩过的每一个坑、做过的每一次决策。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-actions fade-up" style="margin-top:3rem;">
       <a href="#featured" class="btn btn-primary">👀 精选内容</a>
       <a href="#modules" class="btn btn-outline">🏗️ 系统架构</a>
     </div>
