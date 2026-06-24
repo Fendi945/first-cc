@@ -439,7 +439,8 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
                 sync_obj.stop_scheduler()
                 logger.info("  %s 调度已停止", name)
 
-        # 2. 关闭 HTTP 服务器（不再接受新连接）
+        # 2. 关闭 HTTP 服务器（先发送退出信号，再关闭 socket）
+        server.shutdown()
         server.server_close()
 
         # 3. 等待线程自然退出
