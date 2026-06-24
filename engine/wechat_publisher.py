@@ -53,26 +53,23 @@ def _get_access_token() -> str:
         "appid": APP_ID,
         "secret": APP_SECRET,
     }
-    try:
-        resp = requests.get(url, params=params, timeout=10)
-        data = resp.json()
-        if "access_token" in data:
-            token = data["access_token"]
-            expires_at = now + data.get("expires_in", 7200) - 300  # 提前5分钟过期
-            _token_cache["access_token"] = token
-            _token_cache["expires_at"] = expires_at
-            # 写入文件缓存
-            TOKEN_FILE.write_text(
-                json.dumps({"access_token": token, "expires_at": expires_at}, ensure_ascii=False),
-                encoding="utf-8"
-            )
-            return token
-        else:
-            print(f"  [wechat] ❌ 获取 token 失败: {data}")
-            return ""
-    except Exception as e:
-        print(f"  [wechat] ❌ 网络请求失败: {e}")
-        return ""
+    # 请求新 token（异常由 @retry_with_backoff 处理）
+    resp = requests.get(url, params=params, timeout=10)
+    data = resp.json()
+    if "access_token" in data:
+        token = data["access_token"]
+        expires_at = now + data.get("expires_in", 7200) - 300  # 提前5分钟过期
+        _token_cache["access_token"] = token
+        _token_cache["expires_at"] = expires_at
+        # 写入文件缓存
+        TOKEN_FILE.write_text(
+            json.dumps({"access_token": token, "expires_at": expires_at}, ensure_ascii=False),
+            encoding="utf-8"
+        )
+        return token
+    else:
+        print(f"  [wechat] ❌ 获取 token 失败: {data}")
+        raise RuntimeError(f"微信API返回错误: {data}")
 
 
 @retry_with_backoff()
@@ -109,15 +106,12 @@ def push_draft(title: str, content: str, author: str = "元演心智") -> str | 
         ]
     }
 
-    try:
-        resp = requests.post(url, json=payload, timeout=15)
-        data = resp.json()
-        if "media_id" in data:
-            print(f"  [wechat] ✅ 草稿创建成功，media_id: {data['media_id']}")
-            return data["media_id"]
-        else:
-            print(f"  [wechat] ❌ 创建草稿失败: {data}")
-            return None
-    except Exception as e:
-        print(f"  [wechat] ❌ 网络请求失败: {e}")
-        return None
+    # 异常由 @retry_with_backoff 处理
+    resp = requests.post(url, json=payload, timeout=15)
+    data = resp.json()
+    if "media_id" in data:
+        print(f"  [wechat] ✅ 草稿创建成功，media_id: {data['media_id']}")
+        return data["media_id"]
+    else:
+        print(f"  [wechat] ❌ 创建草稿失败: {data}")
+        return None  # API 返回错误时不抛异常，仅返回 None

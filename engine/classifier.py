@@ -105,7 +105,25 @@ def classify_text(text: str) -> dict:
         {"role": "user", "content": f"请对以下内容做分类：\n\n{text}"},
     ]
 
-    result = _call_deepseek(messages)
+    try:
+        result = _call_deepseek(messages)
+    except requests.exceptions.HTTPError as e:
+        status = e.response.status_code if e.response is not None else 0
+        if status in (401, 403):
+            error_type = "auth"
+            error_msg = f"API 认证失败 (HTTP {status})"
+        else:
+            error_type = "api"
+            error_msg = f"API 请求失败 (HTTP {status})"
+        return {"ok": False, "segments": [], "error": error_msg, "error_type": error_type}
+    except (requests.ConnectionError, requests.Timeout) as e:
+        return {"ok": False, "segments": [], "error": f"网络请求失败: {e}", "error_type": "api"}
+    except json.JSONDecodeError as e:
+        return {"ok": False, "segments": [], "error": f"API 返回格式异常: {e}", "error_type": "parse"}
+    except KeyError as e:
+        return {"ok": False, "segments": [], "error": f"API 响应缺少字段: {e}", "error_type": "parse"}
+    except Exception as e:
+        return {"ok": False, "segments": [], "error": f"分类失败: {e}", "error_type": "api"}
 
     # 检查 _call_deepseek 是否返回了错误
     if "error" in result and result["error"]:
