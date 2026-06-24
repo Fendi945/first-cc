@@ -142,6 +142,69 @@ nav a::after {
 nav a:hover { color: var(--text); }
 nav a:hover::after { transform: scaleX(1); }
 
+/* ---- 下拉菜单（专栏） ---- */
+.nav-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.nav-dropdown > a {
+  cursor: pointer;
+}
+.nav-dropdown > a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transition: transform var(--ease-quick);
+}
+.nav-dropdown:hover > a::after { transform: scaleX(1); }
+.nav-dropdown:hover > a { color: var(--text); }
+
+.nav-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px;
+  min-width: 120px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  z-index: 200;
+}
+.nav-dropdown:hover .nav-dropdown-menu {
+  display: block;
+}
+.nav-dropdown-menu a {
+  display: block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all var(--ease-quick);
+  white-space: nowrap;
+}
+.nav-dropdown-menu a:hover {
+  background: var(--accent-subtle);
+  color: var(--esther-dark);
+}
+.nav-dropdown-menu a::after { display: none; }
+
+/* ---- 下拉菜单响应式 ---- */
+@media (max-width: 768px) {
+  .nav-dropdown-menu {
+    left: auto;
+    right: 0;
+    transform: none;
+  }
+}
+
 /* =============================================
    容器
    ============================================= */
