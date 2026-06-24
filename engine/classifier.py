@@ -89,10 +89,24 @@ def _call_deepseek(messages: list) -> dict:
         return {"segments": [], "error": str(e)}
 
 
-def classify_text(text: str) -> list[dict]:
-    """对输入文本做分类，返回分段分类结果列表。"""
+def classify_text(text: str) -> dict:
+    """对输入文本做分类。
+
+    返回结构化结果:
+    {
+        "ok": bool,              # True=成功, False=失败
+        "segments": [...],       # ok=True 时有效，分类结果列表
+        "error": str|None,       # ok=False 时给出可读错误信息
+        "error_type": str|None   # "api" | "auth" | "parse" | "empty" | None
+    }
+    """
     if not text.strip():
-        return []
+        return {
+            "ok": False,
+            "segments": [],
+            "error": "输入文本为空",
+            "error_type": "empty",
+        }
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
@@ -100,4 +114,36 @@ def classify_text(text: str) -> list[dict]:
     ]
 
     result = _call_deepseek(messages)
-    return result.get("segments", [])
+
+    # 检查 _call_deepseek 是否返回了错误
+    if "error" in result and result["error"]:
+        error_msg = result["error"]
+        # 判断错误类型
+        if "401" in error_msg or "Unauthorized" in error_msg or "认证" in error_msg:
+            error_type = "auth"
+        elif "JSON" in error_msg or "parse" in error_msg.lower():
+            error_type = "parse"
+        else:
+            error_type = "api"
+        return {
+            "ok": False,
+            "segments": [],
+            "error": error_msg,
+            "error_type": error_type,
+        }
+
+    segments = result.get("segments", [])
+    if not segments:
+        return {
+            "ok": False,
+            "segments": [],
+            "error": "API 返回了空结果",
+            "error_type": "parse",
+        }
+
+    return {
+        "ok": True,
+        "segments": segments,
+        "error": None,
+        "error_type": None,
+    }

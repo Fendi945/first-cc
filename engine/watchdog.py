@@ -122,21 +122,26 @@ def process_file(file_path: Path) -> None:
     # AI 分类
     print(f"  🤖 AI 分类中...")
     try:
-        results = classify_text(content)
+        result = classify_text(content)
     except Exception as e:
-        print(f"  ❌ 分类失败: {e}")
+        print(f"  ❌ 分类失败（异常）: {e}")
         return
 
-    if not results:
-        print(f"  ⏭️  无分类结果，跳过")
+    if not result.get("ok"):
+        error = result.get("error", "未知错误")
+        error_type = result.get("error_type", "")
+        error_tag = {"auth": "🔑", "api": "🌐", "parse": "📄", "empty": "📭"}.get(error_type, "❌")
+        print(f"  {error_tag} 分类失败 [{error_type}]: {error}")
         return
+
+    segments = result["segments"]
 
     # 写入分类日志（原始结果，便于追溯）
-    _write_classify_log(file_path, results)
+    _write_classify_log(file_path, segments)
 
     # 生成审批项
     pending_items = []
-    for seg in results:
+    for seg in segments:
         item = {
             "id": f"{file_path.stem}-{len(pending_items)}",
             "source_file": str(file_path),
