@@ -16,13 +16,13 @@
       - HTTP 状态码 429（限流）、5xx（服务端错误）
     - 以下情况不重试直接报错：
       - HTTP 4xx（除 429 外）：认证/参数错误
-      - 显式指定的非重试异常类型
+    - 可通过 retryable_exceptions 参数额外指定可重试的异常类型
 """
 
 import random
 import time
 from functools import wraps
-from typing import Callable, Optional, Type, Union
+from typing import Callable, Optional
 
 import requests
 
@@ -64,6 +64,7 @@ def retry_with_backoff(
     max_retries: int = 3,
     base_delay: float = 1.0,
     max_delay: float = 8.0,
+    retryable_exceptions: Optional[tuple] = None,
 ):
     """带指数退避 + 随机抖动的重试装饰器/包装器。
 
@@ -79,6 +80,8 @@ def retry_with_backoff(
         max_retries: 最大重试次数（默认 3）
         base_delay: 基础等待秒数（默认 1.0）
         max_delay: 最大等待秒数（默认 8.0）
+        retryable_exceptions: 指定额外的可重试异常类型（如 (ValueError,)），
+                              默认不重试的异常若在此列表中则会被强制重试
 
     Returns:
         装饰器或包装后的函数
@@ -114,6 +117,11 @@ def retry_with_backoff(
                     else:
                         # 没有 HTTP 状态码，检查异常类型
                         should_retry = _is_retryable_exception(e)
+
+                    # 如果异常类型在 retryable_exceptions 中，强制重试
+                    if not should_retry and retryable_exceptions is not None:
+                        if isinstance(e, retryable_exceptions):
+                            should_retry = True
 
                     if not should_retry or attempt >= max_retries:
                         # 不重试或已达到最大重试次数，向上抛出
