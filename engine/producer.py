@@ -12,6 +12,9 @@
 import time
 from pathlib import Path
 from engine.config import PENDING_FILE, PROCESSING_DIR
+from engine.log_utils import get_logger
+
+logger = get_logger("producer")
 
 
 def run_production():
@@ -20,7 +23,7 @@ def run_production():
 
     pending = safe_read_json(PENDING_FILE)
     if not isinstance(pending, list):
-        print("  [producer] ⚠️ 待审批数据格式错误")
+        logger.warning("待审批数据格式错误")
         return
 
     produced = 0
@@ -28,7 +31,7 @@ def run_production():
         if item.get("status") == "approved" and not item.get("produced"):
             tag = item.get("output_tag", "none")
             summary = item.get("summary", "")[:20]
-            print(f"  [producer] 🏭 生产: {summary} ({tag})")
+            logger.info("生产: %s (%s)", summary, tag)
 
             result = _produce(item, tag)
             if result:
@@ -36,18 +39,18 @@ def run_production():
                 item["produced_at"] = time.strftime("%Y-%m-%d %H:%M:%S")
                 item["produced_path"] = str(result)
                 produced += 1
-                print(f"    -> 产出: {result.name}")
+                logger.info("产出: %s", result.name)
 
     if produced:
         safe_write_json(PENDING_FILE, pending)
-        print(f"  [producer] ✅ {produced} 项已生产")
+        logger.info("%d 项已生产", produced)
         try:
             from engine.kanban_generator import write_kanban_file
             write_kanban_file()
         except Exception:
             pass
     else:
-        print("  [producer] 📭 无待生产的项")
+        logger.info("无待生产的项")
 
 
 def _produce(item: dict, tag: str) -> Path | None:
@@ -205,7 +208,7 @@ platform: 公众号
         try:
             _push_to_wechat_draft(item, title, summary)
         except Exception as e:
-            print(f"    ⚠️ 公众号推送失败: {e}")
+            logger.warning("公众号推送失败: %s", e)
 
     return filepath
 
@@ -216,12 +219,12 @@ def _push_to_wechat_draft(item, title, summary):
         from engine.wechat_publisher import push_draft
         result = push_draft(title, summary)
         if result:
-            print(f"    📤 已推送至公众号草稿箱")
+            logger.info("已推送至公众号草稿箱")
             item["wechat_draft_id"] = result
     except ImportError:
-        print(f"    ⚠️ wechat_publisher 模块未就绪")
+        logger.warning("wechat_publisher 模块未就绪")
     except Exception as e:
-        print(f"    ⚠️ 公众号推送异常: {e}")
+        logger.warning("公众号推送异常: %s", e)
 
 
 def _write_md(target_dir: Path, title: str, content: str) -> Path | None:
@@ -236,5 +239,5 @@ def _write_md(target_dir: Path, title: str, content: str) -> Path | None:
         filepath.write_text(content, encoding="utf-8")
         return filepath
     except Exception as e:
-        print(f"    ❌ 写入失败: {e}")
+        logger.error("写入失败: %s", e)
         return None

@@ -13,6 +13,9 @@ import re
 import time
 from pathlib import Path
 from engine.config import KANBAN_DIR, PENDING_FILE
+from engine.log_utils import get_logger
+
+logger = get_logger("approval_sync")
 
 # 状态符号到系统状态的映射
 STATUS_MAP = {
@@ -38,7 +41,7 @@ def parse_kanban_actions(kanban_path: Path) -> list[dict]:
         [{"id": str, "action": str, "tag_override": str|None}, ...]
     """
     if not kanban_path.exists():
-        print("  [sync] ⚠️ 看板文件不存在")
+        logger.warning("看板文件不存在")
         return []
 
     content = kanban_path.read_text(encoding="utf-8")
@@ -75,12 +78,12 @@ def sync_approvals() -> int:
     actions = parse_kanban_actions(kanban_file)
 
     if not actions:
-        print("  [sync] 📭 看板中未发现状态变更")
+        logger.info("看板中未发现状态变更")
         return 0
 
     data = safe_read_json(PENDING_FILE)
     if not isinstance(data, list):
-        print("  [sync] ❌ 待审批数据格式错误")
+        logger.error("待审批数据格式错误")
         return 0
 
     now = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -105,13 +108,13 @@ def sync_approvals() -> int:
                 count += 1
                 summary = item.get("summary", "")[:20]
                 symbol = "✅" if new_status == "approved" else "❌"
-                print(f"  [sync] {symbol} {summary}")
+                logger.info("%s %s", symbol, summary)
                 if tag_override:
-                    print(f"        标签改为: {tag_override}")
+                    logger.info("  标签改为: %s", tag_override)
 
     if count:
         safe_write_json(PENDING_FILE, data)
-        print(f"  [sync] ✅ {count} 项已同步")
+        logger.info("%d 项已同步", count)
 
         # 写入审批日志
         try:
@@ -134,7 +137,7 @@ def sync_approvals() -> int:
                 logs = logs[-500:]
             wj(APPROVED_FILE, logs)
         except Exception as e:
-            print(f"  [sync] ⚠️ 日志写入失败: {e}")
+            logger.warning("日志写入失败: %s", e)
 
         # 更新看板
         try:
@@ -148,8 +151,8 @@ def sync_approvals() -> int:
             from engine.producer import run_production
             run_production()
         except Exception as e:
-            print(f"  [sync] ⚠️ 生产执行失败: {e}")
+            logger.warning("生产执行失败: %s", e)
     else:
-        print("  [sync] 📭 勾选的项已处理过或无变更")
+        logger.info("勾选的项已处理过或无变更")
 
     return count
