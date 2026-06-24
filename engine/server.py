@@ -14,6 +14,7 @@ import http.server
 from socketserver import ThreadingMixIn
 import json
 import os
+import signal
 import sys
 import time
 import webbrowser
@@ -417,11 +418,49 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
 
         threading.Thread(target=_open_browser, daemon=True).start()
 
+    # ── 优雅关闭 ──
+    shutdown_requested = False
+
+    def _shutdown(signum=None, frame=None):
+        """按序停止所有服务并关闭 server。"""
+        nonlocal shutdown_requested
+        if shutdown_requested:
+            return
+        shutdown_requested = True
+        logger.info("正在关闭所有服务...")
+
+        # 1. 停止 scheduler 线程（不再接收新任务）
+        for name, sync_obj in [
+            ("Flomo", getattr(server, "flomo_sync", None)),
+            ("Feishu", getattr(server, "feishu_sync", None)),
+            ("Dashboard", getattr(server, "dashboard_analyzer", None)),
+        ]:
+            if sync_obj and hasattr(sync_obj, "stop_scheduler"):
+                sync_obj.stop_scheduler()
+                logger.info("  %s 调度已停止", name)
+
+        # 2. 关闭 HTTP 服务器（不再接受新连接）
+        server.server_close()
+
+        # 3. 等待线程自然退出
+        import threading
+        for t in threading.enumerate():
+            if t is not threading.main_thread() and t.daemon is False:
+                t.join(timeout=2.0)
+
+        logger.info("服务器已关闭")
+
+    # 注册信号处理器（SIGTERM 用于系统关闭，SIGINT 用于 Ctrl+C）
+    signal.signal(signal.SIGINT, _shutdown)
+    if hasattr(signal, "SIGTERM"):
+        signal.signal(signal.SIGTERM, _shutdown)
+
+    logger.info("服务已就绪，按 Ctrl+C 停止")
+
     try:
         server.serve_forever()
-    except KeyboardInterrupt:
-        logger.info("服务器已关闭")
-        server.server_close()
+    finally:
+        _shutdown()
 
 
 def main():
