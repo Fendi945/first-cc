@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 from engine.config import CAPTURE_DIR, FLOMO_SYNC_INTERVAL, PROJECT_ROOT
+from engine.retry_utils import retry_with_backoff
 
 logger = logging.getLogger("flomo_sync")
 
@@ -81,7 +82,12 @@ class FlomoSync:
             )
 
         try:
-            notes = asyncio.run(self._mcp_fetch_notes(token, since))
+            # 用 retry_with_backoff 包装同步执行 MCP 获取
+            notes = retry_with_backoff(
+                lambda: asyncio.run(self._mcp_fetch_notes(token, since)),
+                max_retries=2,
+                base_delay=2.0,
+            )()
             return notes
         except Exception as e:
             raise RuntimeError(f"Flomo MCP 同步失败: {e}")

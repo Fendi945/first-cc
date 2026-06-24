@@ -4,6 +4,7 @@ import requests
 import json
 
 from engine.config import DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL, DEEPSEEK_MODEL
+from engine.retry_utils import retry_with_backoff
 
 SYSTEM_PROMPT = """你是一个笔记分类助手。分析用户输入的每一段内容，按「元演心智」系统做两层判断：
 
@@ -52,41 +53,32 @@ SYSTEM_PROMPT = """你是一个笔记分类助手。分析用户输入的每一�
 """
 
 
+@retry_with_backoff()
 def _call_deepseek(messages: list) -> dict:
-    """调用 DeepSeek API 的通用方法。"""
-    try:
-        resp = requests.post(
-            f"{DEEPSEEK_BASE_URL.rstrip('/')}/chat/completions",
-            headers={
-                "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": DEEPSEEK_MODEL,
-                "messages": messages,
-                "temperature": 0.3,
-                "max_tokens": 4096,
-            },
-            timeout=60,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        content = data["choices"][0]["message"]["content"]
-        # 解析 JSON（处理可能的 markdown 包裹）
-        content = content.strip()
-        if content.startswith("```"):
-            content = content.split("\n", 1)[-1]
-            content = content.rsplit("```", 1)[0]
-        return json.loads(content.strip())
-    except requests.RequestException as e:
-        print(f"[WARNING] DeepSeek API 请求失败: {e}")
-        return {"segments": [], "error": str(e)}
-    except json.JSONDecodeError as e:
-        print(f"[WARNING] DeepSeek API 返回非 JSON 响应: {e}")
-        return {"segments": [], "error": str(e)}
-    except KeyError as e:
-        print(f"[WARNING] DeepSeek API 响应缺少必要字段 {e}: {e}")
-        return {"segments": [], "error": str(e)}
+    """调用 DeepSeek API 的通用方法（带重试）。"""
+    resp = requests.post(
+        f"{DEEPSEEK_BASE_URL.rstrip('/')}/chat/completions",
+        headers={
+            "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": DEEPSEEK_MODEL,
+            "messages": messages,
+            "temperature": 0.3,
+            "max_tokens": 4096,
+        },
+        timeout=60,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    content = data["choices"][0]["message"]["content"]
+    # 解析 JSON（处理可能的 markdown 包裹）
+    content = content.strip()
+    if content.startswith("```"):
+        content = content.split("\n", 1)[-1]
+        content = content.rsplit("```", 1)[0]
+    return json.loads(content.strip())
 
 
 def classify_text(text: str) -> dict:

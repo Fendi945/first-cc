@@ -13,6 +13,7 @@ import json
 import time
 import requests
 from pathlib import Path
+from engine.retry_utils import retry_with_backoff
 
 # ── 凭证 ──────────────────────────────────────────
 APP_ID = os.getenv("WECHAT_APP_ID", "")
@@ -23,6 +24,7 @@ TOKEN_FILE = Path(__file__).resolve().parent.parent / "wechat_token_cache.json"
 _token_cache = {"access_token": "", "expires_at": 0}
 
 
+@retry_with_backoff()
 def _get_access_token() -> str:
     """获取微信公众号 access_token（带缓存，自动刷新）。"""
     # 检查内存缓存
@@ -73,6 +75,7 @@ def _get_access_token() -> str:
         return ""
 
 
+@retry_with_backoff()
 def push_draft(title: str, content: str, author: str = "元演心智") -> str | None:
     """推送文章到公众号草稿箱。
 
