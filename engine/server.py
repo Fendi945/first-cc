@@ -30,7 +30,10 @@ from engine.feishu_sync import FeishuSync
 from engine.feishu_bitable_sync import FeishuBitableSync
 from engine.feishu_kanban_sync import FeishuKanbanSync
 from engine.dashboard_analyzer import DashboardAnalyzer
+from engine.log_utils import setup_logging, get_logger
 from vault_bridge.vault_utils import read_json, write_json, safe_read_json, safe_write_json
+
+logger = get_logger("server")
 
 
 class ThreadingHTTPServer(ThreadingMixIn, http.server.HTTPServer):
@@ -50,7 +53,7 @@ def _read_pending() -> list:
         data = safe_read_json(PENDING_FILE)
         return data if isinstance(data, list) else []
     except Exception as e:
-        print(f"  [server] ⚠️ 读取待审批.json 失败: {e}")
+        logger.warning("读取待审批.json 失败: %s", e)
         return []
 
 
@@ -60,7 +63,7 @@ def _write_pending(data: list) -> bool:
         safe_write_json(PENDING_FILE, data)
         return True
     except Exception as e:
-        print(f"  [server] ❌ 写入待审批.json 失败: {e}")
+        logger.error("写入待审批.json 失败: %s", e)
         return False
 
 
@@ -82,7 +85,7 @@ def _append_audit_log(action: str, item: dict) -> None:
         logs.append(log_entry)
         write_json(APPROVED_FILE, logs)
     except Exception as e:
-        print(f"  [server] ⚠️ 写入审批日志失败: {e}")
+        logger.warning("写入审批日志失败: %s", e)
 
 
 # ── HTTP API 处理 ──────────────────────────────────
@@ -339,6 +342,9 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
     # 切换到项目根目录，使 /dashboard/ 能正确映射
     os.chdir(str(PROJECT_ROOT))
 
+    # 统一日志初始化（全局只需调用一次）
+    setup_logging()
+
     # 确保看板目录存在
     from engine.config import KANBAN_DIR
     KANBAN_DIR.mkdir(parents=True, exist_ok=True)
@@ -364,7 +370,7 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
     try:
         server.feishu_kanban.sync_local_to_feishu()
     except Exception as e:
-        print(f"  [server] ⚠️ 看板同步初始化失败: {e}")
+        logger.warning("看板同步初始化失败: %s", e)
 
     # -- 初始化 Dashboard 数据分析 --
     dashboard = DashboardAnalyzer()
@@ -414,7 +420,7 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\n  [server] 👋 服务器已关闭")
+        logger.info("服务器已关闭")
         server.server_close()
 
 
