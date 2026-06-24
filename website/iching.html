@@ -144,7 +144,7 @@
 .iching-cell .h-broken::before, .iching-cell .h-broken::after { content: ''; flex: 1; height: 100%; background: var(--text); border-radius: 1.5px; }
 .iching-cell .hex-bits { font-family: 'Courier New', monospace; font-size: 0.55rem; color: var(--text-muted); margin-top: 2px; letter-spacing: 0.5px; }
 .iching-cell .hex-idx { font-size: 0.5rem; color: var(--text-muted); }
-.iching-cell .hex-name { font-family: var(--font-serif); font-size: 0.65rem; color: var(--text-muted); }
+.iching-cell .hex-name { font-family: var(--font-serif); font-size: 0.72rem; color: var(--text-secondary); white-space: nowrap; }
 .iching-cell.pure .hex-name { color: var(--primary); font-weight: 700; }
 
 .grid-legend { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 1rem; color: var(--text-muted); font-size: 0.82rem; flex-wrap: wrap; gap: 0.5rem; }
@@ -218,7 +218,9 @@
 .hex-detail-card .big-lines .bline { width: 100px; height: 8px; background: var(--accent); border-radius: 4px; }
 .hex-detail-card .big-lines .bline-broken { width: 100px; height: 8px; display: flex; gap: 16px; }
 .hex-detail-card .big-lines .bline-broken::before, .hex-detail-card .big-lines .bline-broken::after { content: ''; flex: 1; height: 100%; background: var(--accent); border-radius: 4px; }
-.hex-detail-card .detail-bits { font-family: 'Courier New', monospace; font-size: 1.2rem; color: var(--primary); margin: 0.5rem 0; letter-spacing: 4px; }
+.hex-detail-card .detail-bits { font-size: 1rem; color: var(--text); margin: 0.5rem 0; }
+.hex-detail-card .detail-bits strong { font-family: var(--font-serif); font-size: 1.3rem; color: var(--primary); display: block; margin-bottom: 0.3rem; }
+.hex-detail-card .detail-bits .bin { font-family: 'Courier New', monospace; font-size: 1rem; color: var(--text-muted); letter-spacing: 3px; }
 .hex-detail-card .detail-decimal { font-size: 0.9rem; color: var(--text-muted); }
 .hex-detail-card .detail-close { margin-top: 1.2rem; padding: 0.4rem 1.5rem; background: var(--border); border: none; border-radius: 8px; color: var(--text-secondary); cursor: pointer; font-size: 0.82rem; transition: all 0.2s; }
 .hex-detail-card .detail-close:hover { background: var(--accent-subtle); color: var(--text); }
@@ -354,9 +356,9 @@
     <div class="iching-grid" id="hexGrid"></div>
   </div>
 
-  <div class="grid-legend" style="border-top:1px solid #1a1720; padding-top:0.8rem; margin-top:0;">
-    <span>💡 鼠标悬停查看详情 · 点击卦象弹出完整分析</span>
-    <span>金色编号 = 上下卦相同的「纯卦」（共8个）</span>
+  <div class="grid-legend" style="border-top:1px solid var(--border); padding-top:0.8rem; margin-top:0;">
+    <span>💡 点击卦象弹出详情</span>
+    <span>蓝色编号 = 上下卦相同的「纯卦」（共8个）</span>
   </div>
 
   <div class="iching-note" style="margin-top:2rem;">
@@ -1205,6 +1207,19 @@ const TRIGRAMS = [
 const TRIGRAM_ORDER = [0, 1, 2, 3, 4, 5, 6, 7];
 const GRID_ORDER = [0, 1, 2, 3, 4, 5, 6, 7];
 
+// 六十四卦名表 HEXAGRAM_NAMES[上卦索引][下卦索引]
+// 索引与 TRIGRAMS 数组一致: 0乾 1兑 2离 3震 4巽 5坎 6艮 7坤
+const HEXAGRAM_NAMES = {
+  0: {0:'乾为天',1:'天泽履',2:'天火同人',3:'天雷无妄',4:'天风姤',5:'天水讼',6:'天山遁',7:'天地否'},
+  1: {0:'泽天夬',1:'兑为泽',2:'泽火革',3:'泽雷随',4:'泽风大过',5:'泽水困',6:'泽山咸',7:'泽地萃'},
+  2: {0:'火天大有',1:'火泽睽',2:'离为火',3:'火雷噬嗑',4:'火风鼎',5:'水火既济',6:'火山旅',7:'火地晋'},
+  3: {0:'雷天大壮',1:'雷泽归妹',2:'雷火丰',3:'震为雷',4:'雷风恒',5:'雷水解',6:'雷山小过',7:'雷地豫'},
+  4: {0:'风天小畜',1:'风泽中孚',2:'风火家人',3:'风雷益',4:'巽为风',5:'风水涣',6:'风山渐',7:'风地观'},
+  5: {0:'水天需',1:'水泽节',2:'水火未济',3:'水雷屯',4:'水风井',5:'坎为水',6:'水山蹇',7:'水地比'},
+  6: {0:'山天大畜',1:'山泽损',2:'山火贲',3:'山雷颐',4:'山风蛊',5:'山水蒙',6:'艮为山',7:'山地剥'},
+  7: {0:'地天泰',1:'地泽临',2:'地火明夷',3:'地雷复',4:'地风升',5:'地水师',6:'地山谦',7:'坤为地'},
+};
+
 // ============================================================
 // RENDER: 8 Trigrams
 // ============================================================
@@ -1293,18 +1308,18 @@ function renderHexGrid() {
         b === 0 ? '<div class="h-line"></div>' : '<div class="h-broken"></div>'
       ).join('');
 
-      // Name: just binary + decimal for now
-      const nameStr = `${upper.name}${lower.name}`;
+      const hexName = HEXAGRAM_NAMES[upperIdx] ? (HEXAGRAM_NAMES[upperIdx][lowerIdx] || '') : '';
+      const displayName = hexName ? `${hexName}卦` : `${upper.name}${lower.name}`;
 
       cell.innerHTML = `
         <div class="hex-lines">${linesHtml}</div>
         <div class="hex-bits">${hexagram.join('')}</div>
-        <div class="hex-name">${isPure ? `☯ ${nameStr}` : nameStr}</div>
+        <div class="hex-name">${isPure ? `☯ ${displayName}` : displayName}</div>
         <div class="hex-idx">${decimal}</div>
       `;
 
-      cell.addEventListener('click', () => showDetail(upper, lower, hexagram, decimal));
-      cell.title = `${upper.name}为上卦·${lower.name}为下卦\n二进制：${hexagram.join('')} = ${decimal}`;
+      cell.addEventListener('click', () => showDetail(upper, lower, hexagram, decimal, upperIdx, lowerIdx));
+      cell.title = `${displayName}\n上卦${upper.symbol}${upper.name}·下卦${lower.symbol}${lower.name}\n二进制：${hexagram.join('')} = ${decimal}`;
 
       fragment.appendChild(cell);
     });
@@ -1319,7 +1334,7 @@ function renderHexGrid() {
 // ============================================================
 // DETAIL POPUP
 // ============================================================
-function showDetail(upper, lower, hexagram, decimal) {
+function showDetail(upper, lower, hexagram, decimal, upperIdx, lowerIdx) {
   const popup = document.getElementById('hexPopup');
   const lines = document.getElementById('popupLines');
   const bits = document.getElementById('popupBits');
@@ -1333,8 +1348,9 @@ function showDetail(upper, lower, hexagram, decimal) {
       : '<div class="bline-broken"></div>'
   ).join('');
 
-  bits.textContent = `${hexagram.join('')}₂ = ${decimal}₁₀`;
-  dec.textContent = `${upper.symbol}${lower.symbol}  ${upper.name}·${lower.symbol + lower.name}`;
+  const hexName = HEXAGRAM_NAMES[upperIdx] ? (HEXAGRAM_NAMES[upperIdx][lowerIdx] || '') : '';
+  bits.innerHTML = `<strong>${hexName || (upper.name+lower.name)}</strong><br><span class="bin">${hexagram.join('')}₂ = ${decimal}₁₀</span>`;
+  dec.textContent = `${upper.symbol}${upper.name}（${upper.element}）· ${lower.symbol}${lower.name}（${lower.element}）`;
   upperEl.textContent = `${upper.symbol} ${upper.name}（${upper.element}）`;
   lowerEl.textContent = `${lower.symbol} ${lower.name}（${lower.element}）`;
 
