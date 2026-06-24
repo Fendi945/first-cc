@@ -166,21 +166,25 @@ nav a:hover::after { transform: scaleX(1); }
 .nav-dropdown-menu {
   display: none;
   position: absolute;
-  top: calc(100% + 8px);
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
+  padding-top: 12px;
+  background: transparent;
+  z-index: 200;
+}
+.nav-dropdown-menu-inner {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 6px;
   min-width: 120px;
   box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-  z-index: 200;
 }
 .nav-dropdown:hover .nav-dropdown-menu {
   display: block;
 }
-.nav-dropdown-menu a {
+.nav-dropdown-menu-inner a {
   display: block;
   padding: 8px 16px;
   border-radius: 8px;
@@ -190,11 +194,11 @@ nav a:hover::after { transform: scaleX(1); }
   transition: all var(--ease-quick);
   white-space: nowrap;
 }
-.nav-dropdown-menu a:hover {
+.nav-dropdown-menu-inner a:hover {
   background: var(--accent-subtle);
   color: var(--esther-dark);
 }
-.nav-dropdown-menu a::after { display: none; }
+.nav-dropdown-menu-inner a::after { display: none; }
 
 /* ---- 下拉菜单响应式 ---- */
 @media (max-width: 768px) {
