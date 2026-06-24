@@ -13,7 +13,10 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 from engine.config import DAILY_INPUT_DIR, KANBAN_DIR, CLASSIFY_LOG
+from engine.log_utils import get_logger
 from vault_bridge.vault_utils import get_daily_inputs, read_json, write_json, safe_read_json, safe_write_json
+
+logger = get_logger("watchdog")
 
 # ── 防抖配置 ──────────────────────────────────────
 FILE_COOLDOWN_SECONDS = 3    # 同一文件两次处理的最小间隔
@@ -48,7 +51,7 @@ def _write_classify_log(file_path: Path, raw_results: list) -> None:
             logs = logs[-200:]
         write_json(CLASSIFY_LOG, logs)
     except Exception as e:
-        print(f"  [watchdog] ⚠️ 写入分类日志失败: {e}")
+        logger.warning("写入分类日志失败: %s", e)
 
 
 def _ensure_vault_dirs():
@@ -57,9 +60,9 @@ def _ensure_vault_dirs():
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
     if not KANBAN_DIR.exists():
-        print(f"  [watchdog] ⚠️ 无法创建看板目录: {KANBAN_DIR}")
+        logger.warning("无法创建看板目录: %s", KANBAN_DIR)
     if not DAILY_INPUT_DIR.exists():
-        print(f"  [watchdog] ⚠️ 无法创建日输入目录: {DAILY_INPUT_DIR}")
+        logger.warning("无法创建日输入目录: %s", DAILY_INPUT_DIR)
 
 
 class InputHandler(FileSystemEventHandler):
@@ -108,30 +111,29 @@ def process_file(file_path: Path) -> None:
 
     # BUGFIX: 跳过 _done.md 文件——它是由 mark_processed 生成的，内容与源文件重复
     if file_path.stem.endswith("_done"):
-        print(f"  ⏭️  跳过 _done 文件（防重复）: {file_path.name}")
+        logger.info("跳过 _done 文件（防重复）: %s", file_path.name)
         return
 
-    print(f"  📄 处理: {file_path.name}")
+    logger.info("处理: %s", file_path.name)
 
     # 读取内容
     content = read_markdown_file(file_path)
     if not content:
-        print(f"  ⏭️  跳过空文件: {file_path.name}")
+        logger.info("跳过空文件: %s", file_path.name)
         return
 
     # AI 分类
-    print(f"  🤖 AI 分类中...")
+    logger.info("AI 分类中...")
     try:
         result = classify_text(content)
     except Exception as e:
-        print(f"  ❌ 分类失败（异常）: {e}")
+        logger.error("分类失败（异常）: %s", e)
         return
 
     if not result.get("ok"):
         error = result.get("error", "未知错误")
         error_type = result.get("error_type", "")
-        error_tag = {"auth": "🔑", "api": "🌐", "parse": "📄", "empty": "📭"}.get(error_type, "❌")
-        print(f"  {error_tag} 分类失败 [{error_type}]: {error}")
+        logger.error("分类失败 [%s]: %s", error_type, error)
         return
 
     segments = result["segments"]
@@ -176,21 +178,21 @@ def process_file(file_path: Path) -> None:
     video_count = sum(1 for i in pending_items if i["output_tag"] == "video")
     article_count = sum(1 for i in pending_items if i["output_tag"] == "article")
     tool_count = sum(1 for i in pending_items if i["output_tag"] == "tool")
-    print(f"  ✅ 完成: {len(pending_items)} 条内容")
+    logger.info("完成: %d 条内容", len(pending_items))
     if video_count:
-        print(f"     📹 视频 x{video_count}")
+        logger.info("  视频 x%d", video_count)
     if article_count:
-        print(f"     📝 文章 x{article_count}")
+        logger.info("  文章 x%d", article_count)
     if tool_count:
-        print(f"     🔧 工具 x{tool_count}")
+        logger.info("  工具 x%d", tool_count)
 
     # 更新 Obsidian 看板
     try:
         from engine.kanban_generator import write_kanban_file
         write_kanban_file()
-        print(f"     🗂️  看板已更新")
+        logger.info("看板已更新")
     except Exception as e:
-        print(f"     ⚠️  看板更新失败: {e}")
+        logger.warning("看板更新失败: %s", e)
 
 
 def scan_existing() -> None:
@@ -200,9 +202,9 @@ def scan_existing() -> None:
 
     inputs = get_daily_inputs()
     if not inputs:
-        print("  📭 没有待处理的日输入文件")
+        logger.info("没有待处理的日输入文件")
         return
-    print(f"  📂 发现 {len(inputs)} 个待处理文件")
+    logger.info("发现 %d 个待处理文件", len(inputs))
     for inp in inputs:
         process_file(inp["path"])
 
@@ -217,16 +219,16 @@ class KanbanHandler(FileSystemEventHandler):
             file_path = Path(event.src_path)
             if _is_cooldown(file_path):
                 return
-            print(f"  📋 看板已更新，检查审批...")
+            logger.info("看板已更新，检查审批...")
             try:
                 from engine.approval_sync import sync_approvals
                 count = sync_approvals()
                 if count:
-                    print(f"  ✅ 自动审批完成，{count} 项已处理")
+                    logger.info("自动审批完成，%d 项已处理", count)
                 else:
-                    print(f"     （未发现新勾选项）")
+                    logger.info("未发现新勾选项")
             except Exception as e:
-                print(f"  ⚠️  审批同步失败: {e}")
+                logger.warning("审批同步失败: %s", e)
 
 
 def start_watchdog() -> None:
@@ -234,7 +236,7 @@ def start_watchdog() -> None:
     # 确保目录存在
     _ensure_vault_dirs()
     if not DAILY_INPUT_DIR.exists():
-        print(f"⚠️  日输入目录不存在，创建: {DAILY_INPUT_DIR}")
+        logger.warning("日输入目录不存在，创建: %s", DAILY_INPUT_DIR)
         DAILY_INPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     # 监控日输入
@@ -249,11 +251,11 @@ def start_watchdog() -> None:
         observer.schedule(kanban_handler, str(KANBAN_DIR), recursive=False)
     observer.start()
 
-    print(f"👁️  Watchdog 已启动（防抖 {FILE_COOLDOWN_SECONDS}s）")
-    print(f"   监控:")
-    print(f"     🌱 日输入 → {DAILY_INPUT_DIR}")
-    print(f"     📋 看板   → {KANBAN_DIR / '看板.md'}")
-    print(f"   等待新文件或审批... (Ctrl+C 停止)\n")
+    logger.info("Watchdog 已启动（防抖 %ds）", FILE_COOLDOWN_SECONDS)
+    logger.info("  监控:")
+    logger.info("    日输入 → %s", DAILY_INPUT_DIR)
+    logger.info("    看板   → %s", KANBAN_DIR / "看板.md")
+    logger.info("  等待新文件或审批... (Ctrl+C 停止)")
 
     try:
         while True:
