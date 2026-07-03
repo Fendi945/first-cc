@@ -16,6 +16,7 @@ import json
 import os
 import signal
 import sys
+import threading
 import time
 import webbrowser
 from pathlib import Path
@@ -31,6 +32,7 @@ from engine.feishu_sync import FeishuSync
 from engine.feishu_bitable_sync import FeishuBitableSync
 from engine.feishu_kanban_sync import FeishuKanbanSync
 from engine.dashboard_analyzer import DashboardAnalyzer
+from engine.wechat_video_scraper import WeChatVideoScraper
 from engine.log_utils import setup_logging, get_logger
 from vault_bridge.vault_utils import read_json, write_json, safe_read_json, safe_write_json
 
@@ -99,14 +101,16 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
         print(f"  [server] {self.client_address[0]} - {format % args}")
 
     def _send_json(self, data, status=200):
-        """发送 JSON 响应。"""
+        """发送 JSON 响应（带 Content-Length，避免客户端超时）。"""
+        body = json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, PUT, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
-        self.wfile.write(json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8"))
+        self.wfile.write(body)
 
     def _read_body(self) -> bytes:
         """读取请求体。"""
@@ -144,7 +148,18 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
             self._send_json(stats)
 
         elif path == "/api/health":
-            self._send_json({"ok": True, "time": time.strftime("%Y-%m-%d %H:%M:%S")})
+            feishu_health = "ok"
+            if getattr(self.server, "_feishu_local_mode", False):
+                feishu_health = "local_mode"
+            elif hasattr(self.server, "feishu_sync"):
+                s = self.server.feishu_sync.get_status()
+                if not s.get("connected", False):
+                    feishu_health = "disconnected"
+            self._send_json({
+                "ok": True,
+                "time": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "feishu": feishu_health,
+            })
 
         elif path == "/api/flomo/status":
             if hasattr(self.server, "flomo_sync") and self.server.flomo_sync:
@@ -154,9 +169,24 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
 
         elif path == "/api/feishu/status":
             if hasattr(self.server, "feishu_sync") and self.server.feishu_sync:
-                self._send_json(self.server.feishu_sync.get_status())
+                status = self.server.feishu_sync.get_status()
+                status["local_mode"] = getattr(self.server, "_feishu_local_mode", False)
+                self._send_json(status)
             else:
                 self._send_json({"running": False, "error": "Feishu sync not initialized"})
+
+        elif path == "/api/feishu/health":
+            """详细健康检查（比 status 更轻量，只返回连接状态）。"""
+            if hasattr(self.server, "feishu_sync") and self.server.feishu_sync:
+                status = self.server.feishu_sync.get_status()
+                self._send_json({
+                    "connected": status.get("connected", False),
+                    "health": status.get("health", {}),
+                    "local_mode": getattr(self.server, "_feishu_local_mode", False),
+                    "time": time.strftime("%Y-%m-%d %H:%M:%S"),
+                })
+            else:
+                self._send_json({"connected": False, "error": "Feishu sync not initialized"})
 
         elif path == "/api/feishu/bitable/status":
             if hasattr(self.server, "feishu_bitable"):
@@ -175,6 +205,18 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                 self._send_json(self.server.dashboard_analyzer.get_status())
             else:
                 self._send_json({"running": False, "error": "Dashboard analyzer not initialized"})
+
+        elif path == "/api/wechat/status":
+            if hasattr(self.server, "wechat_scraper") and self.server.wechat_scraper:
+                self._send_json(self.server.wechat_scraper.get_status())
+            else:
+                self._send_json({"running": False, "error": "WeChat scraper not initialized"})
+
+        elif path == "/api/wechat/needs-login":
+            if hasattr(self.server, "wechat_scraper") and self.server.wechat_scraper:
+                self._send_json({"needs_login": self.server.wechat_scraper._needs_login})
+            else:
+                self._send_json({"needs_login": False})
 
         else:
             # 非 API 请求：当作静态文件处理
@@ -266,7 +308,12 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                     self._send_json({"ok": True, "synced": count})
                 else:
                     self._send_json({"ok": False, "error": "Feishu sync not initialized"}, 500)
+            except RuntimeError as e:
+                logger.warning("飞书同步失败（非关键错误，继续本地模式）: %s", e)
+                self.server._feishu_local_mode = True
+                self._send_json({"ok": False, "error": str(e), "local_mode": True}, 200)
             except Exception as e:
+                logger.error("飞书同步异常: %s", e)
                 self._send_json({"ok": False, "error": str(e)}, 500)
 
         elif parsed.path == "/api/feishu/bitable/sync":
@@ -276,7 +323,12 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                     self._send_json({"ok": True, "results": results})
                 else:
                     self._send_json({"ok": False, "error": "Feishu bitable not initialized"}, 500)
+            except RuntimeError as e:
+                logger.warning("飞书多维表格同步失败（非关键错误，继续本地模式）: %s", e)
+                self.server._feishu_local_mode = True
+                self._send_json({"ok": False, "error": str(e), "local_mode": True}, 200)
             except Exception as e:
+                logger.error("飞书多维表格同步异常: %s", e)
                 self._send_json({"ok": False, "error": str(e)}, 500)
 
         elif parsed.path == "/api/feishu/kanban/sync":
@@ -286,7 +338,12 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                     self._send_json({"ok": True, "result": result})
                 else:
                     self._send_json({"ok": False, "error": "Feishu kanban not initialized"}, 500)
+            except RuntimeError as e:
+                logger.warning("飞书看板同步失败（非关键错误，继续本地模式）: %s", e)
+                self.server._feishu_local_mode = True
+                self._send_json({"ok": False, "error": str(e), "local_mode": True}, 200)
             except Exception as e:
+                logger.error("飞书看板同步异常: %s", e)
                 self._send_json({"ok": False, "error": str(e)}, 500)
 
         elif parsed.path == "/api/dashboard/analyze":
@@ -296,6 +353,26 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                     self._send_json({"ok": True, "result": result})
                 else:
                     self._send_json({"ok": False, "error": "Dashboard analyzer not initialized"}, 500)
+            except Exception as e:
+                self._send_json({"ok": False, "error": str(e)}, 500)
+
+        elif parsed.path == "/api/wechat/trigger":
+            try:
+                if hasattr(self.server, "wechat_scraper") and self.server.wechat_scraper:
+                    result = self.server.wechat_scraper.fetch_latest()
+                    self._send_json({"ok": True, "result": result})
+                else:
+                    self._send_json({"ok": False, "error": "WeChat scraper not initialized"}, 500)
+            except Exception as e:
+                self._send_json({"ok": False, "error": str(e)}, 500)
+
+        elif parsed.path == "/api/wechat/force-login":
+            try:
+                if hasattr(self.server, "wechat_scraper") and self.server.wechat_scraper:
+                    result = self.server.wechat_scraper.fetch_latest(force_login=True)
+                    self._send_json({"ok": True, "result": result})
+                else:
+                    self._send_json({"ok": False, "error": "WeChat scraper not initialized"}, 500)
             except Exception as e:
                 self._send_json({"ok": False, "error": str(e)}, 500)
 
@@ -323,6 +400,22 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                     self._send_json({"ok": True, "record": record})
                 else:
                     self._send_json({"ok": False, "error": "Feishu bitable not initialized"}, 500)
+            except RuntimeError as e:
+                logger.warning("飞书数据记录写入失败（非关键错误）: %s", e)
+                self.server._feishu_local_mode = True
+                # 兜底：写入本地 JSON 文件
+                local_fallback = PROJECT_ROOT / "engine" / "data" / "data_records_fallback.json"
+                fallback_data = {"platform": payload.get("platform", ""), "title": payload.get("title", ""), "error": str(e), "time": time.strftime("%Y-%m-%d %H:%M:%S")}
+                try:
+                    import json as _json
+                    existing = []
+                    if local_fallback.exists():
+                        existing = _json.loads(local_fallback.read_text(encoding="utf-8"))
+                    existing.append(fallback_data)
+                    local_fallback.write_text(_json.dumps(existing, ensure_ascii=False, indent=2), encoding="utf-8")
+                except Exception:
+                    pass
+                self._send_json({"ok": False, "error": str(e), "local_mode": True, "fallback_saved": True}, 200)
             except json.JSONDecodeError as e:
                 self._send_json({"ok": False, "error": f"JSON 解析错误: {e}"}, 400)
             except Exception as e:
@@ -351,36 +444,20 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
     KANBAN_DIR.mkdir(parents=True, exist_ok=True)
 
     server = ThreadingHTTPServer((HOST, port), APIHandler)
+    server._feishu_local_mode = False  # 飞书降级标识，API 失败时自动设 True
 
-    # -- 初始化 Flomo 同步 --
+    # -- 先初始化 Flomo 同步（快，不阻塞 HTTP） --
     flomo_sync = FlomoSync()
     flomo_sync.start_scheduler()
     server.flomo_sync = flomo_sync
 
-    # -- 初始化飞书同步 --
-    feishu_sync = FeishuSync()
-    if feishu_sync.check_connection():
-        feishu_sync.start_scheduler()
-    server.feishu_sync = feishu_sync
-
-    # -- 初始化飞书多维表格同步 --
-    server.feishu_bitable = FeishuBitableSync()
-
-    # -- 初始化飞书审批看板同步 --
-    server.feishu_kanban = FeishuKanbanSync()
-    try:
-        server.feishu_kanban.sync_local_to_feishu()
-    except Exception as e:
-        logger.warning("看板同步初始化失败: %s", e)
-
-    # -- 初始化 Dashboard 数据分析 --
-    dashboard = DashboardAnalyzer()
-    dashboard.start_scheduler()
-    server.dashboard_analyzer = dashboard
+    # -- 初始化微信视频号爬虫（快，不阻塞 HTTP） --
+    wechat_scraper = WeChatVideoScraper()
+    wechat_scraper.start_scheduler()
+    server.wechat_scraper = wechat_scraper
 
     url = f"http://{HOST}:{port}/dashboard/"
 
-    # 控制台可能不支持 emoji，用 ASCII 安全版本
     print()
     print("=" * 44)
     print("  元演心智 · 审批服务器")
@@ -391,15 +468,58 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
     print("=" * 44)
     print()
 
-    if not no_browser:
-        # 延迟打开浏览器，确保服务器已就绪
-        import threading
-        import subprocess
+    # -- 后台初始化飞书等可能阻塞的服务 --
+    def _init_slow_services():
+        try:
+            feishu_sync = FeishuSync()
+            connected = feishu_sync.check_connection()
+            if connected:
+                feishu_sync.start_scheduler()
+                server._feishu_local_mode = False
+            else:
+                # 即使未连接也启动调度器（它会周期性重试）
+                feishu_sync.start_scheduler()
+                server._feishu_local_mode = True
+            server.feishu_sync = feishu_sync
 
+            server.feishu_bitable = FeishuBitableSync()
+
+            server.feishu_kanban = FeishuKanbanSync()
+            try:
+                server.feishu_kanban.sync_local_to_feishu()
+            except Exception as e:
+                logger.warning("看板同步初始化失败: %s", e)
+
+            dashboard = DashboardAnalyzer()
+            dashboard.start_scheduler()
+            server.dashboard_analyzer = dashboard
+
+            logger.info("后台服务初始化完成（飞书本地模式: %s）", server._feishu_local_mode)
+        except Exception as e:
+            logger.error("后台服务初始化异常: %s", e)
+
+    threading.Thread(target=_init_slow_services, daemon=True, name="init-services").start()
+
+    # -- 飞书本地模式自动恢复监控（每 5 分钟检查一次，清除 local_mode 标识） --
+    def _feishu_recovery_watcher():
+        while True:
+            time.sleep(300)
+            sync = getattr(server, "feishu_sync", None)
+            if sync and server._feishu_local_mode:
+                try:
+                    if sync.check_connection():
+                        server._feishu_local_mode = False
+                        logger.info("飞书连接已恢复，退出本地模式")
+                except Exception:
+                    pass
+    threading.Thread(target=_feishu_recovery_watcher, daemon=True, name="feishu-recovery").start()
+
+    # -- 浏览器打开（非阻塞） --
+    if not no_browser:
         def _open_browser():
-            import time as t
-            t.sleep(0.8)
-            # Edge App 模式：无地址栏/标签页，像桌面程序
+            import threading as _t
+            import subprocess as _sp
+            _t.sleep(0.8)
             edge_paths = [
                 r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
                 r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
@@ -408,7 +528,7 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
             for edge in edge_paths:
                 if Path(edge).exists():
                     try:
-                        subprocess.Popen([edge, "--app=" + url], shell=False)
+                        _sp.Popen([edge, "--app=" + url], shell=False)
                         opened = True
                         break
                     except Exception:
@@ -432,6 +552,7 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
         # 1. 停止 scheduler 线程（不再接收新任务）
         for name, sync_obj in [
             ("Flomo", getattr(server, "flomo_sync", None)),
+            ("WeChat", getattr(server, "wechat_scraper", None)),
             ("Feishu", getattr(server, "feishu_sync", None)),
             ("Dashboard", getattr(server, "dashboard_analyzer", None)),
         ]:
@@ -451,13 +572,18 @@ def start_server(port=DEFAULT_PORT, no_browser=False):
 
         logger.info("服务器已关闭")
 
-    # 注册信号处理器（SIGTERM 用于系统关闭，SIGINT 用于 Ctrl+C）
-    signal.signal(signal.SIGINT, _shutdown)
-    if hasattr(signal, "SIGTERM"):
-        signal.signal(signal.SIGTERM, _shutdown)
+    # 信号注册（只在主线程有效）
+    try:
+        if threading.current_thread() is threading.main_thread():
+            signal.signal(signal.SIGINT, _shutdown)
+            if hasattr(signal, "SIGTERM"):
+                signal.signal(signal.SIGTERM, _shutdown)
+    except ValueError:
+        pass
 
     logger.info("服务已就绪，按 Ctrl+C 停止")
 
+    # ── 启动 HTTP 服务 ──
     try:
         server.serve_forever()
     finally:
