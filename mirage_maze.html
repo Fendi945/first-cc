@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>海市蜃楼 · 遁甲迷宫</title>
+<style>
+*{margin:0;padding:0}
+body{background:#050508;display:flex;height:100vh;color:#ccc;font-family:system-ui;overflow:hidden}
+canvas{flex:1;height:100vh;display:block}
+#p{width:300px;background:#0a0a16;border-left:1px solid #1a1a2a;padding:20px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
+h1{font-size:13px;color:#fff;letter-spacing:2px;text-transform:uppercase;opacity:.5}
+.nm{font-size:22px;font-weight:bold;line-height:1.2}
+.gr{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12px}
+.gr .l{color:#555;font-size:10px;letter-spacing:1px}
+.gr .v{color:#ddd}
+.cb{height:24px;border-radius:6px;border:1px solid #222;transition:.5s}
+.btns{display:flex;gap:4px;flex-wrap:wrap}
+.btns button{padding:5px 12px;border-radius:14px;border:1px solid #333;background:#12121e;color:#888;font-size:10px;cursor:pointer;transition:.2s;font-family:inherit}
+.btns button:hover{background:#1c1c2e;color:#ddd}
+.btns button.on{border-color:#fa0;color:#fa0;background:#1a1408}
+.btns button.active{border-color:#4af;color:#4af;background:#081420}
+#info{font-size:11px;color:#555;line-height:1.6;margin-top:4px}
+#legend{font-size:10px;color:#444;line-height:1.5;border-top:1px solid #161622;padding-top:8px;margin-top:4px}
+.footer{font-size:9px;color:#222;margin-top:auto;text-align:center;padding-top:10px}
+.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="p">
+<h1>海市蜃楼 · 遁甲迷宫</h1>
+<div class="nm" id="nm" style="color:#888">--</div>
+<div class="gr">
+<span class="l">时辰</span><span class="v" id="scTxt">-</span>
+<span class="l">五行</span><span class="v" id="elTxt">-</span>
+<span class="l">雾色</span><span class="v" id="huTxt">-</span>
+<span class="l">幻象</span><span class="v" id="phTxt">-</span>
+</div>
+<div class="cb" id="cbar"></div>
+<div class="btns">
+<button id="b30">30x</button>
+<button id="bP">暂停</button>
+<button id="bR">重置</button>
+<button id="bMode" class="active">👤 追逃模式</button>
+</div>
+<div id="info">你在迷宫里走<br>雾墙上出现你自己的影子<br>但它在另一个位置</div>
+<div id="legend">
+<span class="legend-dot" style="background:#4af"></span> 你（真人）<br>
+<span class="legend-dot" style="background:#fa0"></span> 你的投影（海市蜃楼）<br>
+<span class="legend-dot" style="background:#f4a"></span> 另一个"人"（幻象）<br>
+<span style="color:#333">← → ↑ ↓ 方向键移动</span>
+</div>
+<div class="footer">付彩芬 · 奇门遁甲光影装置 · 海市蜃楼</div>
+</div>
+
+<script>
+// ===== 12 时辰 =====
+const SC = [
+  {n:'子时',h:23,m:0,e:'水',c:'#1a2a6a',g:[26,42,106],st:'凝',sz:0.70,pl:0.2,mv:'still', d:'深水潜流 · 幻象若隐'},
+  {n:'丑时',h:1,m:0,e:'土',c:'#4a3428',g:[74,52,40],st:'伏',sz:0.72,pl:0.3,mv:'breath',d:'厚土载物 · 雾墙沉厚'},
+  {n:'寅时',h:3,m:0,e:'木',c:'#1a4a2a',g:[26,74,42],st:'萌',sz:0.78,pl:0.5,mv:'wake', d:'草木萌动 · 幻象初生'},
+  {n:'卯时',h:5,m:0,e:'木',c:'#2a7a4a',g:[42,122,74],st:'舒',sz:0.88,pl:0.7,mv:'walk', d:'晨光舒展 · 迷径渐明'},
+  {n:'辰时',h:7,m:0,e:'土',c:'#6a7a2a',g:[106,122,42],st:'显',sz:0.95,pl:0.9,mv:'step', d:'万物显现 · 真幻难辨'},
+  {n:'巳时',h:9,m:0,e:'火',c:'#a06a1a',g:[160,106,26],st:'炽',sz:1.05,pl:1.3,mv:'fast', d:'阳气升腾 · 幻影躁动'},
+  {n:'午时',h:11,m:0,e:'火',c:'#bb2a12',g:[187,42,18],st:'烈',sz:1.15,pl:1.8,mv:'run', d:'烈日当空 · 群影乱舞'},
+  {n:'未时',h:13,m:0,e:'土',c:'#b07a18',g:[176,122,24],st:'盈',sz:1.10,pl:1.4,mv:'jump', d:'丰盈饱满 · 虚实交错'},
+  {n:'申时',h:15,m:0,e:'金',c:'#3a7aa0',g:[58,122,160],st:'涌',sz:1.20,pl:0.8,mv:'flow', d:'金气涌动 · 幻如潮汐'},
+  {n:'酉时',h:17,m:0,e:'金',c:'#b08a3a',g:[176,138,58],st:'悠',sz:1.02,pl:0.6,mv:'stroll',d:'悠然归途 · 影随身动'},
+  {n:'戌时',h:19,m:0,e:'火',c:'#c83a1a',g:[200,58,26],st:'焕',sz:1.10,pl:1.5,mv:'dance', d:'灯火焕彩 · 迷离幻城'},
+  {n:'亥时',h:21,m:0,e:'水',c:'#2a3a7a',g:[42,58,122],st:'息',sz:0.78,pl:0.3,mv:'calm', d:'万籁俱寂 · 海市将散'},
+];
+
+// ===== 迷宫地图 =====
+// 0=路, 1=雾墙, 2=出口
+const MAP = [
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+  [1,0,1,1,0,1,1,1,0,1,0,1,1,0,1,0,1,1,0,1],
+  [1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,1],
+  [1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1,0,1,0,1],
+  [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+  [1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+  [1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1,0,1],
+  [1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1],
+  [1,0,1,0,1,1,1,0,1,1,1,1,0,1,0,1,0,1,0,1],
+  [1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+];
+const COLS = MAP[0].length;
+const ROWS = MAP.length;
+
+// ===== 状态 =====
+let simTime = 7*60+30;
+let speed = 1;
+let paused = false;
+let frame = 0;
+
+// 玩家位置（格子坐标）
+let px = 1, py = 1;
+let targetX = px, targetY = py;
+
+// 投影位置（你的剪影投射到另一个位置）
+let mirrorX = 0, mirrorY = 0;
+
+// 幻象位置（另一个"人"，独立运动）
+let phantomX = 1, phantomY = 10;
+let phantomDir = 0;
+let phantomTimer = 0;
+
+// 追逃模式
+let chaseMode = true;
+let playerVisible = true;    // 玩家是否在自己的位置可见
+let phantomVisible = true;
+
+const cv = document.getElementById('cv');
+const cx = cv.getContext('2d');
+let W, H;
+let cellSize = 0;
+let mazeOffX = 0, mazeOffY = 0;
+
+function resize() {
+  W = cv.width = window.innerWidth - 300;
+  H = cv.height = window.innerHeight;
+}
+window.onresize = resize;
+resize();
+
+// ===== 追逃逻辑 =====
+function updateChase() {
+  // 你的投影位置 = 你的位置的镜像/偏移
+  // 当前时辰决定投影偏移量
+  const sc = getSC(simTime);
+  let chaos = sc.pl * 3; // 混乱度
+
+  // 投影位置：在你的位置基础上加一个时辰决定的偏移
+  let offX = Math.round(Math.sin(simTime * 0.003 + px) * chaos);
+  let offY = Math.round(Math.cos(simTime * 0.002 + py) * chaos);
+  mirrorX = clamp(px + offX, 1, COLS-2);
+  mirrorY = clamp(py + offY, 1, ROWS-2);
+
+  // 如果投影位置撞墙，找最近的路
+  if(MAP[mirrorY][mirrorX] !== 0) {
+    let found = false;
+    for(let r=1;r<5 && !found;r++) {
+      for(let dy=-r;dy<=r && !found;dy++) {
+        for(let dx=-r;dx<=r && !found;dx++) {
+          let nx = clamp(mirrorX+dx,1,COLS-2);
+          let ny = clamp(mirrorY+dy,1,ROWS-2);
+          if(MAP[ny][nx] === 0) { mirrorX=nx; mirrorY=ny; found=true; }
+        }
+      }
+    }
+  }
+
+  // 幻象自主运动
+  phantomTimer++;
+  if(phantomTimer > 20) {
+    phantomTimer = 0;
+    let dirs = [[0,1],[0,-1],[1,0],[-1,0]];
+    let blocked = 0;
+    for(let tries=0;tries<10;tries++) {
+      let d;
+      if(Math.random() < 0.7) {
+        // 偏向朝玩家方向移动（追/逃）
+        let dx = px - phantomX;
+        let dy = py - phantomY;
+        if(Math.abs(dx) > Math.abs(dy)) {
+          d = dx > 0 ? 2 : 3; // 右/左
+        } else {
+          d = dy > 0 ? 0 : 1; // 下/上
+        }
+        if(Math.random() < 0.3) d = Math.floor(Math.random()*4);
+      } else {
+        d = Math.floor(Math.random()*4);
+      }
+      let [dy,dx] = dirs[d];
+      let nx = clamp(phantomX+dx,1,COLS-2);
+      let ny = clamp(phantomY+dy,1,ROWS-2);
+      if(MAP[ny][nx] === 0) {
+        // 幻象不能和玩家在同一格
+        if(nx === px && ny === py) continue;
+        phantomX = nx;
+        phantomY = ny;
+        break;
+      }
+      blocked++;
+      if(blocked > 8) break;
+    }
+  }
+}
+
+function clamp(v,min,max) { return Math.max(min,Math.min(max,v)); }
+
+// ===== 计时查找 =====
+function getSC(tm) {
+  const tt = ((tm%1440)+1440)%1440;
+  for(let i=0;i<SC.length;i++) {
+    let s=SC[i], n=SC[(i+1)%SC.length];
+    let st=s.h*60+s.m, et=n.h*60+n.m;
+    if(et<=st) et+=1440;
+    let cm = tt;
+    if(cm<st) cm+=1440;
+    if(cm>=st && cm<et) return {...s, pg:(cm-st)/(et-st), idx:i};
+  }
+  return {...SC[0], pg:0, idx:0};
+}
+
+// ===== 键盘控制 =====
+let keys = {};
+document.addEventListener('keydown', e=>{
+  keys[e.key] = true;
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+});
+document.addEventListener('keyup', e=>{ keys[e.key] = false; });
+
+function handleInput() {
+  let dx=0, dy=0;
+  if(keys['ArrowLeft'] || keys['a']) dx=-1;
+  if(keys['ArrowRight'] || keys['d']) dx=1;
+  if(keys['ArrowUp'] || keys['w']) dy=-1;
+  if(keys['ArrowDown'] || keys['s']) dy=1;
+  if(dx!==0 && dy!==0) {
+    if(Math.random()<0.5) dy=0; else dx=0; // 不能斜走
+  }
+  let nx = clamp(px+dx,1,COLS-2);
+  let ny = clamp(py+dy,1,ROWS-2);
+  if(dx!==0 || dy!==0) {
+    if(MAP[ny][nx] === 0) {
+      px = nx; py = ny;
+    }
+  }
+}
+
+// ===== 绘制 =====
+function draw() {
+  cx.fillStyle='#050508';
+  cx.fillRect(0,0,W,H);
+
+  const sc = getSC(simTime);
+  let [r,g,b] = sc.g;
+  let pulse = 0.6 + 0.4*Math.sin(frame*0.04*sc.pl);
+
+  // 计算迷宫尺寸
+  cellSize = Math.floor(Math.min((W-40)/COLS, (H-40)/ROWS));
+  let mazeW = cellSize * COLS;
+  let mazeH = cellSize * ROWS;
+  mazeOffX = (W - mazeW)/2;
+  mazeOffY = (H - mazeH)/2;
+
+  // ===== 绘制迷宫底色 =====
+  cx.fillStyle='#080810';
+  cx.fillRect(mazeOffX, mazeOffY, mazeW, mazeH);
+
+  // ===== 绘制雾墙 =====
+  for(let y=0;y<ROWS;y++) {
+    for(let x=0;x<COLS;x++) {
+      if(MAP[y][x] === 1) {
+        let bx = mazeOffX + x*cellSize;
+        let by = mazeOffY + y*cellSize;
+
+        // 雾墙基础渲染——半透发光柱
+        let alpha = 0.15 + 0.1 * Math.sin(x * 0.5 + y * 0.3 + frame * 0.02);
+        cx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+        cx.fillRect(bx, by, cellSize, cellSize);
+
+        // 墙边缘发光
+        cx.strokeStyle = `rgba(${r},${g},${b},0.05)`;
+        cx.lineWidth = 0.5;
+        cx.strokeRect(bx, by, cellSize, cellSize);
+      }
+    }
+  }
+
+  // ===== 绘制路径 =====
+  for(let y=0;y<ROWS;y++) {
+    for(let x=0;x<COLS;x++) {
+      if(MAP[y][x] === 0) {
+        let bx = mazeOffX + x*cellSize + 1;
+        let by = mazeOffY + y*cellSize + 1;
+        cx.fillStyle = `rgba(10,10,20,0.5)`;
+        cx.fillRect(bx, by, cellSize-2, cellSize-2);
+      }
+    }
+  }
+
+  // ===== 雾效覆盖 =====
+  // 全迷宫雾的渐变
+  let fogGrad = cx.createRadialGradient(
+    mazeOffX + px*cellSize, mazeOffY + py*cellSize, cellSize*2,
+    mazeOffX + mazeW/2, mazeOffY + mazeH/2, mazeW*0.7
+  );
+  fogGrad.addColorStop(0, `rgba(${r},${g},${b},0.02)`);
+  fogGrad.addColorStop(0.5, `rgba(${r},${g},${b},0.05)`);
+  fogGrad.addColorStop(1, `rgba(${r},${g},${b},0.10)`);
+  cx.fillStyle = fogGrad;
+  cx.fillRect(mazeOffX, mazeOffY, mazeW, mazeH);
+
+  // ===== 绘制出口 =====
+  cx.fillStyle = `rgba(100,200,100,0.15)`;
+  cx.fillRect(mazeOffX + 18*cellSize, mazeOffY + 1*cellSize, cellSize, cellSize);
+  cx.fillStyle = `rgba(100,200,100,0.3)`;
+  cx.font = `${cellSize*0.6}px system-ui`;
+  cx.textAlign = 'center';
+  cx.textBaseline = 'middle';
+  cx.fillText('🚪', mazeOffX + 18.5*cellSize, mazeOffY + 1.5*cellSize);
+
+  // ===== 绘制幻象（另一个"人"）=====
+  if(chaseMode) {
+    let phFlicker = Math.sin(frame * 0.05 + phantomX * 3 + phantomY * 7) * 0.3 + 0.7;
+    let phx = mazeOffX + phantomX * cellSize + cellSize/2;
+    let phy = mazeOffY + phantomY * cellSize + cellSize/2;
+    let phSize = cellSize * 0.3 * phFlicker;
+
+    // 幻象辉光
+    let phGlow = cx.createRadialGradient(phx, phy, 0, phx, phy, phSize*2);
+    phGlow.addColorStop(0, `rgba(${Math.min(255,r+100)},${g},${b},0.2)`);
+    phGlow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    cx.fillStyle = phGlow;
+    cx.beginPath(); cx.arc(phx, phy, phSize*2, 0, Math.PI*2); cx.fill();
+
+    // 幻象人体剪影（小）
+    cx.fillStyle = `rgba(255,170,100,${0.3 * phFlicker})`;
+    cx.strokeStyle = `rgba(255,200,150,${0.4 * phFlicker})`;
+    cx.lineWidth = 1;
+    cx.beginPath();
+    cx.arc(phx, phy - phSize*0.3, phSize*0.25, 0, Math.PI*2);
+    cx.fill(); cx.stroke();
+    // 身体
+    cx.beginPath();
+    cx.moveTo(phx - phSize*0.2, phy - phSize*0.1);
+    cx.lineTo(phx - phSize*0.15, phy + phSize*0.2);
+    cx.lineTo(phx + phSize*0.15, phy + phSize*0.2);
+    cx.lineTo(phx + phSize*0.2, phy - phSize*0.1);
+    cx.closePath();
+    cx.fill(); cx.stroke();
+    // 腿
+    let legS = Math.sin(frame*0.06)*phSize*0.1;
+    cx.beginPath(); cx.moveTo(phx - phSize*0.08, phy+phSize*0.2);
+    cx.lineTo(phx - phSize*0.08 - legS, phy+phSize*0.45); cx.stroke();
+    cx.beginPath(); cx.moveTo(phx + phSize*0.08, phy+phSize*0.2);
+    cx.lineTo(phx + phSize*0.08 + legS, phy+phSize*0.45); cx.stroke();
+  }
+
+  // ===== 绘制你的投影（海市蜃楼）=====
+  let mirrorVisible = true;
+  // 如果投影和你在同一格，不显示（太明显穿帮）
+  if(mirrorX === px && mirrorY === py) mirrorVisible = false;
+
+  if(chaseMode && mirrorVisible) {
+    let mx = mazeOffX + mirrorX * cellSize + cellSize/2;
+    let my = mazeOffY + mirrorY * cellSize + cellSize/2;
+    let mSize = cellSize * 0.35;
+
+    // 投影辉光
+    let mGlow = cx.createRadialGradient(mx, my, 0, mx, my, mSize*2.5);
+    mGlow.addColorStop(0, `rgba(${r},${g},${b},0.15)`);
+    mGlow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    cx.fillStyle = mGlow;
+    cx.beginPath(); cx.arc(mx, my, mSize*2.5, 0, Math.PI*2); cx.fill();
+
+    // 你的投影——半透明人形
+    cx.fillStyle = `rgba(${r},${g},${b},0.25)`;
+    cx.strokeStyle = `rgba(${Math.min(255,r+80)},${Math.min(255,g+80)},${Math.min(255,b+80)},0.35)`;
+    cx.lineWidth = 1.2;
+    cx.beginPath();
+    cx.arc(mx, my - mSize*0.35, mSize*0.28, 0, Math.PI*2);
+    cx.fill(); cx.stroke();
+    cx.beginPath();
+    cx.moveTo(mx - mSize*0.22, my - mSize*0.1);
+    cx.lineTo(mx - mSize*0.18, my + mSize*0.25);
+    cx.lineTo(mx + mSize*0.18, my + mSize*0.25);
+    cx.lineTo(mx + mSize*0.22, my - mSize*0.1);
+    cx.closePath();
+    cx.fill(); cx.stroke();
+    let mLegS = Math.sin(frame*0.04 + 1)*mSize*0.1;
+    cx.beginPath(); cx.moveTo(mx - mSize*0.1, my+mSize*0.25);
+    cx.lineTo(mx - mSize*0.1 - mLegS, my+mSize*0.5); cx.stroke();
+    cx.beginPath(); cx.moveTo(mx + mSize*0.1, my+mSize*0.25);
+    cx.lineTo(mx + mSize*0.1 + mLegS, my+mSize*0.5); cx.stroke();
+
+    // "投影"标签
+    cx.fillStyle = `rgba(${r},${g},${b},0.25)`;
+    cx.font = '10px system-ui';
+    cx.textAlign = 'center';
+    cx.textBaseline = 'bottom';
+    cx.fillText('👻 投影', mx, my - mSize*0.5);
+  }
+
+  // ===== 绘制玩家（你自己）=====
+  if(chaseMode) {
+    let ppx = mazeOffX + px * cellSize + cellSize/2;
+    let ppy = mazeOffY + py * cellSize + cellSize/2;
+    let pSize = cellSize * 0.38;
+
+    // 玩家辉光（较强）
+    let pGlow = cx.createRadialGradient(ppx, ppy, 0, ppx, ppy, pSize*2);
+    pGlow.addColorStop(0, `rgba(100,180,255,0.2)`);
+    pGlow.addColorStop(1, `rgba(100,180,255,0)`);
+    cx.fillStyle = pGlow;
+    cx.beginPath(); cx.arc(ppx, ppy, pSize*2, 0, Math.PI*2); cx.fill();
+
+    // 玩家实体
+    cx.fillStyle = `rgba(100,180,255,0.4)`;
+    cx.strokeStyle = `rgba(150,210,255,0.5)`;
+    cx.lineWidth = 1.5;
+    cx.beginPath();
+    cx.arc(ppx, ppy - pSize*0.35, pSize*0.3, 0, Math.PI*2);
+    cx.fill(); cx.stroke();
+    cx.beginPath();
+    cx.moveTo(ppx - pSize*0.25, ppy - pSize*0.1);
+    cx.lineTo(ppx - pSize*0.2, ppy + pSize*0.25);
+    cx.lineTo(ppx + pSize*0.2, ppy + pSize*0.25);
+    cx.lineTo(ppx + pSize*0.25, ppy - pSize*0.1);
+    cx.closePath();
+    cx.fill(); cx.stroke();
+    let pLegS = Math.sin(frame*0.05)*pSize*0.12;
+    cx.beginPath(); cx.moveTo(ppx - pSize*0.1, ppy+pSize*0.25);
+    cx.lineTo(ppx - pSize*0.1 - pLegS, ppy+pSize*0.5); cx.stroke();
+    cx.beginPath(); cx.moveTo(ppx + pSize*0.1, ppy+pSize*0.25);
+    cx.lineTo(ppx + pSize*0.1 + pLegS, ppy+pSize*0.5); cx.stroke();
+
+    cx.fillStyle = 'rgba(100,180,255,0.5)';
+    cx.font = '10px system-ui';
+    cx.textAlign = 'center';
+    cx.textBaseline = 'bottom';
+    cx.fillText('🧑 你', ppx, ppy - pSize*0.55);
+  }
+
+  // ===== 距离指示 =====
+  if(chaseMode) {
+    // 你到投影的距离
+    let distToMirror = Math.sqrt((px-mirrorX)**2 + (py-mirrorY)**2);
+    // 幻象到你的距离
+    let distToPhantom = Math.sqrt((px-phantomX)**2 + (py-phantomY)**2);
+
+    document.getElementById('phTxt').textContent =
+      `投影 ${distToMirror.toFixed(0)}格 · 幻象 ${distToPhantom.toFixed(0)}格`;
+    document.getElementById('info').innerHTML =
+      chaseMode
+        ? `← → ↑ ↓ 在迷宫里走<br>你看到自己的<span style="color:#fa0">投影</span>在另一个位置<br>还有一个<span style="color:#f4a">幻象</span>在游走`
+        : `你站在迷宫中央<br>剪影投影在雾墙上<br>时辰改变雾色和投影位置`;
+  }
+
+  // ===== 面板 ====
+  let emoji = '';
+  let scIdx = SC.findIndex(s=>s.n===sc.n);
+  if(scIdx===0||scIdx===11) emoji='🌙'; else if(scIdx>=2&&scIdx<=7) emoji='☀️'; else emoji='🌓';
+
+  document.getElementById('nm').textContent = sc.n + ' · ' + emoji;
+  document.getElementById('nm').style.color = sc.c;
+  document.getElementById('scTxt').textContent = sc.st;
+  document.getElementById('elTxt').textContent = sc.e;
+  document.getElementById('huTxt').textContent = sc.c;
+  document.getElementById('cbar').style.background = sc.c;
+
+  requestAnimationFrame(draw);
+}
+
+// ===== 控件 =====
+document.getElementById('b30').onclick=function(){
+  speed=speed===1?30:1;
+  this.textContent=speed===30?'30x ON':'30x';
+  this.classList.toggle('on',speed===30);
+};
+document.getElementById('bP').onclick=function(){
+  paused=!paused;
+  this.textContent=paused?'▶ 继续':'⏸ 暂停';
+  this.classList.toggle('on',paused);
+};
+document.getElementById('bR').onclick=function(){
+  simTime=7*60+30; speed=1; paused=false; frame=0;
+  px=1; py=1; phantomX=1; phantomY=10; phantomTimer=0;
+  document.getElementById('b30').textContent='30x';
+  document.getElementById('b30').classList.remove('on');
+  document.getElementById('bP').textContent='⏸ 暂停';
+  document.getElementById('bP').classList.remove('on');
+};
+document.getElementById('bMode').onclick=function(){
+  chaseMode = !chaseMode;
+  this.textContent = chaseMode ? '👤 追逃模式' : '🏠 自由模式';
+  this.classList.toggle('active', chaseMode);
+};
+
+// ===== 主循环 =====
+function update() {
+  if(!paused) {
+    simTime += 0.016 * speed / 60 * 1440;
+    frame += 0.016 * speed;
+    if(chaseMode) {
+      handleInput();
+      updateChase();
+    }
+  }
+  requestAnimationFrame(update);
+}
+requestAnimationFrame(update);
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>习惯追踪 · 元演心智</title>
+<meta name="description" content="每日习惯追踪，连续打卡计数，极简设计。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;600;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   元演心智 · Esther版设计系统
+   灵感：ESTHER不二 — 在AI时代认真生活的女生
+   ============================================= */
+
+:root {
+  --bg:           #fefcf6;
+  --surface:      #ffffff;
+  --surface-hover:#f8f6f0;
+  --surface-alt:  #f5f2ea;
+  --text:         #1a1a1a;
+  --text-secondary:#555555;
+  --text-muted:   #999999;
+  --text-dim:     #bbbbbb;
+
+  --esther-yellow: #F4D758;
+  --esther-blue:   #2B7FD8;
+  --esther-orange: #F7A946;
+  --esther-dark:   #1a2332;
+
+  --accent:       #F4D758;
+  --accent-hover: #e8c840;
+  --accent-subtle:rgba(244,215,88,0.12);
+  --accent-glow:  rgba(244,215,88,0.15);
+  --primary:      #2B7FD8;
+  --primary-subtle:rgba(43,127,216,0.10);
+  --secondary:    #F7A946;
+
+  --border:       rgba(0,0,0,0.06);
+  --border-card:  rgba(0,0,0,0.06);
+
+  --font-sans:    'Noto Sans SC', 'Inter', -apple-system, sans-serif;
+  --font-serif:   'Noto Serif SC', 'Source Han Serif SC', serif;
+  --font-cursive: 'Caveat', cursive;
+
+  --radius-card:  20px;
+  --radius-sm:    12px;
+  --radius-pill:  100px;
+
+  --ease:         .4s cubic-bezier(.16,1,.3,1);
+  --ease-quick:   .3s ease;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:var(--font-sans);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.8;
+  overflow-x:hidden;
+}
+::selection{background:var(--accent);color:var(--esther-dark)}
+
+/* === Nav === */
+nav{
+  display:flex;justify-content:center;gap:40px;
+  padding:20px 24px;
+  background:rgba(254,252,246,0.85);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  position:sticky;top:0;z-index:100;
+  border-bottom:1px solid rgba(0,0,0,0.04);
+}
+nav a{
+  color:var(--text-secondary);font-size:13px;font-weight:500;
+  text-decoration:none;letter-spacing:0.06em;
+  transition:color var(--ease-quick);position:relative;
+}
+nav a::after{
+  content:'';position:absolute;bottom:-4px;left:0;right:0;
+  height:2px;background:var(--accent);
+  transform:scaleX(0);transition:transform var(--ease-quick);
+}
+nav a:hover{color:var(--text)}
+nav a:hover::after{transform:scaleX(1)}
+nav a.active{color:var(--text)}
+nav a.active::after{transform:scaleX(1)}
+
+.nav-dropdown{position:relative;display:inline-flex;align-items:center}
+.nav-dropdown>a{cursor:pointer}
+.nav-dropdown>a::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transition:transform var(--ease-quick)}
+.nav-dropdown:hover>a::after{transform:scaleX(1)}
+.nav-dropdown:hover>a{color:var(--text)}
+.nav-dropdown-menu{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);padding-top:12px;background:transparent;z-index:200}
+.nav-dropdown-menu-inner{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:6px;min-width:120px;box-shadow:0 8px 30px rgba(0,0,0,0.08)}
+.nav-dropdown:hover .nav-dropdown-menu{display:block}
+.nav-dropdown-menu-inner a{display:block;padding:8px 16px;border-radius:8px;font-size:13px;color:var(--text-secondary);text-decoration:none;transition:all var(--ease-quick);white-space:nowrap}
+.nav-dropdown-menu-inner a:hover{background:var(--accent-subtle);color:var(--esther-dark)}
+.nav-dropdown-menu-inner a::after{display:none}
+
+/* === Banner === */
+.banner{
+  padding:80px 0 32px;text-align:center;
+  background:var(--bg);
+}
+.banner h1{
+  font-family:var(--font-serif);
+  font-size:clamp(1.8rem,4vw,2.8rem);
+  font-weight:800;
+  letter-spacing:-0.02em;
+  color:var(--text);
+  line-height:1.15;
+  margin-bottom:8px;
+}
+.banner h1::before{content:'\25CF';color:var(--accent);margin-right:10px;font-size:.7em;vertical-align:middle}
+.banner p{
+  font-size:15px;color:var(--text-secondary);
+  max-width:400px;margin:0 auto;
+  line-height:1.7;
+}
+.banner .back{
+  display:inline-block;font-size:13px;color:var(--text-muted);
+  text-decoration:none;transition:color var(--ease-quick);
+  letter-spacing:0.04em;margin-bottom:12px;
+}
+.banner .back:hover{color:var(--esther-blue)}
+
+/* === App Container === */
+#app{
+  width:100%;max-width:420px;
+  margin:0 auto;padding:0 20px 60px;
+}
+
+/* --- Header (date + stats) --- */
+.app-header{
+  display:flex;justify-content:space-between;align-items:baseline;
+  margin-bottom:24px;padding:0 4px;
+}
+.app-header h2{font-size:1rem;font-weight:600;color:var(--text-secondary);letter-spacing:-.01em}
+#dateDisplay{font-size:.8125rem;color:var(--text-dim);font-variant-numeric:tabular-nums}
+
+/* === Card === */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border-card);
+  border-radius:var(--radius-card);
+  overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,0.02);
+  transition:box-shadow var(--ease);
+}
+
+/* === Habit === */
+.habit-group{transition:background var(--ease-quick)}
+
+.habit-row{
+  display:flex;align-items:center;
+  padding:18px 24px 10px;
+  gap:14px;cursor:pointer;user-select:none;-webkit-user-select:none;
+}
+.habit-row:hover{background:var(--surface-hover)}
+.habit-row:active{background:var(--accent-subtle)}
+
+/* Checkbox — circle that fills with yellow */
+.check-btn{
+  flex-shrink:0;width:30px;height:30px;border-radius:50%;
+  border:2px solid rgba(0,0,0,0.12);background:transparent;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .3s cubic-bezier(.4,0,.2,1);
+  color:transparent;font-size:14px;padding:0;outline:none;
+  -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;
+}
+.check-btn:hover{border-color:var(--esther-yellow)}
+.check-btn.checked{
+  background:var(--accent);border-color:var(--accent);
+  color:var(--esther-dark);font-weight:700;
+  box-shadow:0 0 16px rgba(244,215,88,0.3);
+}
+
+@keyframes checkPop{
+  0%{transform:scale(.85)}40%{transform:scale(1.18)}70%{transform:scale(.95)}100%{transform:scale(1)}
+}
+.check-btn.animate-check{animation:checkPop .35s cubic-bezier(.4,0,.2,1)}
+@keyframes uncheckPop{
+  0%{transform:scale(1)}50%{transform:scale(.92)}100%{transform:scale(1)}
+}
+.check-btn.animate-uncheck{animation:uncheckPop .2s ease}
+
+/* Habit name */
+.habit-name{
+  flex:1;font-size:.9375rem;font-weight:500;color:var(--text);
+  padding:2px 6px;border-radius:6px;outline:none;
+  transition:background .15s;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.habit-name:hover{background:var(--accent-subtle)}
+.habit-name:focus{background:var(--accent-subtle);white-space:normal;overflow:visible}
+.habit-name[contenteditable="true"]{cursor:text;user-select:text;-webkit-user-select:text}
+
+/* Streak */
+.streak{
+  display:flex;align-items:center;gap:3px;flex-shrink:0;
+  font-variant-numeric:tabular-nums;pointer-events:none;
+}
+.streak .fire{font-size:.8125rem}
+.streak .count{
+  font-size:.9375rem;font-weight:700;color:var(--esther-orange);
+  min-width:1.25em;text-align:right;
+  transition:transform .2s ease;
+}
+.streak .label{font-size:.75rem;color:var(--text-muted)}
+.streak.zero .count{color:var(--text-dim)}
+
+/* Streak pop animation */
+@keyframes streakPop{
+  0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}
+}
+.streak.pop .count{animation:streakPop .35s ease}
+
+/* Week grid dots */
+.week-grid{
+  display:flex;gap:5px;align-items:center;
+  padding:0 24px 14px 68px;pointer-events:none;
+}
+.week-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:rgba(0,0,0,0.07);
+  transition:background .3s ease,transform .2s ease,box-shadow .3s ease;
+  position:relative;flex-shrink:0;
+}
+.week-dot.filled{background:var(--accent)}
+.week-dot.today{box-shadow:0 0 0 1.5px rgba(26,26,26,.2)}
+.week-dot.filled.today{
+  background:var(--accent);
+  box-shadow:0 0 0 1.5px var(--accent),0 0 8px rgba(244,215,88,.25);
+}
+.week-dot:hover{transform:scale(1.35)}
+
+/* Tooltip on dots */
+.week-dot::after{
+  content:attr(data-label);position:absolute;
+  bottom:calc(100% + 4px);left:50%;
+  transform:translateX(-50%) scale(.85);
+  background:var(--text);color:#fff;
+  font-size:.5625rem;font-weight:500;
+  padding:3px 6px;border-radius:4px;
+  opacity:0;pointer-events:none;
+  transition:opacity .15s,transform .15s;white-space:nowrap;
+}
+.week-dot:hover::after{opacity:1;transform:translateX(-50%) scale(1)}
+
+/* === Footer / Reset === */
+.tool-footer{
+  text-align:center;padding:20px 0 0;
+}
+.tool-footer .reset-btn{
+  background:none;border:none;color:var(--text-dim);font-size:.6875rem;
+  cursor:pointer;font-family:inherit;
+  padding:4px 10px;border-radius:6px;
+  transition:color .15s,background .15s;
+}
+.tool-footer .reset-btn:hover{color:#d32f2f;background:rgba(211,47,47,0.06)}
+
+/* === Page footer === */
+footer{
+  background:var(--esther-dark);color:#fff;
+  text-align:center;padding:50px 24px;
+}
+footer .social{
+  display:flex;justify-content:center;gap:28px;margin-bottom:20px;
+}
+footer .social a{
+  color:rgba(255,255,255,0.6);font-size:14px;
+  text-decoration:none;transition:all var(--ease-quick);padding-bottom:4px;
+}
+footer .social a:hover{color:var(--accent)}
+footer p{
+  color:rgba(255,255,255,0.35);font-size:13px;
+  letter-spacing:0.04em;line-height:1.8;
+}
+footer .signature{
+  margin-top:16px;font-family:var(--font-cursive);
+  font-size:14px;color:rgba(255,255,255,0.25);
+  transition:color var(--ease-quick);
+}
+footer .signature:hover{color:var(--accent)}
+
+/* === Animations === */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.habit-group{animation:fadeUp .5s cubic-bezier(.16,1,.3,1) both}
+.habit-group:nth-child(1){animation-delay:0s}
+.habit-group:nth-child(2){animation-delay:.06s}
+.habit-group:nth-child(3){animation-delay:.12s}
+.habit-group:nth-child(4){animation-delay:.18s}
+.habit-group:nth-child(5){animation-delay:.24s}
+
+/* === Responsive === */
+@media(max-width:768px){
+  nav{gap:16px;padding:16px 12px;flex-wrap:wrap}
+  nav a{font-size:11px;letter-spacing:0.04em}
+  .banner{padding:60px 0 24px}
+  #app{padding:0 16px 40px;max-width:100%}
+  .habit-row{padding:16px 20px 8px;gap:12px}
+  .week-grid{padding:0 20px 12px 64px;gap:4px}
+  .check-btn{width:28px;height:28px;font-size:13px}
+  .week-dot{width:9px;height:9px}
+}
+@media(max-width:480px){
+  .habit-row{padding:14px 16px 6px;gap:10px}
+  .week-grid{padding:0 16px 10px 58px;gap:3px}
+  .check-btn{width:26px;height:26px;font-size:12px}
+  .week-dot{width:8px;height:8px}
+  .streak .count{font-size:.875rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 导航 ============ -->
+<nav>
+  <a href="index.html">首页</a>
+  <a href="index.html#featured">精选</a>
+  <span class="nav-dropdown">
+    <a>专栏</a>
+    <span class="nav-dropdown-menu">
+      <span class="nav-dropdown-menu-inner">
+        <a href="iching.html">☰ 易经二进制</a>
+      </span>
+    </span>
+  </span>
+  <a href="habits.html" class="active">习惯</a>
+  <a href="four-quadrants.html">要事</a>
+</nav>
+
+<!-- ============ Banner ============ -->
+<div class="banner">
+  <a href="index.html" class="back">← 返回首页</a>
+  <h1>习惯追踪</h1>
+  <p>每天打勾，连续累积，断了一天就归零</p>
+</div>
+
+<!-- ============ App ============ -->
+<div id="app">
+  <div class="app-header">
+    <h2>今日打卡</h2>
+    <span id="dateDisplay"></span>
+  </div>
+  <div class="card" id="habitsContainer">
+    <div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:.875rem;">加载中...</div>
+  </div>
+  <div class="tool-footer">
+    <button class="reset-btn" id="resetBtn">⟳ 重置所有数据</button>
+  </div>
+</div>
+
+<!-- ============ 页脚 ============ -->
+<footer>
+  <div class="social">
+    <a href="https://github.com/Fendi945" target="_blank">GitHub</a>
+    <a href="mailto:hello@yuanyan.cc">邮件</a>
+  </div>
+  <p>元演心智 · 持续进化中</p>
+  <p style="margin-top:4px;">Built with &hearts; by Fendi + Claude</p>
+  <p class="signature">慢慢走，欣赏啊</p>
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  const DEFAULT_HABITS = ['早起', '阅读', '冥想', '写作', '运动'];
+  const STORAGE_KEY = 'habits_tracker_v2';
+  const MAX_RECORD_DAYS = 365;
+
+  let state = { habits: [...DEFAULT_HABITS], records: {} };
+  let prevStreaks = null;
+
+  // ── Helpers ──
+
+  function todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function fmtYMD(date) {
+    return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+  }
+
+  function displayDate(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    const wd = ['日','一','二','三','四','五','六'];
+    return `${d.getMonth()+1}月${d.getDate()}日 周${wd[d.getDay()]}`;
+  }
+
+  function shortDate(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    return `${d.getMonth()+1}/${d.getDate()}`;
+  }
+
+  function esc(str) {
+    const e = document.createElement('div');
+    e.textContent = str;
+    return e.innerHTML;
+  }
+
+  // ── Storage ──
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const p = JSON.parse(raw);
+        state.habits = p.habits && p.habits.length === 5 ? p.habits : [...DEFAULT_HABITS];
+        state.records = p.records || {};
+      }
+    } catch (_) {}
+  }
+
+  function save() {
+    const today = new Date();
+    const cutoff = new Date(today);
+    cutoff.setDate(cutoff.getDate() - MAX_RECORD_DAYS);
+    const cs = fmtYMD(cutoff);
+    const cleaned = {};
+    for (const [d, data] of Object.entries(state.records)) {
+      if (d >= cs) cleaned[d] = data;
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ habits: state.habits, records: cleaned }));
+  }
+
+  // ── Logic ──
+
+  function toggle(idx) {
+    const t = todayStr();
+    if (!state.records[t]) state.records[t] = new Array(state.habits.length).fill(false);
+    state.records[t][idx] = !state.records[t][idx];
+    save();
+    render();
+  }
+
+  function streak(idx) {
+    const dates = Object.keys(state.records)
+      .filter(d => state.records[d]?.[idx])
+      .sort().reverse();
+    if (!dates.length) return 0;
+
+    const latest = new Date(dates[0] + 'T00:00:00');
+    const today = new Date(todayStr() + 'T00:00:00');
+    if (Math.floor((today - latest) / 86400000) > 1) return 0;
+
+    let count = 0, cur = new Date(latest);
+    while (true) {
+      const ds = fmtYMD(cur);
+      if (state.records[ds]?.[idx]) { count++; cur.setDate(cur.getDate() - 1); }
+      else break;
+    }
+    return count;
+  }
+
+  function last7Days() {
+    const days = [], t = new Date();
+    for (let i = 6; i >= 0; i--) { const d = new Date(t); d.setDate(d.getDate() - i); days.push(d); }
+    return days;
+  }
+
+  function checked(idx, date) { return state.records[fmtYMD(date)]?.[idx] || false; }
+  function isT(d) { const t = new Date(); return d.getFullYear()===t.getFullYear() && d.getMonth()===t.getMonth() && d.getDate()===t.getDate(); }
+
+  // ── Render ──
+
+  function render() {
+    const container = document.getElementById('habitsContainer');
+    const dateEl = document.getElementById('dateDisplay');
+    const t = todayStr();
+    dateEl.textContent = displayDate(t);
+
+    const streaks = state.habits.map((_, i) => streak(i));
+    if (!prevStreaks) prevStreaks = [...streaks];
+
+    let html = '';
+    state.habits.forEach((habit, i) => {
+      const chk = state.records[t]?.[i] || false;
+      const s = streaks[i];
+      const changed = prevStreaks[i] !== s;
+      const days = last7Days();
+      const zero = s === 0;
+
+      html += `<div class="habit-group" data-index="${i}">`;
+      html += `<div class="habit-row">`;
+      html += `<button class="check-btn${chk ? ' checked' : ''}" data-index="${i}" aria-label="${esc(habit)}">${chk ? '&#10003;' : ''}</button>`;
+      html += `<span class="habit-name" data-index="${i}">${esc(habit)}</span>`;
+      html += `<span class="streak${changed ? ' pop' : ''}${zero ? ' zero' : ''}"><span class="fire">&#x1F525;</span><span class="count">${s}</span><span class="label">天</span></span>`;
+      html += `</div>`;
+      html += `<div class="week-grid" data-index="${i}">`;
+      days.forEach(d => {
+        const f = checked(i, d);
+        const tFlag = isT(d);
+        const ds = fmtYMD(d);
+        html += `<div class="week-dot${f ? ' filled' : ''}${tFlag ? ' today' : ''}" data-date="${ds}" data-label="${shortDate(ds)}"></div>`;
+      });
+      html += `</div></div>`;
+    });
+
+    container.innerHTML = html;
+    prevStreaks = [...streaks];
+
+    // — Events —
+
+    // Click anywhere on the row → toggle habit
+    container.addEventListener('click', e => {
+      const row = e.target.closest('.habit-row');
+      if (!row) return;
+      // Don't toggle if user was editing a name
+      const editing = container.querySelector('.habit-name[contenteditable="true"]');
+      if (editing) return;
+      const idx = parseInt(row.closest('.habit-group').dataset.index);
+      if (!isNaN(idx)) toggle(idx);
+    });
+
+    // Double-click habit name → edit
+    container.addEventListener('dblclick', e => {
+      const nameEl = e.target.closest('.habit-name');
+      if (!nameEl || nameEl.classList.contains('editing')) return;
+      nameEl.classList.add('editing');
+      nameEl.setAttribute('contenteditable', 'true');
+      nameEl.focus();
+      const r = document.createRange(); r.selectNodeContents(nameEl);
+      const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    });
+
+    // Blur on editable name → save
+    container.addEventListener('blur', e => {
+      const nameEl = e.target.closest('.habit-name');
+      if (!nameEl || !nameEl.getAttribute('contenteditable')) return;
+      nameEl.removeAttribute('contenteditable');
+      nameEl.classList.remove('editing');
+      const idx = parseInt(nameEl.dataset.index);
+      const text = nameEl.textContent.trim();
+      if (text && text !== state.habits[idx]) { state.habits[idx] = text; save(); }
+      else { nameEl.textContent = state.habits[idx]; }
+    }, true); // capture phase to catch blur on child
+
+    // Keydown on editable name
+    container.addEventListener('keydown', e => {
+      const nameEl = e.target.closest('.habit-name');
+      if (!nameEl || !nameEl.getAttribute('contenteditable')) return;
+      if (e.key === 'Enter') { e.preventDefault(); nameEl.blur(); }
+      if (e.key === 'Escape') {
+        nameEl.textContent = state.habits[parseInt(nameEl.dataset.index)];
+        nameEl.blur();
+      }
+    });
+
+    // Reset button
+    const resetBtn = document.getElementById('resetBtn');
+    const nr = resetBtn.cloneNode(true);
+    resetBtn.parentNode.replaceChild(nr, resetBtn);
+    nr.addEventListener('click', function() {
+      if (confirm('重置所有习惯数据？此操作不可撤销。')) {
+        localStorage.removeItem(STORAGE_KEY);
+        state = { habits: [...DEFAULT_HABITS], records: {} };
+        prevStreaks = null;
+        render();
+      }
+    });
+  }
+
+  load();
+  render();
+})();
+</script>
+</body>
+</html>

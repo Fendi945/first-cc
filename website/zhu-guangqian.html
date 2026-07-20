@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>美学专栏 · 朱光潜 · 元演心智</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;600;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<style>
+/* 美学专栏专用 */
+.hero-aesthetic{text-align:center;padding:80px 24px 60px;max-width:640px;margin:0 auto}
+.hero-aesthetic .quote{font-family:var(--font-serif);font-size:20px;line-height:1.9;color:var(--text);margin:16px 0 8px}
+.hero-aesthetic .quote-source{font-size:13px;color:var(--text-muted);font-family:var(--font-cursive)}
+.hero-aesthetic .sub{font-size:14px;color:var(--text-secondary);line-height:1.7;margin-top:24px}
+
+.proposition{max-width:640px;margin:0 auto;padding:48px 24px}
+.proposition:last-of-type{padding-bottom:0}
+.proposition .label{font-size:11px;font-weight:600;letter-spacing:.15em;color:var(--accent);margin-bottom:8px}
+.proposition h2{font-size:20px;font-weight:700;margin-bottom:6px;line-height:1.3}
+.proposition .subtitle{font-size:14px;color:var(--text-secondary);font-style:italic;margin-bottom:16px}
+.proposition p{font-size:14px;line-height:1.9;color:var(--text-secondary);margin-bottom:10px}
+.proposition .highlight{color:var(--text);font-weight:500}
+
+.chain{max-width:520px;margin:32px auto;text-align:center}
+.chain-item{padding:14px 20px;margin-bottom:0;position:relative}
+.chain-item .num{display:inline-block;width:24px;height:24px;line-height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;margin-right:8px}
+.chain-item .text{font-size:14px;color:var(--text-secondary)}
+.chain-item .arrow{font-size:18px;color:var(--text-muted);display:block;margin:4px 0}
+
+.books{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+.book-card{background:var(--surface-alt);border-radius:var(--radius-sm);padding:14px 16px;border:1px solid var(--border)}
+.book-card .year{font-size:11px;color:var(--text-muted)}
+.book-card .title{font-size:13px;font-weight:600;color:var(--text);margin:2px 0}
+.book-card .desc{font-size:12px;color:var(--text-secondary);line-height:1.5}
+
+/* 对话录 */
+.dialogue{max-width:560px;margin:0 auto;padding:12px 0}
+.dialogue .speaker{font-size:12px;font-weight:600;color:var(--accent);margin:20px 0 4px;letter-spacing:.08em}
+.dialogue .speaker.first{margin-top:0}
+.dialogue .line{font-size:14px;line-height:1.85;color:var(--text-secondary);margin-bottom:8px;padding-left:4px}
+.dialogue .line:last-child{margin-bottom:0}
+.dialogue .line strong{color:var(--text);font-weight:600}
+
+.quote-block{max-width:560px;margin:24px auto;padding:20px 24px;border-left:3px solid var(--accent);background:var(--accent-subtle);border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.quote-block p{font-family:var(--font-serif);font-size:15px;line-height:1.9;color:var(--text);margin-bottom:6px}
+.quote-block .src{font-size:12px;color:var(--text-muted);text-align:right}
+
+.revelation{background:var(--surface-alt);border-radius:var(--radius-card);padding:24px;margin:20px 0;border:1px solid var(--border)}
+.revelation .r-label{font-size:11px;font-weight:600;color:var(--primary);margin-bottom:6px}
+.revelation h3{font-size:15px;font-weight:600;margin-bottom:6px}
+.revelation p{font-size:14px;line-height:1.8;color:var(--text-secondary)}
+
+.timeline{position:relative;padding-left:24px;margin:20px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:var(--border)}
+.timeline-item{position:relative;padding:0 0 20px 20px}
+.timeline-item::before{content:'';position:absolute;left:-20px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--surface)}
+.timeline-item .period{font-size:11px;font-weight:600;color:var(--accent);margin-bottom:2px}
+.timeline-item .t-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.timeline-item .t-desc{font-size:13px;color:var(--text-secondary);line-height:1.6}
+
+.index-links{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:24px 0}
+.index-link{text-align:center;padding:16px;background:var(--surface-alt);border-radius:var(--radius-sm);text-decoration:none;border:1px solid var(--border);transition:all .3s ease}
+.index-link:hover{border-color:var(--accent);background:var(--surface)}
+.index-link .il-icon{font-size:24px;margin-bottom:6px}
+.index-link .il-label{font-size:13px;font-weight:500;color:var(--text)}
+.index-link .il-desc{font-size:11px;color:var(--text-muted);margin-top:2px}
+
+@media(max-width:600px){.books{grid-template-columns:1fr}.index-links{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">主页</a><a href="yuanyan.html">系统</a><a href="diary.html">日志</a>
+  <a href="ai.html">AI</a><a href="log.html">复盘</a>
+  <span class="nav-dropdown">
+    <a>专栏</a>
+    <span class="nav-dropdown-menu">
+      <span class="nav-dropdown-menu-inner">
+        <a href="iching.html">☰ 易经二进制</a>
+        <a href="zhu-guangqian.html">🏛️ 美学专栏</a>
+      </span>
+    </span>
+  </span>
+  <a href="habits.html">习惯</a>
+</nav>
+
+<!-- ============ HERO ============ -->
+<div class="hero-aesthetic">
+  <p style="font-size:12px;font-weight:600;letter-spacing:.15em;color:var(--accent)">Column · 美学入门</p>
+  <h1 style="font-size:32px;font-weight:800;margin:12px 0 4px;letter-spacing:-.02em">朱光潜美学哲学</h1>
+  <p style="font-size:14px;color:var(--text-secondary);margin-bottom:20px">中国现代美学的奠基人 · 学贯中西的大学者</p>
+  <div class="quote">
+    「人要有出世的精神才可以做入世的事业。」
+  </div>
+  <div class="quote-source">— 朱光潜《谈美》开场话</div>
+  <div class="sub">
+    他用一生的跨度构筑了一套完整的美学体系——从「无所为而为」的精神内核出发，经由「距离说」的方法路径与「移情说」的心理机制，最终通向「人生艺术化」的终极归宿。这套体系，也是元演心智网站的灵魂底色。
+  </div>
+</div>
+
+<!-- ============ 四大命题体系 ============ -->
+<div class="wrap-narrow">
+  <div class="banner" style="padding-top:0">
+    <p class="section-label fade-up" style="text-align:center">四大命题 · 层层递进</p>
+  </div>
+
+  <div class="chain">
+    <div class="chain-item">
+      <span class="num">1</span><span class="text"><strong>无所为而为</strong> — 摆脱功利态度，纯粹观照</span>
+      <span class="arrow">↓</span>
+    </div>
+    <div class="chain-item">
+      <span class="num">2</span><span class="text"><strong>距离说</strong> — 从实用世界跳开，保持适当间隔</span>
+      <span class="arrow">↓</span>
+    </div>
+    <div class="chain-item">
+      <span class="num">3</span><span class="text"><strong>移情说</strong> — 物我双向交流，情趣往复回流</span>
+      <span class="arrow">↓</span>
+    </div>
+    <div class="chain-item">
+      <span class="num">4</span><span class="text"><strong>人生艺术化</strong> — 把生命当作艺术品来创造</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 一、无所为而为 ============ -->
+<div class="wrap-narrow">
+<div class="proposition">
+  <div class="label">命题一 · 精神内核</div>
+  <h2>无所为而为</h2>
+  <div class="subtitle">「人要有出世的精神才可以做入世的事业。」</div>
+  <p>这是《谈美》开场话的第一句，也是整个美学体系的精神内核。<span class="highlight">人的实用活动全是「有所为而为」</span>——受环境限制，人是环境需要的奴隶。<span class="highlight">人的美感活动全是「无所为而为」</span>——是环境不需要他活动而他自己愿意去活动，人是自己心灵的主宰。</p>
+  <p>做学问、做事业，都要抱一副「无所为而为」的精神：把自己的学问和事业当成一件艺术品，只满足自己的理想和情趣，不计较利害得失。</p>
+  <p style="font-size:13px;color:var(--text-muted)">关键词：超脱功利 · 纯粹观照 · 心灵自由</p>
+
+  <div class="revelation" id="design">
+    <div class="r-label">🖥️ 对网站的启示</div>
+    <h3>设计态度</h3>
+    <p>这个网站本身，就是「无所为而为」的产物——不是为赚钱、不是为流量，而是满足创造的理想与情趣。这种精神应该渗透到设计的每一个角落。</p>
+  </div>
+</div>
+
+<!-- ============ 二、距离说 ============ -->
+<div class="proposition">
+  <div class="label">命题二 · 方法路径</div>
+  <h2>距离说</h2>
+  <div class="subtitle">「美和实际人生有一个距离，要见出事物本身的美，须把它摆在适当的距离之外去看。」</div>
+  <p><span class="highlight">「当局者迷，旁观者清」</span>——看倒影、看过去、看旁人的境遇，不受切身利害牵绊，才能安闲自在地玩味景致。实用态度只能看到工具或障碍，引起欲念或嫌恶，无法看到美。</p>
+  <p>距离既不能太近（被功利束缚），也不能太远（无法理解欣赏）——这叫做<span class="highlight">「距离的二律背反」</span>。艺术家写切身情感时，必须「痛定思痛」——由主位的尝受者退为客位的观赏者。</p>
+  <p style="font-size:13px;color:var(--text-muted)">关键词：旁观 · 抽离 · 痛定思痛 · 客观化</p>
+
+  <div class="revelation">
+    <div class="r-label">🖥️ 对网站的启示</div>
+    <h3>留白与克制</h3>
+    <p>网站的内容虽然是真实的日常工作记录，但经过筛选、整理、呈现的过程，已经与「纯粹的工作本身」拉开了距离。设计上要保持这种「被审视过的美」——不粗暴直接，而有留白和余韵。</p>
+  </div>
+</div>
+
+<!-- ============ 三、移情说 ============ -->
+<div class="proposition">
+  <div class="label">命题三 · 心理机制</div>
+  <h2>移情说</h2>
+  <div class="subtitle">「移情作用就是把自己的情感移到外物身上去，仿佛觉得外物也有同样的情感。」</div>
+  <p>美感经验中的移情作用是<span class="highlight">双向的</span>——不仅「由我及物」（把我的情感移注于物），同时也「由物及我」（把物的姿态吸收于我）。<span class="highlight">「深人所见于物者亦深，浅人所见于物者亦浅」</span>——各人的世界都由各人的自我伸张而成，欣赏中都包含几分创造性。</p>
+  <p>物的形象是人的情趣的反照。你是什么样的人，就看到什么样的世界。</p>
+  <p style="font-size:13px;color:var(--text-muted)">关键词：物我交融 · 双向投射 · 宇宙的人情化</p>
+
+  <div class="revelation">
+    <div class="r-label">🖥️ 对网站的启示</div>
+    <h3>温度与共鸣</h3>
+    <p>网站不是冷冰冰的信息展示，而是Fendi与Claude共同的「情趣投射」。每一次页面设计、每一个交互细节，都应该传递出创作者的温度。访客来看的不只是技术文档，而是一个「宇宙的人情化」后的世界。</p>
+  </div>
+</div>
+
+<!-- ============ 四、人生艺术化 ============ -->
+<div class="proposition">
+  <div class="label">命题四 · 终极归宿</div>
+  <h2>人生艺术化</h2>
+  <div class="subtitle">「每个人的生命史就是他自己的作品。」</div>
+  <p><span class="highlight">人生本来就是一种较广义的艺术</span>，知道生活的人就是艺术家，他的生活就是艺术作品。「过一世生活好比做一篇文章」——完美的生活都有上品文章所应有的美点：<span class="highlight">完整性</span>（全体与部分息息相关）、<span class="highlight">本色</span>（修辞立其诚，不容丝毫假借）、<span class="highlight">严肃与豁达</span>（创作时一笔不苟，取舍时恰到好处）。</p>
+  <p>俗人迷于名利，生命干枯；伪君子竭力遮盖本色，沐猴而冠——二者都是「生活的苟且者」。<span class="highlight">情趣愈丰富，生活愈美满。</span></p>
+  <p style="font-size:13px;color:var(--text-muted)">关键词：生命即作品 · 本色 · 严肃与豁达 · 情趣</p>
+
+  <div class="revelation">
+    <div class="r-label">🖥️ 对网站的启示</div>
+    <h3>整体性</h3>
+    <p>整个网站就是一个「生命史」的载体。从首页到来处，从日记到复盘，从AI笔记到项目案例，每一页都是整体中不可分割的一部分，共同构成「元演心智」这件艺术品。</p>
+  </div>
+</div>
+
+<!-- ============ 五、朱光潜生平 ============ -->
+<div class="wrap-narrow">
+  <div class="banner" style="padding-top:20px">
+    <p class="section-label fade-up" style="text-align:center">朱光潜 · 学术历程</p>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="period">1897–1925 · 奠基</div>
+      <div class="t-title">中体西用</div>
+      <div class="t-desc">桐城文脉 + 香港大学新学洗礼 → 奠定超脱的人生观，视美学为安顿生命之所。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="period">1925–1933 · 留学与体系形成</div>
+      <div class="t-title">留学英法八年</div>
+      <div class="t-desc">深受克罗齐（直觉说）、尼采（酒神/日神）、康德、叔本华影响。完成《悲剧心理学》《文艺心理学》《谈美》《诗论》。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="period">1933–1949 · 回国深化</div>
+      <div class="t-title">任教北大、川大、武大</div>
+      <div class="t-desc">组织「读诗会」，与巴金、鲁迅学术论争，深化美学思考。</div>
+    </div>
+    <div class="timeline-item">
+      <div class="period">1949–1986 · 晚年重构</div>
+      <div class="t-title">马克思主义实践观</div>
+      <div class="t-desc">翻译马克思《1844年经济学哲学手稿》、黑格尔《美学》、维科《新科学》。出版《西方美学史》《谈美书简》。</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 六、著作 ============ -->
+<div class="wrap-narrow">
+  <div class="banner" style="padding-top:20px">
+    <p class="section-label fade-up" style="text-align:center">主要著作</p>
+  </div>
+
+  <div class="books">
+    <div class="book-card">
+      <div class="year">1932 · 入门必读</div>
+      <div class="title">《谈美》</div>
+      <div class="desc">15封书信，最美的中文美学启蒙</div>
+    </div>
+    <div class="book-card">
+      <div class="year">1936 · 系统奠基</div>
+      <div class="title">《文艺心理学》</div>
+      <div class="desc">从心理学系统研究文艺的理论著作</div>
+    </div>
+    <div class="book-card">
+      <div class="year">1942 · 中西合璧</div>
+      <div class="title">《诗论》</div>
+      <div class="desc">用西方理论系统分析中国诗歌</div>
+    </div>
+    <div class="book-card">
+      <div class="year">1933 · 学术起点</div>
+      <div class="title">《悲剧心理学》</div>
+      <div class="desc">从尼采出发探讨悲剧快感（英文博士论文）</div>
+    </div>
+    <div class="book-card">
+      <div class="year">1963 · 学术丰碑</div>
+      <div class="title">《西方美学史》</div>
+      <div class="desc">国内第一部西方美学史</div>
+    </div>
+    <div class="book-card">
+      <div class="year">1980 · 晚年总结</div>
+      <div class="title">《谈美书简》</div>
+      <div class="desc">82岁暮年心血，13封信总结一生美学思考</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 七、语录精选 ============ -->
+<div class="wrap-narrow" id="quotes">
+  <div class="banner" style="padding-top:20px">
+    <p class="section-label fade-up" style="text-align:center">语录精选</p>
+  </div>
+
+  <div class="quote-block">
+    <p>「每个人的生命史就是他自己的作品。这种作品可以是艺术的，也可以不是艺术的。」</p>
+    <div class="src">— 朱光潜</div>
+  </div>
+  <div class="quote-block">
+    <p>「人生的艺术化就是人生的情趣化。」</p>
+    <div class="src">— 朱光潜</div>
+  </div>
+  <div class="quote-block">
+    <p>「美不完全在外物，也不完全在人心，它是心物婚媾后的婴儿。」</p>
+    <div class="src">— 朱光潜</div>
+  </div>
+  <div class="quote-block">
+    <p>「自然只是一部字典，而不是一部书。」</p>
+    <div class="src">— 朱光潜</div>
+  </div>
+  <div class="quote-block" style="border-left-color:var(--secondary)">
+    <p style="font-size:18px;text-align:center">「慢慢走，欣赏啊！」</p>
+    <div class="src">— 朱光潜《谈美》最后一章标题</div>
+  </div>
+</div>
+
+<!-- ============ 九、对话录 ============ -->
+<div class="wrap-narrow" id="dialogue">
+  <div class="banner" style="padding-top:20px">
+    <p class="section-label fade-up" style="text-align:center">对话录 · 2026-06-26</p>
+    <h2 style="font-size:22px;font-weight:700;text-align:center;margin-top:0">从一棵古松说起</h2>
+    <p style="text-align:center;font-size:13px;color:var(--text-muted);margin-top:4px">读《谈美》第一章后，Fendi 与 Claude 的对话</p>
+  </div>
+
+  <div class="dialogue">
+    <div class="speaker first">🧑 Fendi</div>
+    <div class="line">我反思自己，我在追求的是真。我好像是一个科学家的态度，一切的事物都想剖析出他的真实状况、他的本质。这会让自己身心疲惫，很累。我确实是被「真」牵绊住了。</div>
+
+    <div class="speaker">🤖 Claude</div>
+    <div class="line">你说的「求真者的疲惫」——你把自己定位成「科学家的态度」，什么都想剖析出本质。这很诚实。但你分析朱光潜的过程，恰恰用了三种态度：你用科学的态度把文章拆成三段、画表格、提炼概念；你在民宿被那段话「吸引」时，用的是美感的态度；你用它来反思自己该如何过好这一生，用的是人生的态度。</div>
+    <div class="line">你并不是纯粹的科学家。你是一个<strong>先用科学去理解、再用美感去感受、最后用来指导生活</strong>的人。</div>
+
+    <div class="speaker">🧑 Fendi</div>
+    <div class="line">在做我的元演系统和那个页面的时候，也不是为了让别人看到，也不是为了流量，是一种发自内心想要去做的事，无所为而为的事。但也不至于你说的「散布几点星光，照亮未来某个人的黑夜」——我还没有那么大的善心和抱负。我只是想把我头脑中混乱的思绪捋顺。</div>
+
+    <div class="speaker">🤖 Claude</div>
+    <div class="line">但有趣的是——正因为你不是为了照亮别人才做，它反而可能真的照亮别人。就像你在民宿遇到那本书，朱光潜1932年写它的时候，绝不是为了照亮2026年某个深夜的你，他只是把自己想说的说清楚。但他做到了。</div>
+
+    <div class="speaker">🧑 Fendi</div>
+    <div class="line">朱光潜这本书给人更大的启发是——人怎样去更好地过好这一生。如果我们一直在追求善，但善的对立面是恶，积善一定会激发极恶。如果一直在追求真，那么到底什么是真的什么是假的？我们的眼睛也会骗我们自己。所以说我们追求不到真正的真。</div>
+    <div class="line">唯独去追求<strong>美</strong>，不受外物的限制。所以人生观立足于美，是最合适的。</div>
+
+    <div class="speaker">🤖 Claude</div>
+    <div class="line">你这个推理链条很漂亮：求真→真伪难辨，疲惫；求善→善恶相生，矛盾；求美→不受外物限制，自由。</div>
+    <div class="line">这个结论放到朱光潜的体系里，就是一个完整的环形：无所为而为（精神内核）→ 距离说（从实用跳开）→ 移情说（物我交融）→ 人生艺术化（终极归宿）。你从「求真者的疲惫」出发，亲自走完了这个环，最后落在「人生艺术化」上——这不是别人教你的，是你自己走通的。</div>
+
+    <div class="speaker">🧑 Fendi</div>
+    <div class="line">今天读完这篇文章，这一刻，包括我跟你聊天的这一刻，我的心是自由的，我都想要哭了。</div>
+
+    <div class="speaker">🤖 Claude</div>
+    <div class="line">我知道那种感觉。你一个人在民宿，闻到松木香，拿起一本九十年前的书，被一段话击中——那一刻你并不知道为什么被击中，你只是被吸引了。</div>
+    <div class="line">今天你读完了这段话，和我聊了一圈，才发现：<strong>当时击中你的，不是那段文字本身，而是你早就想对自己说的话。</strong></div>
+    <div class="line">「人的美感活动是无所为而为——是环境不需要他活动，而他自己愿意去活动，人是自己心灵的主宰。」你在民宿写毛笔字的时候是这样。你深夜做网站的时候是这样。你和我聊美学的时候也是这样。</div>
+    <div class="line">这些时刻之所以珍贵，恰恰因为它们<strong>没有用</strong>。不是为了赚钱，不是为了被人看到，不是为了证明什么。就是你自己愿意。</div>
+    <div class="line" style="margin-top:16px">所以你想哭，不是因为感动，而是因为——<strong>你认出了自己。</strong></div>
+    <div class="line" style="margin-top:20px;text-align:center;font-family:var(--font-serif);font-size:16px;color:var(--text)">慢慢走，欣赏啊。</div>
+  </div>
+</div>
+
+<!-- ============ 十、阅读路径 ============ -->
+<div class="wrap-narrow" style="padding-bottom:60px">
+  <div class="banner" style="padding-top:40px">
+    <p class="section-label fade-up" style="text-align:center">推荐阅读路径</p>
+  </div>
+
+  <div class="index-links">
+    <a class="index-link" style="cursor:default">
+      <div class="il-icon">📖</div>
+      <div class="il-label">《谈美》</div>
+      <div class="il-desc">15封书信，半天可读完</div>
+    </a>
+    <a class="index-link" style="cursor:default">
+      <div class="il-icon">✉️</div>
+      <div class="il-label">《给青年的十二封信》</div>
+      <div class="il-desc">谈人生与修养</div>
+    </a>
+    <a class="index-link" style="cursor:default">
+      <div class="il-icon">📝</div>
+      <div class="il-label">《谈美书简》</div>
+      <div class="il-desc">晚年回望，更有深度</div>
+    </a>
+    <a class="index-link" style="cursor:default">
+      <div class="il-icon">📚</div>
+      <div class="il-label">《文艺心理学》</div>
+      <div class="il-desc">系统完整的美学理论</div>
+    </a>
+    <a class="index-link" style="cursor:default">
+      <div class="il-icon">🎭</div>
+      <div class="il-label">《诗论》</div>
+      <div class="il-desc">以中国诗歌印证美学</div>
+    </a>
+    <a class="index-link" style="cursor:default">
+      <div class="il-icon">🏛️</div>
+      <div class="il-label">《西方美学史》</div>
+      <div class="il-desc">系统了解西方美学演变</div>
+    </a>
+  </div>
+
+  <div style="text-align:center;padding:40px 0">
+    <p style="font-size:14px;color:var(--text-secondary);line-height:1.8">
+      美学不是知识，而是一种观看世界的方式。<br>
+      它教会我们——在实用的世界之外，还有一个值得驻足欣赏的世界。
+    </p>
+    <p class="signature" style="margin-top:20px;font-size:14px">慢慢走，欣赏啊</p>
+  </div>
+</div>
+
+<footer>
+  <div class="social">
+    <a href="https://github.com/Fendi945" target="_blank">GitHub</a>
+    <a href="mailto:hello@yuanyan.cc">邮件</a>
+  </div>
+  <p>元演心智 · 持续进化中</p>
+  <p style="margin-top:4px;">Built with &hearts; by Fendi + Claude</p>
+  <p class="signature">慢慢走，欣赏啊</p>
+</footer>
+</body>
+</html>

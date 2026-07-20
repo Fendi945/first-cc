@@ -1,0 +1,64 @@
+﻿[Script Info]
+Title: 口播字幕
+ScriptType: v4.00+
+Collisions: Normal
+PlayResX: 544
+PlayResY: 960
+Timer: 100.0000
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,HYZhongHei 197,54,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,1,0,0,0,100,100,0,0,1,3,1,2,10,10,120,134
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:01.34,Default,,0,0,0,,我发现{\fs60\c&H0000FFFF&\b1}一{\fs54\c&H00FFFFFF&\b1}个方法
+Dialogue: 0,0:00:01.34,0:00:02.84,Default,,0,0,0,,能把{\fs60\c&H0000FFFF&\b1}恐惧{\fs54\c&H00FFFFFF&\b1}给拆了
+Dialogue: 0,0:00:02.84,0:00:04.29,Default,,0,0,0,,{\fs60\c&H0000FFFF&\b1}渔樵问对{\fs54\c&H00FFFFFF&\b1}里扒出来的
+Dialogue: 0,0:00:04.29,0:00:06.38,Default,,0,0,0,,我叫它{\fs60\c&H0000FFFF&\b1}命分法{\fs54\c&H00FFFFFF&\b1}
+Dialogue: 0,0:00:06.38,0:00:07.92,Default,,0,0,0,,就两个维度
+Dialogue: 0,0:00:07.92,0:00:09.42,Default,,0,0,0,,命是{\fs60\c&H0000FFFF&\b1}老天{\fs54\c&H00FFFFFF&\b1}给的
+Dialogue: 0,0:00:09.42,0:00:10.81,Default,,0,0,0,,你{\fs60\c&H0000FFFF&\b1}控制不了{\fs54\c&H00FFFFFF&\b1}
+Dialogue: 0,0:00:10.81,0:00:12.33,Default,,0,0,0,,分是你自己的{\fs60\c&H0000FFFF&\b1}本分{\fs54\c&H00FFFFFF&\b1}
+Dialogue: 0,0:00:12.33,0:00:13.19,Default,,0,0,0,,你说了算
+Dialogue: 0,0:00:13.19,0:00:14.80,Default,,0,0,0,,我这几天{\fs60\c&H0000FFFF&\b1}一{\fs54\c&H00FFFFFF&\b1}直在用
+Dialogue: 0,0:00:14.80,0:00:16.01,Default,,0,0,0,,吃到甜头了
+Dialogue: 0,0:00:16.01,0:00:17.65,Default,,0,0,0,,忍不住要跟你说
+Dialogue: 0,0:00:17.65,0:00:18.94,Default,,0,0,0,,前两天我发了{\fs60\c&H0000FFFF&\b1}一{\fs54\c&H00FFFFFF&\b1}条
+Dialogue: 0,0:00:18.94,0:00:20.49,Default,,0,0,0,,{\fs60\c&H0000FFFF&\b1}锦鲤池{\fs54\c&H00FFFFFF&\b1}劝退的视频
+Dialogue: 0,0:00:20.49,0:00:22.03,Default,,0,0,0,,评论区吵翻了
+Dialogue: 0,0:00:22.03,0:00:23.12,Default,,0,0,0,,{\fs60\c&H0000FFFF&\b1}一{\fs54\c&H00FFFFFF&\b1}半人说我中肯
+Dialogue: 0,0:00:23.12,0:00:24.58,Default,,0,0,0,,{\fs60\c&H0000FFFF&\b1}一{\fs54\c&H00FFFFFF&\b1}半人说我没养过鱼
+Dialogue: 0,0:00:24.58,0:00:26.20,Default,,0,0,0,,学艺不精才踩了坑
+Dialogue: 0,0:00:26.20,0:00:27.45,Default,,0,0,0,,听到挖苦你的话
+Dialogue: 0,0:00:27.45,0:00:28.85,Default,,0,0,0,,说实话挺难受的
+Dialogue: 0,0:00:28.85,0:00:31.49,Default,,0,0,0,,开始我还想跟他争论几句
+Dialogue: 0,0:00:31.49,0:00:33.97,Default,,0,0,0,,那是我看到别人踩的坑
+Dialogue: 0,0:00:33.97,0:00:34.93,Default,,0,0,0,,找我补救呢
+Dialogue: 0,0:00:34.93,0:00:36.54,Default,,0,0,0,,后来我就放弃了
+Dialogue: 0,0:00:36.54,0:00:39.11,Default,,0,0,0,,然后我拿{\fs60\c&H0000FFFF&\b1}命分法{\fs54\c&H00FFFFFF&\b1}拆了{\fs60\c&H0000FFFF&\b1}一{\fs54\c&H00FFFFFF&\b1}下
+Dialogue: 0,0:00:39.11,0:00:43.55,Default,,0,0,0,,我说的是不是我的真实经验
+Dialogue: 0,0:00:43.55,0:00:44.42,Default,,0,0,0,,这是我的事
+Dialogue: 0,0:00:44.42,0:00:47.09,Default,,0,0,0,,别人相不相信我
+Dialogue: 0,0:00:47.09,0:00:48.41,Default,,0,0,0,,不是我的事
+Dialogue: 0,0:00:48.41,0:00:50.27,Default,,0,0,0,,评论区多少人骂我
+Dialogue: 0,0:00:50.27,0:00:51.46,Default,,0,0,0,,也不是我的事
+Dialogue: 0,0:00:51.46,0:00:52.90,Default,,0,0,0,,拆完我就通了
+Dialogue: 0,0:00:52.90,0:00:54.22,Default,,0,0,0,,原来我的{\fs60\c&H0000FFFF&\b1}焦虑{\fs54\c&H00FFFFFF&\b1}
+Dialogue: 0,0:00:54.22,0:00:57.52,Default,,0,0,0,,{\fs60\c&H0000FFFF&\b1}百{\fs54\c&H00FFFFFF&\b1}分之{\fs60\c&H0000FFFF&\b1}九十{\fs54\c&H00FFFFFF&\b1}来自这里
+Dialogue: 0,0:00:57.52,0:00:58.76,Default,,0,0,0,,{\fs60\c&H0000FFFF&\b1}一{\fs54\c&H00FFFFFF&\b1}直在想控制
+Dialogue: 0,0:00:58.76,0:01:00.41,Default,,0,0,0,,我{\fs60\c&H0000FFFF&\b1}控制不了{\fs54\c&H00FFFFFF&\b1}的事
+Dialogue: 0,0:01:00.41,0:01:01.40,Default,,0,0,0,,那不是我的事
+Dialogue: 0,0:01:01.40,0:01:02.62,Default,,0,0,0,,那是{\fs60\c&H0000FFFF&\b1}老天爷{\fs54\c&H00FFFFFF&\b1}的事
+Dialogue: 0,0:01:02.62,0:01:03.43,Default,,0,0,0,,我就是{\fs60\c&H0000FFFF&\b1}一{\fs54\c&H00FFFFFF&\b1}个
+Dialogue: 0,0:01:03.43,0:01:04.82,Default,,0,0,0,,做了{\fs60\c&H0000FFFF&\b1}16年{\fs54\c&H00FFFFFF&\b1}{\fs60\c&H0000FFFF&\b1}园林{\fs54\c&H00FFFFFF&\b1}的人
+Dialogue: 0,0:01:04.82,0:01:06.85,Default,,0,0,0,,我告诉你我经历的
+Dialogue: 0,0:01:06.85,0:01:07.63,Default,,0,0,0,,我看到的
+Dialogue: 0,0:01:07.63,0:01:09.42,Default,,0,0,0,,别人是怎么掉进坑里的
+Dialogue: 0,0:01:09.42,0:01:10.86,Default,,0,0,0,,你自己评估{\fs60\c&H0000FFFF&\b1}一{\fs54\c&H00FFFFFF&\b1}下
+Dialogue: 0,0:01:10.86,0:01:12.27,Default,,0,0,0,,能不能掉进去
+Dialogue: 0,0:01:12.27,0:01:13.61,Default,,0,0,0,,那是你的命了
+Dialogue: 0,0:01:13.61,0:01:15.16,Default,,0,0,0,,方法还有吗
+Dialogue: 0,0:01:15.16,0:01:16.75,Default,,0,0,0,,有下次说
+Dialogue: 0,0:01:16.75,0:01:18.21,Default,,0,0,0,,我是大{\fs60\c&H0000FFFF&\b1}一{\fs54\c&H00FFFFFF&\b1}
+Dialogue: 0,0:01:18.21,0:01:20.37,Default,,0,0,0,,{\fs60\c&H0000FFFF&\b1}一{\fs54\c&H00FFFFFF&\b1}个陪你造园子的人

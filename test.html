@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>遁甲测试</title>
+<style>*{margin:0;padding:0}body{background:#050508;display:flex;height:100vh;color:#ccc;font-family:system-ui}
+canvas{flex:1;height:100vh}#p{width:280px;background:#0a0a16;border-left:1px solid #1a1a2a;padding:20px}
+h1{font-size:16px;color:#fff;margin-bottom:12px}</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="p"><h1>遁甲 · 追影空间</h1>
+<div id="info" style="font-size:12px;color:#666;line-height:1.8">
+加载中...<br>如果看到此画面，说明HTML解析正常
+</div></div>
+<script>
+const cv=document.getElementById('cv'), cx=cv.getContext('2d');
+let W,H;
+function resize(){W=cv.width=window.innerWidth-280;H=cv.height=window.innerHeight}
+window.onresize=resize; resize();
+
+const DOORS=[
+  {name:'休门',pos:[1,0],c:'#1a3a6a',g:[26,58,106]},{name:'生门',pos:[0,2],c:'#2a6a3a',g:[42,106,58]},
+  {name:'伤门',pos:[0,0],c:'#3a5a2a',g:[58,90,42]},{name:'杜门',pos:[2,0],c:'#6a6a2a',g:[106,106,42]},
+  {name:'景门',pos:[1,2],c:'#aa3a1a',g:[170,58,26]},{name:'死门',pos:[2,2],c:'#5a3a2a',g:[90,58,42]},
+  {name:'惊门',pos:[0,1],c:'#3a6a8a',g:[58,106,138]},{name:'开门',pos:[2,1],c:'#8a6a2a',g:[138,106,42]}
+];
+const SC=[
+  {n:'子时',c:'#1a2a6a',g:[26,42,106],pl:0.2},{n:'丑时',c:'#4a3428',g:[74,52,40],pl:0.3},
+  {n:'寅时',c:'#1a4a2a',g:[26,74,42],pl:0.5},{n:'卯时',c:'#2a7a4a',g:[42,122,74],pl:0.7},
+  {n:'辰时',c:'#6a7a2a',g:[106,122,42],pl:0.9},{n:'巳时',c:'#a06a1a',g:[160,106,26],pl:1.3},
+  {n:'午时',c:'#bb2a12',g:[187,42,18],pl:1.8},{n:'未时',c:'#b07a18',g:[176,122,24],pl:1.4},
+  {n:'申时',c:'#3a7aa0',g:[58,122,160],pl:0.8},{n:'酉时',c:'#b08a3a',g:[176,138,58],pl:0.6},
+  {n:'戌时',c:'#c83a1a',g:[200,58,26],pl:1.5},{n:'亥时',c:'#2a3a7a',g:[42,58,122],pl:0.3}
+];
+function getSC(t){let tt=((t%1440)+1440)%1440;for(let i=0;i<12;i++){let s=SC[i],n=SC[(i+1)%12],st=s.h||(i*2+23)%24, et=n.h||((i+1)*2+23)%24;if(et<=st)et+=24;let cm=tt/60;if(cm<st)cm+=24;if(cm>=st&&cm<et)return{...s,idx:i}}return{...SC[0],idx:0}}
+// 修正时辰时间
+SC[0].h=23;SC[1].h=1;SC[2].h=3;SC[3].h=5;SC[4].h=7;SC[5].h=9;SC[6].h=11;SC[7].h=13;SC[8].h=15;SC[9].h=17;SC[10].h=19;SC[11].h=21;
+
+let simTime=7*60+30,frame=0;
+let visitors=[{name:'A',x:1,y:1,t:0},{name:'B',x:0,y:0,t:0},{name:'C',x:2,y:2,t:0}];
+
+document.getElementById('info').innerHTML='渲染中...';
+
+function draw(){
+  cx.fillStyle='#050508';cx.fillRect(0,0,W,H);
+  const sc=getSC(simTime); let [r,g,b]=sc.g;
+
+  // 显示基本信息
+  cx.fillStyle=`rgba(${r},${g},${b},0.5)`;
+  cx.font='24px system-ui';cx.textAlign='center';
+  cx.fillText('遁甲 · 追影空间',W/2,40);
+  cx.font='16px system-ui';
+  cx.fillText(sc.n+' · 九宫阵运行中',W/2,70);
+
+  // 画九宫
+  let cs=Math.min(W,H)*0.15, ox=(W-cs*3)/2, oy=(H-cs*3)/2;
+  for(let y=0;y<3;y++)for(let x=0;x<3;x++){
+    let bx=ox+x*cs,by=oy+y*cs;
+    cx.fillStyle='rgba(20,20,40,0.3)';cx.fillRect(bx,by,cs,cs);
+    cx.strokeStyle=`rgba(${r},${g},${b},0.15)`;cx.lineWidth=1;cx.strokeRect(bx,by,cs,cs);
+    let dh=DOORS.find(d=>d.pos[0]===x&&d.pos[1]===y);
+    if(dh){
+      cx.fillStyle=`rgba(${dh.g[0]},${dh.g[1]},${dh.g[2]},0.3)`;
+      cx.font='13px system-ui';cx.textAlign='center';cx.textBaseline='middle';
+      cx.fillText(dh.name,bx+cs/2,by+cs/2);
+    }
+  }
+
+  // 画访客
+  for(let v of visitors){
+    let vx=ox+(v.x+0.5)*cs,vy=oy+(v.y+0.5)*cs;
+    cx.fillStyle='rgba(100,180,255,0.5)';
+    cx.beginPath();cx.arc(vx,vy,cs*0.12,0,Math.PI*2);cx.fill();
+    cx.fillStyle='rgba(100,180,255,0.7)';
+    cx.font='10px system-ui';cx.textAlign='center';cx.textBaseline='bottom';
+    cx.fillText(v.name,vx,vy-cs*0.15);
+  }
+
+  document.getElementById('info').innerHTML=sc.n+' · 访客3人<br>九宫阵正常渲染 ✓';
+
+  requestAnimationFrame(draw);
+}
+
+function update(){
+  simTime+=0.016/60*1440;frame+=0.016;
+  for(let v of visitors){
+    v.t++;
+    if(v.t>20){v.t=0;
+      let dirs=[[0,1],[0,-1],[1,0],[-1,0]];
+      let d=Math.floor(Math.random()*4);
+      let nx=Math.max(0,Math.min(2,v.x+dirs[d][1]));
+      let ny=Math.max(0,Math.min(2,v.y+dirs[d][0]));
+      v.x=nx;v.y=ny;
+    }
+  }
+  requestAnimationFrame(update);
+}
+requestAnimationFrame(update);
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>
