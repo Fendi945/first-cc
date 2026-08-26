@@ -327,6 +327,10 @@
   font-size: 0.95rem;
   line-height: 1.6;
 }
+.peipao-section {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
 .tier-note {
   font-size: 0.78rem;
   color: var(--text-secondary);
@@ -517,6 +521,49 @@
   </p>
 </section>
 
+<!-- ============ 施工陪跑 ============ -->
+<section class="design-section peipao-section" id="peipao">
+  <div class="design-head">
+    <h2>施工陪跑 · 图纸落地，全程把关</h2>
+    <p>从图纸交底到现场节点验收全程把关，保证你和当地施工队无障碍沟通。施工队的手艺我们管不了，但「图怎么落地」这件事，我们陪到底。</p>
+  </div>
+  <div class="tiers-grid">
+    <!-- 4999 -->
+    <div class="tier-card fade-up">
+      <div class="tier-badge-slot"><span class="badge">轻版</span></div>
+      <div class="tier-name">🤝 4999 轻版陪跑</div>
+      <div class="price">4999 <small>元</small></div>
+      <div class="tier-desc">SU 视觉模型 + 陪跑 3 个月</div>
+      <ul class="tier-includes">
+        <li>SU 视觉模型，先看清院子长什么样</li>
+        <li>陪跑 3 个月：2 次远程视频 + 不限次咨询</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>不含施工图</li>
+      </ul>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="4999" data-tier="轻版陪跑">选这个，去付款</a>
+    </div>
+
+    <!-- 9999 -->
+    <div class="tier-card tier-popular fade-up">
+      <div class="tier-badge-slot"><span class="badge">🔥 全版 · 到场盯工</span></div>
+      <div class="tier-name">🤝 9999 全版陪跑</div>
+      <div class="price">9999 <small>元</small></div>
+      <div class="tier-desc">全套施工图 + 陪跑 3 个月</div>
+      <ul class="tier-includes">
+        <li>全套施工图，直接发包施工</li>
+        <li>陪跑 3 个月：2 次远程 + 不限次咨询</li>
+        <li>3 次到场盯工（放线 / 骨架 / 种植）</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>按项目面积 / 复杂度确认</li>
+      </ul>
+      <p class="tier-note">💡 499 方案骨架费可全额抵扣陪跑</p>
+      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="9999" data-tier="全版陪跑">选这个，去付款</a>
+    </div>
+  </div>
+</section>
+
 <!-- ============ 付款 ============ -->
 <section class="pay-zone" id="pay">
   <div class="wrap">
@@ -531,6 +578,8 @@
       <span class="tier-tab" data-amount="2000" data-tier="硬化前落地定位图">2000 落地定位图</span>
       <span class="tier-tab" data-amount="4000" data-tier="方案深化">4000 深化</span>
       <span class="tier-tab" data-amount="6000" data-tier="全套施工图">6000 施工图</span>
+      <span class="tier-tab" data-amount="4999" data-tier="轻版陪跑">4999 轻版陪跑</span>
+      <span class="tier-tab" data-amount="9999" data-tier="全版陪跑">9999 全版陪跑</span>
     </div>
 
     <div class="pay-box">
@@ -563,8 +612,8 @@
     <div style="margin-top:2rem;padding:16px;background:var(--surface);border-radius:var(--radius-sm);text-align:left;">
       <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;">
         <strong>⚠️ 注意：</strong><br>
-        · 付款金额必须与你选的档位一致（9.9 / 199 / 499 / 2000 / 4000 / 6000）<br>
-        · 设计档（2000/4000/6000 起）按面积和复杂度定价，付款前先加微信确认最终金额<br>
+        · 付款金额必须与你选的档位一致（9.9 / 199 / 499 / 2000 / 4000 / 6000 / 4999 / 9999）<br>
+        · 设计/陪跑档（2000 起 / 4999 起）按面积和复杂度定价，付款前先加微信确认最终金额<br>
         · 付款后不加微信、不发资料的，视为自动放弃，不退款<br>
         · 设计是定制服务，出稿前可退，出稿后不退不改<br>
         · 加好友时请备注「院子」，否则可能不通过
@@ -602,6 +651,13 @@
     <h3>图纸能直接给施工队用吗？</h3>
     <div class="faq-answer">
       499 骨架是方向性的，师傅能看懂整体布局。要直接照图施工（分区尺寸 + 排水走向 + 水电预埋点位），做「硬化前落地定位图」（2000 元起）。
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <h3>施工陪跑是干什么的？</h3>
+    <div class="faq-answer">
+      从图纸交底到现场节点验收全程把关，保证你和当地施工队无障碍沟通——施工队的手艺我们管不了，但「图怎么落地」这件事，我们陪到底。4999 轻版（SU 视觉模型 + 陪跑 3 个月，2 次远程视频 + 不限次咨询，不含施工图）；9999 全版（全套施工图 + 陪跑 3 个月 + 3 次到场盯工：放线 / 骨架 / 种植）。499 方案骨架费可全额抵扣陪跑。
     </div>
   </div>
 
