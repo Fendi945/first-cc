@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>大一造园 · 把院子变成你想要的样子</title>
-<meta name="description" content="大一造园 · 庭院设计咨询：9.9 元快速判断你的院子值不值得做，199 元方向建议，499 元方案骨架。纯设计出图，本地找施工队落地。">
+<meta name="description" content="大一造园 · 庭院设计：9.9 轻判断 / 199 方向建议 / 499 方案骨架，硬化前落地定位图 2000 元起（分区尺寸+排水走向+水电预埋点位），方案深化 4000、全套施工图 6000 元起。纯设计出图，本地找施工队落地。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;600;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -302,6 +302,37 @@
 }
 .faq-item.open .faq-answer { display: block; }
 
+/* ---- 设计服务区 ---- */
+.design-section {
+  padding: 60px 24px 80px;
+  background: var(--surface-alt);
+}
+.design-section .design-head {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.design-section .design-head h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+.design-section .design-head p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.tier-note {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  text-align: left;
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: var(--accent-subtle);
+  border-radius: var(--radius-sm);
+  line-height: 1.6;
+}
+.tier-note a { color: inherit; text-decoration: underline; }
+
 /* ---- 底部 ---- */
 .product-footer {
   text-align: center;
@@ -393,17 +424,81 @@
         <li>不含施工图/排水图</li>
         <li>不含竖向高差推敲</li>
         <li>不含施工落地指导</li>
+        <li>不含水电预埋点位规划</li>
       </ul>
+      <p class="tier-note">适合方向还没定的业主。<br>硬化前自建房 → 直接做 <a href="#design">「硬化前落地定位图」</a>（499 可抵差价升级）</p>
       <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="499" data-tier="方案骨架">选这个，去付款</a>
     </div>
   </div>
 
   <div style="text-align:center;margin-top:2rem;max-width:600px;margin-left:auto;margin-right:auto;">
     <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.6;">
-      💡 <strong>需要全套施工图（排水方案、材料清单、节点大样）？</strong><br>
-      先做方案骨架（499 元），聊完后你觉得需要深化，再按项目单独报价。<br>
-      标准庭院设计最低 6000 元起。
+      💡 <strong>要落地、要能直接给师傅用？</strong><br>
+      硬化前自建房 → 直接做 <a href="#design" style="color:inherit;">「硬化前落地定位图」</a>（分区尺寸 + 排水走向 + 水电预埋点位 + 入口标高）。<br>
+      做过 499 骨架的，升级可抵差价。<br>
+      标准庭院设计 2000 元起。
     </p>
+  </div>
+</section>
+
+<!-- ============ 设计服务 ============ -->
+<section class="design-section" id="design">
+  <div class="design-head">
+    <h2>设计服务 · 要落地、要出图</h2>
+    <p>上面的咨询档帮你定「方向」；下面这三档帮你把「落地」做出来——图纸直接给施工师傅用。</p>
+  </div>
+  <div class="tiers-grid">
+    <!-- 硬化前落地定位图 2000 -->
+    <div class="tier-card tier-popular fade-up">
+      <span class="badge">🔥 硬化前必做</span>
+      <div class="tier-name">📐 硬化前落地定位图</div>
+      <div class="price">2000 <small>元起</small></div>
+      <div class="tier-desc">场地整平、马上要浇筑混凝土？这一步不改，以后返工代价很大。</div>
+      <ul class="tier-includes">
+        <li>带尺寸平面布局图（分区 / 停车 / 休闲 / 菜园 / 绿化）</li>
+        <li>排水走向 + 坡度方向标注</li>
+        <li>户外水电预埋点位规划</li>
+        <li>院门 / 入口标高关系</li>
+        <li>图纸师傅能直接照图施工</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>不含效果图</li>
+        <li>不含全套施工图（节点大样另议）</li>
+      </ul>
+      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="2000" data-tier="硬化前落地定位图">选这个，去付款</a>
+    </div>
+
+    <!-- 方案深化 4000 -->
+    <div class="tier-card fade-up">
+      <div class="tier-name">📐 方案深化</div>
+      <div class="price">4000 <small>元起</small></div>
+      <div class="tier-desc">方向定了，但想看得更细、更直观，还要效果图？</div>
+      <ul class="tier-includes">
+        <li>空间布局深化推敲</li>
+        <li>SU 建模 + 效果图</li>
+        <li>植物配置方向</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>不含全套施工图</li>
+      </ul>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="4000" data-tier="方案深化">选这个，去付款</a>
+    </div>
+
+    <!-- 全套施工图 6000 -->
+    <div class="tier-card fade-up">
+      <div class="tier-name">📐 全套施工图</div>
+      <div class="price">6000 <small>元起</small></div>
+      <div class="tier-desc">要完整发包给施工队、照着图纸开工？</div>
+      <ul class="tier-includes">
+        <li>土建 / 挡土墙 / 构筑物</li>
+        <li>给排水 / 电气系统</li>
+        <li>植物配置 / 铺装 / 灯光</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>按项目面积 / 复杂度定价</li>
+      </ul>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="6000" data-tier="全套施工图">选这个，去付款</a>
+    </div>
   </div>
 </section>
 
@@ -418,6 +513,9 @@
       <span class="tier-tab active" data-amount="9.9" data-tier="轻判断">9.9 轻判断</span>
       <span class="tier-tab" data-amount="199" data-tier="方向建议">199 方向建议</span>
       <span class="tier-tab" data-amount="499" data-tier="方案骨架">499 方案骨架</span>
+      <span class="tier-tab" data-amount="2000" data-tier="硬化前落地定位图">2000 落地定位图</span>
+      <span class="tier-tab" data-amount="4000" data-tier="方案深化">4000 深化</span>
+      <span class="tier-tab" data-amount="6000" data-tier="全套施工图">6000 施工图</span>
     </div>
 
     <div class="pay-box">
@@ -450,7 +548,8 @@
     <div style="margin-top:2rem;padding:16px;background:var(--surface);border-radius:var(--radius-sm);text-align:left;">
       <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;">
         <strong>⚠️ 注意：</strong><br>
-        · 付款金额必须与你选的档位一致（9.9 / 199 / 499）<br>
+        · 付款金额必须与你选的档位一致（9.9 / 199 / 499 / 2000 / 4000 / 6000）<br>
+        · 设计档（2000/4000/6000 起）按面积和复杂度定价，付款前先加微信确认最终金额<br>
         · 付款后不加微信、不发资料的，视为自动放弃，不退款<br>
         · 设计是定制服务，出稿前可退，出稿后不退不改<br>
         · 加好友时请备注「院子」，否则可能不通过
@@ -480,14 +579,21 @@
   <div class="faq-item">
     <h3>499 做完骨架，还能继续深化吗？</h3>
     <div class="faq-answer">
-      可以。骨架出完后你觉得方向对了、想要全套施工图，按项目另报价。做过 499 的客户深化有优先排期。
+      可以。499 的费用可抵入「硬化前落地定位图」（2000 元起），补差价升级，赶在浇筑混凝土前把分区尺寸、排水走向、水电预埋点位一次定死。想往全套施工图走也可以，按项目报价。
     </div>
   </div>
 
   <div class="faq-item">
     <h3>图纸能直接给施工队用吗？</h3>
     <div class="faq-answer">
-      499 方案的图纸是方向性的，施工队能看懂整体布局。需要可施工图纸（排水、竖向、大样）需升级到全套施工图。
+      499 骨架是方向性的，师傅能看懂整体布局。要直接照图施工（分区尺寸 + 排水走向 + 水电预埋点位 + 入口标高），做「硬化前落地定位图」（2000 元起）。
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <h3>场地已经整平、马上要浇筑混凝土，该买哪个？</h3>
+    <div class="faq-answer">
+      你这个阶段是定水电预埋的关键节点——一旦浇筑，预埋点位就再也改不了了。建议直接做「硬化前落地定位图」（2000 元起）：分区尺寸 + 排水走向 + 水电预埋点位 + 入口标高一次画齐，图纸给师傅就能干。方向还没定的，可以先做 499 骨架，再补差价升级。
     </div>
   </div>
 
