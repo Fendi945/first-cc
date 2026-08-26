@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大一造园 · 把院子变成你想要的样子</title>
+<meta name="description" content="大一造园 · 庭院设计：9.9 轻判断 / 199 方向建议 / 499 方案骨架，硬化前落地定位图 2000 元起（分区尺寸+排水走向+水电预埋点位），方案深化 4000、全套施工图 6000 元起。纯设计出图，本地找施工队落地。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;600;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ---- 产品页专属样式 ---- */
+.product-hero {
+  padding: 120px 24px 60px;
+  text-align: center;
+  background: linear-gradient(180deg, var(--accent-subtle) 0%, transparent 100%);
+}
+.product-hero h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.3;
+  margin-bottom: 1rem;
+}
+.product-hero h1 em { color: var(--esther-orange); font-style: normal; }
+.product-hero .subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 500px;
+  margin: 0 auto 2rem;
+  line-height: 1.8;
+}
+.product-hero .tagline {
+  font-family: var(--font-cursive);
+  font-size: 1.2rem;
+  color: var(--esther-blue);
+}
+
+/* ---- 产品卡片 ---- */
+.tiers { padding: 40px 24px 60px; }
+.tiers-grid {
+  max-width: var(--wrap-w-narrow);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--card-gap);
+}
+.tier-card {
+  background: var(--surface);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-card);
+  padding: 32px 24px 24px;
+  transition: var(--ease);
+  position: relative;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+.tier-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+  border-color: var(--esther-yellow);
+}
+.tier-card .price {
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--esther-orange);
+  line-height: 1;
+  margin: 12px 0;
+}
+.tier-card .price small {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+.tier-card .tier-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.tier-card .tier-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin: 12px 0;
+}
+.tier-card .tier-includes {
+  text-align: left;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  padding: 0 4px;
+  flex: 1;
+}
+.tier-card .tier-includes li {
+  list-style: none;
+  padding-left: 18px;
+  position: relative;
+}
+.tier-card .tier-includes li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  color: var(--esther-yellow);
+  font-weight: 700;
+}
+.tier-card .tier-excludes {
+  text-align: left;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.8;
+  padding: 8px 4px 0;
+  border-top: 1px dashed var(--border);
+  margin-top: 12px;
+}
+.tier-card .tier-excludes li {
+  list-style: none;
+  padding-left: 18px;
+  position: relative;
+}
+.tier-card .tier-excludes li::before {
+  content: "\2717";
+  position: absolute;
+  left: 0;
+  color: #ccc;
+}
+.tier-popular {
+  border-color: var(--esther-yellow) !important;
+  box-shadow: 0 0 0 2px var(--accent-subtle);
+}
+.tier-badge-slot {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.tier-card .badge {
+  display: inline-block;
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: var(--radius-pill);
+}
+.tier-popular .badge {
+  background: var(--esther-yellow);
+  color: var(--text);
+}
+/* ---- 付款按钮 ---- */
+.tier-pay-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 0;
+  margin-top: 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: var(--ease-quick);
+  text-align: center;
+  text-decoration: none;
+}
+.tier-pay-btn:hover { transform: translateY(-2px); }
+.btn-pay-popular {
+  background: var(--esther-yellow);
+  color: var(--text);
+}
+.btn-pay-popular:hover { background: var(--accent-hover); }
+.btn-pay-normal {
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+}
+.btn-pay-normal:hover { background: var(--esther-yellow); color: var(--text); }
+
+/* ---- 收款区 ---- */
+.pay-zone {
+  padding: 60px 24px 80px;
+  background: var(--surface-alt);
+  text-align: center;
+}
+.pay-zone .wrap { max-width: 500px; margin: 0 auto; }
+.pay-zone h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+.pay-zone .pay-sub {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+.pay-box {
+  background: var(--surface);
+  border: 2px solid var(--esther-yellow);
+  border-radius: var(--radius-card);
+  padding: 28px 24px;
+}
+.pay-box .pay-amount {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--esther-orange);
+  font-weight: 700;
+  margin: 8px 0;
+  min-height: 3rem;
+}
+.pay-box img {
+  width: 180px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.pay-steps {
+  text-align: left;
+  max-width: 320px;
+  margin: 20px auto 0;
+}
+.pay-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin: 10px 0;
+  line-height: 1.5;
+}
+.pay-step .ps-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--esther-yellow);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.pay-step strong { color: var(--text); }
+
+/* ---- 档位选择器 ---- */
+.tier-selector {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.tier-tab {
+  padding: 8px 20px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: var(--ease-quick);
+  color: var(--text-secondary);
+}
+.tier-tab:hover { border-color: var(--esther-yellow); }
+.tier-tab.active {
+  background: var(--esther-yellow);
+  border-color: var(--esther-yellow);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---- FAQ ---- */
+.faq {
+  padding: 60px 24px;
+  max-width: var(--wrap-w-narrow);
+  margin: 0 auto;
+}
+.faq h2 {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0;
+}
+.faq-item h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.faq-item h3::after {
+  content: "+";
+  font-size: 1.2rem;
+  color: var(--text-muted);
+}
+.faq-item.open h3::after { content: "\2212"; }
+.faq-item .faq-answer {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  padding-top: 10px;
+  display: none;
+}
+.faq-item.open .faq-answer { display: block; }
+
+/* ---- 设计服务区 ---- */
+.design-section {
+  padding: 60px 24px 80px;
+  background: var(--surface-alt);
+}
+.design-section .design-head {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.design-section .design-head h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+.design-section .design-head p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.tier-note {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  text-align: left;
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: var(--accent-subtle);
+  border-radius: var(--radius-sm);
+  line-height: 1.6;
+}
+.tier-note a { color: inherit; text-decoration: underline; }
+
+/* ---- 底部 ---- */
+.product-footer {
+  text-align: center;
+  padding: 40px 24px;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ---- 移动端适配 ---- */
+@media (max-width: 640px) {
+  .tiers-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- 鼠标辉光 -->
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<!-- ============ HERO ============ -->
+<section class="product-hero">
+  <p class="tagline fade-up">大一造园</p>
+  <h1 class="fade-up">把你的院子<br>变成<em>你想要的样子</em></h1>
+  <p class="subtitle fade-up">
+    10万以上项目可安排差旅，差旅费业主承担。施工请进一步私聊。<br>
+    先判断值不值得做，再看往哪走，最后出方案骨架。
+  </p>
+  <div class="fade-up" style="margin-top:1.5rem;">
+    <a href="#tiers" class="btn btn-primary">看产品和价格</a>
+    <a href="#pay" class="btn btn-outline" style="margin-left:8px;">直接付款下单</a>
+  </div>
+</section>
+
+<!-- ============ 产品 ============ -->
+<section class="tiers" id="tiers">
+  <div class="tiers-grid">
+    <!-- 9.9 元 -->
+    <div class="tier-card fade-up">
+      <div class="tier-badge-slot"><span class="badge">一句话诊断</span></div>
+      <div class="tier-name">🧐 轻判断</div>
+      <div class="price">9.9 <small>元</small></div>
+      <div class="tier-desc">你的院子值不值得折腾？</div>
+      <ul class="tier-includes">
+        <li>发照片 + 面积，我告诉你值不值得做</li>
+        <li>一句话方向判断</li>
+        <li>24 小时内回复</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>不含具体方案</li>
+        <li>不含图纸</li>
+      </ul>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="9.9" data-tier="轻判断">选这个，去付款</a>
+    </div>
+
+    <!-- 199 元 -->
+    <div class="tier-card fade-up">
+      <div class="tier-badge-slot"><span class="badge">🔥 方向梳理</span></div>
+      <div class="tier-name">🗺️ 方向建议</div>
+      <div class="price">199 <small>元</small></div>
+      <div class="tier-desc">你的院子应该往哪个方向走？</div>
+      <ul class="tier-includes">
+        <li>看完照片 + 面积 + 需求，出文字诊断</li>
+        <li>风格定位、分区建议、动线思路</li>
+        <li>哪些能做、哪些不建议做</li>
+        <li>1 次线上沟通（约 30 分钟）</li>
+        <li>48 小时内交付</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>不含平面图/施工图</li>
+        <li>不含材料清单</li>
+      </ul>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="199" data-tier="方向建议">选这个，去付款</a>
+    </div>
+
+    <!-- 499 元 -->
+    <div class="tier-card tier-popular fade-up">
+      <div class="tier-badge-slot"><span class="badge">🔥 最受欢迎</span></div>
+      <div class="tier-name">📐 方案骨架</div>
+      <div class="price">499 <small>元</small></div>
+      <div class="tier-desc">骨架怎么搭？空间布局 + 方向</div>
+      <ul class="tier-includes">
+        <li>空间布局骨架图（平面布局方向）</li>
+        <li>整体风格方向 + 参考意向</li>
+        <li>材料类型建议（铺装/植物/构筑物）</li>
+        <li>1 次线上沟通（约 60 分钟）</li>
+        <li>5 个工作日内交付</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>不含施工图/排水图</li>
+        <li>不含竖向高差推敲</li>
+        <li>不含施工落地指导</li>
+        <li>不含水电预埋点位规划</li>
+      </ul>
+      <p class="tier-note">适合方向还没定的业主。<br>硬化前自建房 → 直接做 <a href="#design">「硬化前落地定位图」</a>（499 可抵差价升级）</p>
+      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="499" data-tier="方案骨架">选这个，去付款</a>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:2rem;max-width:600px;margin-left:auto;margin-right:auto;">
+    <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.6;">
+      💡 <strong>要落地、要能直接给师傅用？</strong><br>
+      硬化前自建房 → 直接做 <a href="#design" style="color:inherit;">「硬化前落地定位图」</a>（分区尺寸 + 排水走向 + 水电预埋点位 + 入口标高）。<br>
+      做过 499 骨架的，升级可抵差价。<br>
+      标准庭院设计 2000 元起。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 设计服务 ============ -->
+<section class="design-section" id="design">
+  <div class="design-head">
+    <h2>设计服务 · 要落地、要出图</h2>
+    <p>上面的咨询档帮你定「方向」；下面这三档帮你把「落地」做出来——图纸直接给施工师傅用。</p>
+  </div>
+  <div class="tiers-grid">
+    <!-- 硬化前落地定位图 2000 -->
+    <div class="tier-card tier-popular fade-up">
+      <div class="tier-badge-slot"><span class="badge">🔥 硬化前必做</span></div>
+      <div class="tier-name">📐 硬化前落地定位图</div>
+      <div class="price">2000 <small>元起</small></div>
+      <div class="tier-desc">浇筑前定好分区、排水、水电预埋，避免返工。</div>
+      <ul class="tier-includes">
+        <li>带尺寸平面布局图（分区 / 停车 / 休闲 / 菜园 / 绿化）</li>
+        <li>排水走向 + 坡度方向标注</li>
+        <li>户外水电预埋点位规划</li>
+        <li>院门 / 入口标高关系</li>
+        <li>图纸师傅能直接照图施工</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>不含效果图</li>
+        <li>不含全套施工图（节点大样另议）</li>
+      </ul>
+      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="2000" data-tier="硬化前落地定位图">选这个，去付款</a>
+    </div>
+
+    <!-- 方案深化 4000 -->
+    <div class="tier-card fade-up">
+      <div class="tier-badge-slot"><span class="badge">看院子落成后的效果</span></div>
+      <div class="tier-name">📐 方案深化</div>
+      <div class="price">4000 <small>元起</small></div>
+      <div class="tier-desc">方向定了，想看得更细、更直观，提前看到院子长什么样？</div>
+      <ul class="tier-includes">
+        <li>空间布局逐区推敲（怎么走、哪里放什么）</li>
+        <li>SU 建模 + 效果图，提前看到院子样子</li>
+        <li>植物、材料、风格整体落位</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>不含全套施工图</li>
+      </ul>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="4000" data-tier="方案深化">选这个，去付款</a>
+    </div>
+
+    <!-- 全套施工图 6000 -->
+    <div class="tier-card fade-up">
+      <div class="tier-badge-slot"><span class="badge">指导预算·施工</span></div>
+      <div class="tier-name">📐 全套施工图</div>
+      <div class="price">6000 <small>元起</small></div>
+      <div class="tier-desc">要完整发包给施工队、照图开工？全专业图纸一次给齐。</div>
+      <ul class="tier-includes">
+        <li>土建 / 构筑物（含挡土墙）</li>
+        <li>给排水 / 电气系统</li>
+        <li>植物配置 / 铺装 / 灯光设计</li>
+        <li>全专业图纸，直接发包施工</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>100 平内参考价，复杂项目按项目报价</li>
+      </ul>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="6000" data-tier="全套施工图">选这个，去付款</a>
+    </div>
+  </div>
+
+  <p style="text-align:center;font-size:0.82rem;color:var(--text-muted);margin-top:1.5rem;line-height:1.6;">
+    以上为 100 平以内院子参考价；面积更大、更复杂的项目，主区间 1.5万–3万。设计档付款前先加微信确认最终金额。
+  </p>
+</section>
+
+<!-- ============ 付款 ============ -->
+<section class="pay-zone" id="pay">
+  <div class="wrap">
+    <h2>💳 选档位 → 扫码付款 → 发资料</h2>
+    <p class="pay-sub">先付钱，再聊需求。不闲聊，不议价，不免费咨询。</p>
+
+    <!-- 档位切换标签 -->
+    <div class="tier-selector">
+      <span class="tier-tab active" data-amount="9.9" data-tier="轻判断">9.9 轻判断</span>
+      <span class="tier-tab" data-amount="199" data-tier="方向建议">199 方向建议</span>
+      <span class="tier-tab" data-amount="499" data-tier="方案骨架">499 方案骨架</span>
+      <span class="tier-tab" data-amount="2000" data-tier="硬化前落地定位图">2000 落地定位图</span>
+      <span class="tier-tab" data-amount="4000" data-tier="方案深化">4000 深化</span>
+      <span class="tier-tab" data-amount="6000" data-tier="全套施工图">6000 施工图</span>
+    </div>
+
+    <div class="pay-box">
+      <p style="font-size:0.85rem;color:var(--text-muted);">应付金额</p>
+      <div class="pay-amount" id="payAmount">9.9 元</div>
+      <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:12px;">
+        产品：<span id="payTierName">轻判断</span>
+      </p>
+      <img src="wechat-pay.png" alt="微信收款码" style="width:160px;border-radius:var(--radius-sm);border:1px solid var(--border);">
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-top:10px;">
+        👆 扫码付款 → 加微信 fcf9999 → 发付款信息+院子资料
+      </p>
+    </div>
+
+    <div class="pay-steps">
+      <div class="pay-step">
+        <span class="ps-num">1</span>
+        <div><strong>扫收款码，付对应金额</strong><br>选好档位 → 扫码 → 输入金额 → 付款</div>
+      </div>
+      <div class="pay-step">
+        <span class="ps-num">2</span>
+        <div><strong>加微信，发付款截图 + 院子资料</strong><br>搜微信号 <strong>fcf9999</strong> 或扫码加好友<br><strong>好友申请时直接发付款信息</strong>（方便我对账）<br>通过后发送：院子照片 + 面积 + 你的想法</div>
+      </div>
+      <div class="pay-step">
+        <span class="ps-num">3</span>
+        <div><strong>等交付</strong><br>我按付款顺序处理，到你了我会主动联系</div>
+      </div>
+    </div>
+
+    <div style="margin-top:2rem;padding:16px;background:var(--surface);border-radius:var(--radius-sm);text-align:left;">
+      <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;">
+        <strong>⚠️ 注意：</strong><br>
+        · 付款金额必须与你选的档位一致（9.9 / 199 / 499 / 2000 / 4000 / 6000）<br>
+        · 设计档（2000/4000/6000 起）按面积和复杂度定价，付款前先加微信确认最终金额<br>
+        · 付款后不加微信、不发资料的，视为自动放弃，不退款<br>
+        · 设计是定制服务，出稿前可退，出稿后不退不改<br>
+        · 加好友时请备注「院子」，否则可能不通过
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq" id="faq">
+  <h2>常见问题</h2>
+
+  <div class="faq-item">
+    <h3>你在哪个城市？能接外地的吗？</h3>
+    <div class="faq-answer">
+      我远程做设计，10万以上项目可安排差旅，差旅费业主承担。施工请进一步私聊。你发照片和需求，我出图出清单，你找本地施工队落地。全国都能接。
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <h3>我不懂设计，怎么跟你说需求？</h3>
+    <div class="faq-answer">
+      发几张院子的照片、你的大概想法（想要休闲区/种菜/停车/烧烤等），剩下的我来问。不用你懂设计。
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <h3>499 做完骨架，还能继续深化吗？</h3>
+    <div class="faq-answer">
+      可以。499 的费用可抵入「硬化前落地定位图」（2000 元起），补差价升级，赶在浇筑混凝土前把分区尺寸、排水走向、水电预埋点位一次定死。想往全套施工图走也可以，按项目报价。
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <h3>图纸能直接给施工队用吗？</h3>
+    <div class="faq-answer">
+      499 骨架是方向性的，师傅能看懂整体布局。要直接照图施工（分区尺寸 + 排水走向 + 水电预埋点位 + 入口标高），做「硬化前落地定位图」（2000 元起）。
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <h3>场地已经整平、马上要浇筑混凝土，该买哪个？</h3>
+    <div class="faq-answer">
+      你这个阶段是定水电预埋的关键节点——一旦浇筑，预埋点位就再也改不了了。建议直接做「硬化前落地定位图」（2000 元起）：分区尺寸 + 排水走向 + 水电预埋点位 + 入口标高一次画齐，图纸给师傅就能干。方向还没定的，可以先做 499 骨架，再补差价升级。
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <h3>必须先付款才能聊吗？</h3>
+    <div class="faq-answer">
+      对。不闲聊不议价，先付钱再沟通。你选的档位决定了我的交付深度，付款后我会认真看你发的资料并给出对等价值的设计判断。
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="product-footer">
+  <p>&copy; 2026 大一造园 · 庭院设计咨询</p>
+  <p style="margin-top:4px;">用专业判断帮你少走弯路。施工请进一步私聊。</p>
+</footer>
+
+<script>
+/* ---- 鼠标辉光 ---- */
+(function(){
+  const glow = document.getElementById('cursorGlow');
+  if (!glow) return;
+  document.addEventListener('mousemove', function(e) {
+    glow.style.transform = 'translate(' + (e.clientX - 100) + 'px, ' + (e.clientY - 100) + 'px)';
+  });
+})();
+
+/* ---- 滚动浮现 ---- */
+(function(){
+  var els = document.querySelectorAll('.fade-up');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  els.forEach(function(el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px)';
+    el.style.transition = 'opacity .6s ease, transform .6s ease';
+    observer.observe(el);
+  });
+})();
+
+/* ---- FAQ 展开 ---- */
+(function(){
+  document.querySelectorAll('.faq-item h3').forEach(function(h3) {
+    h3.addEventListener('click', function() {
+      h3.parentElement.classList.toggle('open');
+    });
+  });
+})();
+
+/* ---- 档位切换（付款区） ---- */
+(function(){
+  var tabs = document.querySelectorAll('.tier-tab');
+  var amountDisplay = document.getElementById('payAmount');
+  var nameDisplay = document.getElementById('payTierName');
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      var amount = tab.getAttribute('data-amount');
+      var tier = tab.getAttribute('data-tier');
+      amountDisplay.textContent = amount + ' 元';
+      nameDisplay.textContent = tier;
+    });
+  });
+})();
+</script>
+</body>
+</html>
