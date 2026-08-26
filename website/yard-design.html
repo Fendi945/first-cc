@@ -129,6 +129,13 @@
   border-color: var(--esther-yellow) !important;
   box-shadow: 0 0 0 2px var(--accent-subtle);
 }
+.tier-badge-slot {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
 .tier-card .badge {
   display: inline-block;
   background: var(--surface-hover);
@@ -137,7 +144,6 @@
   font-weight: 600;
   padding: 3px 12px;
   border-radius: var(--radius-pill);
-  margin-bottom: 8px;
 }
 .tier-popular .badge {
   background: var(--esther-yellow);
@@ -372,6 +378,7 @@
   <div class="tiers-grid">
     <!-- 9.9 元 -->
     <div class="tier-card fade-up">
+      <div class="tier-badge-slot"></div>
       <div class="tier-name">🧐 轻判断</div>
       <div class="price">9.9 <small>元</small></div>
       <div class="tier-desc">你的院子值不值得折腾？</div>
@@ -389,7 +396,7 @@
 
     <!-- 199 元 -->
     <div class="tier-card fade-up">
-      <span class="badge">🔥 方向梳理</span>
+      <div class="tier-badge-slot"><span class="badge">🔥 方向梳理</span></div>
       <div class="tier-name">🗺️ 方向建议</div>
       <div class="price">199 <small>元</small></div>
       <div class="tier-desc">你的院子应该往哪个方向走？</div>
@@ -409,7 +416,7 @@
 
     <!-- 499 元 -->
     <div class="tier-card tier-popular fade-up">
-      <span class="badge">🔥 最受欢迎</span>
+      <div class="tier-badge-slot"><span class="badge">🔥 最受欢迎</span></div>
       <div class="tier-name">📐 方案骨架</div>
       <div class="price">499 <small>元</small></div>
       <div class="tier-desc">骨架怎么搭？空间布局 + 方向</div>
@@ -450,10 +457,10 @@
   <div class="tiers-grid">
     <!-- 硬化前落地定位图 2000 -->
     <div class="tier-card tier-popular fade-up">
-      <span class="badge">🔥 硬化前必做</span>
+      <div class="tier-badge-slot"><span class="badge">🔥 硬化前必做</span></div>
       <div class="tier-name">📐 硬化前落地定位图</div>
       <div class="price">2000 <small>元起</small></div>
-      <div class="tier-desc">场地整平、马上要浇筑混凝土？这一步不改，以后返工代价很大。</div>
+      <div class="tier-desc">浇筑前定好分区、排水、水电预埋，避免返工。</div>
       <ul class="tier-includes">
         <li>带尺寸平面布局图（分区 / 停车 / 休闲 / 菜园 / 绿化）</li>
         <li>排水走向 + 坡度方向标注</li>
@@ -470,13 +477,14 @@
 
     <!-- 方案深化 4000 -->
     <div class="tier-card fade-up">
+      <div class="tier-badge-slot"></div>
       <div class="tier-name">📐 方案深化</div>
       <div class="price">4000 <small>元起</small></div>
-      <div class="tier-desc">方向定了，但想看得更细、更直观，还要效果图？</div>
+      <div class="tier-desc">方向定了，想看得更细、更直观，提前看到院子长什么样？</div>
       <ul class="tier-includes">
-        <li>空间布局深化推敲</li>
-        <li>SU 建模 + 效果图</li>
-        <li>植物配置方向</li>
+        <li>空间布局逐区推敲（怎么走、哪里放什么）</li>
+        <li>SU 建模 + 效果图，提前看到院子样子</li>
+        <li>植物、材料、风格整体落位</li>
       </ul>
       <ul class="tier-excludes">
         <li>不含全套施工图</li>
@@ -486,20 +494,26 @@
 
     <!-- 全套施工图 6000 -->
     <div class="tier-card fade-up">
+      <div class="tier-badge-slot"></div>
       <div class="tier-name">📐 全套施工图</div>
       <div class="price">6000 <small>元起</small></div>
-      <div class="tier-desc">要完整发包给施工队、照着图纸开工？</div>
+      <div class="tier-desc">要完整发包给施工队、照图开工？全专业图纸一次给齐。</div>
       <ul class="tier-includes">
-        <li>土建 / 挡土墙 / 构筑物</li>
+        <li>土建 / 构筑物（含挡土墙）</li>
         <li>给排水 / 电气系统</li>
-        <li>植物配置 / 铺装 / 灯光</li>
+        <li>植物配置 / 铺装 / 灯光设计</li>
+        <li>全专业图纸，直接发包施工</li>
       </ul>
       <ul class="tier-excludes">
-        <li>按项目面积 / 复杂度定价</li>
+        <li>100 平内参考价，复杂项目按项目报价</li>
       </ul>
       <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="6000" data-tier="全套施工图">选这个，去付款</a>
     </div>
   </div>
+
+  <p style="text-align:center;font-size:0.82rem;color:var(--text-muted);margin-top:1.5rem;line-height:1.6;">
+    以上为 100 平以内院子参考价；面积更大、更复杂的项目，主区间 1.5万–3万。设计档付款前先加微信确认最终金额。
+  </p>
 </section>
 
 <!-- ============ 付款 ============ -->
