@@ -129,15 +129,19 @@
   border-color: var(--esther-yellow) !important;
   box-shadow: 0 0 0 2px var(--accent-subtle);
 }
-.tier-popular .badge {
+.tier-card .badge {
   display: inline-block;
-  background: var(--esther-yellow);
-  color: var(--text);
+  background: var(--surface-hover);
+  color: var(--text-secondary);
   font-size: 0.72rem;
   font-weight: 600;
   padding: 3px 12px;
   border-radius: var(--radius-pill);
   margin-bottom: 8px;
+}
+.tier-popular .badge {
+  background: var(--esther-yellow);
+  color: var(--text);
 }
 /* ---- 付款按钮 ---- */
 .tier-pay-btn {
@@ -323,7 +327,7 @@
   <p class="tagline fade-up">大一造园</p>
   <h1 class="fade-up">把你的院子<br>变成<em>你想要的样子</em></h1>
   <p class="subtitle fade-up">
-    不做施工。10万以上项目可安排差旅，差旅费业主承担。施工请进一步私聊。<br>
+    10万以上项目可安排差旅，差旅费业主承担。施工请进一步私聊。<br>
     先判断值不值得做，再看往哪走，最后出方案骨架。
   </p>
   <div class="fade-up" style="margin-top:1.5rem;">
@@ -353,8 +357,8 @@
     </div>
 
     <!-- 199 元 -->
-    <div class="tier-card tier-popular fade-up">
-      <span class="badge">🔥 最受欢迎</span>
+    <div class="tier-card fade-up">
+      <span class="badge">🔥 方向梳理</span>
       <div class="tier-name">🗺️ 方向建议</div>
       <div class="price">199 <small>元</small></div>
       <div class="tier-desc">你的院子应该往哪个方向走？</div>
@@ -362,17 +366,19 @@
         <li>看完照片 + 面积 + 需求，出文字诊断</li>
         <li>风格定位、分区建议、动线思路</li>
         <li>哪些能做、哪些不建议做</li>
+        <li>1 次线上沟通（约 30 分钟）</li>
         <li>48 小时内交付</li>
       </ul>
       <ul class="tier-excludes">
         <li>不含平面图/施工图</li>
         <li>不含材料清单</li>
       </ul>
-      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="199" data-tier="方向建议">选这个，去付款</a>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="199" data-tier="方向建议">选这个，去付款</a>
     </div>
 
     <!-- 499 元 -->
-    <div class="tier-card fade-up">
+    <div class="tier-card tier-popular fade-up">
+      <span class="badge">🔥 最受欢迎</span>
       <div class="tier-name">📐 方案骨架</div>
       <div class="price">499 <small>元</small></div>
       <div class="tier-desc">骨架怎么搭？空间布局 + 方向</div>
@@ -380,7 +386,7 @@
         <li>空间布局骨架图（平面布局方向）</li>
         <li>整体风格方向 + 参考意向</li>
         <li>材料类型建议（铺装/植物/构筑物）</li>
-        <li>1 次线上沟通（约 30 分钟）</li>
+        <li>1 次线上沟通（约 60 分钟）</li>
         <li>5 个工作日内交付</li>
       </ul>
       <ul class="tier-excludes">
@@ -388,7 +394,7 @@
         <li>不含竖向高差推敲</li>
         <li>不含施工落地指导</li>
       </ul>
-      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="499" data-tier="方案骨架">选这个，去付款</a>
+      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="499" data-tier="方案骨架">选这个，去付款</a>
     </div>
   </div>
 
