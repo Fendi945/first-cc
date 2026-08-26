@@ -1,8 +1,0 @@
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmbG9tby1tY3AiLCJzdWIiOiIyNjM4MjEiLCJleHAiOjE3ODQ1MjA4MzMsImlhdCI6MTc4NDUxNzIzMywianRpIjoiY2JjNzMwMWJjNTY2ZmU3ODQzMmZjMTc0MGVkMmU3NGQiLCJ1aWQiOjI2MzgyMX0.fn2C0SCMEwfquMMBXO5m-UFn5RNcO2wBrexEDJ4Jbac",
-  "expires_in": 3600,
-  "refresh_token": "e3956371f8cb0607264e573452bf21c17008570cba30236aca260e7e81fc8e9a",
-  "scope": "mcp",
-  "token_type": "Bearer",
-  "expires_at": 1784520710.2700016
-}
