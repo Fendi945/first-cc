@@ -327,6 +327,10 @@
   font-size: 0.95rem;
   line-height: 1.6;
 }
+.peipao-section {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
 .tier-note {
   font-size: 0.78rem;
   color: var(--text-secondary);
@@ -370,6 +374,7 @@
   <div class="fade-up" style="margin-top:1.5rem;">
     <a href="#tiers" class="btn btn-primary">看产品和价格</a>
     <a href="#pay" class="btn btn-outline" style="margin-left:8px;">直接付款下单</a>
+    <a href="cases.html" class="btn btn-outline" style="margin-left:8px;">看项目业绩</a>
   </div>
 </section>
 
@@ -404,7 +409,7 @@
         <li>看完照片 + 面积 + 需求，出文字诊断</li>
         <li>风格定位、分区建议、动线思路</li>
         <li>哪些能做、哪些不建议做</li>
-        <li>1 次线上沟通（约 30 分钟）</li>
+        <li>1 次线上沟通（30 分钟，超时另计）</li>
         <li>48 小时内交付</li>
       </ul>
       <ul class="tier-excludes">
@@ -424,7 +429,7 @@
         <li>空间布局骨架图（平面布局方向）</li>
         <li>整体风格方向 + 参考意向</li>
         <li>材料类型建议（铺装/植物/构筑物）</li>
-        <li>1 次线上沟通（约 60 分钟）</li>
+        <li>1 次线上沟通（60 分钟，超时另计）</li>
         <li>5 个工作日内交付</li>
       </ul>
       <ul class="tier-excludes">
@@ -441,7 +446,7 @@
   <div style="text-align:center;margin-top:2rem;max-width:600px;margin-left:auto;margin-right:auto;">
     <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.6;">
       💡 <strong>要落地、要能直接给师傅用？</strong><br>
-      硬化前自建房 → 直接做 <a href="#design" style="color:inherit;">「硬化前落地定位图」</a>（分区尺寸 + 排水走向 + 水电预埋点位 + 入口标高）。<br>
+      硬化前自建房 → 直接做 <a href="#design" style="color:inherit;">「硬化前落地定位图」</a><br>（分区尺寸 + 排水走向 + 水电预埋点位）。<br>
       做过 499 骨架的，升级可抵差价。<br>
       标准庭院设计 2000 元起。
     </p>
@@ -465,11 +470,11 @@
         <li>带尺寸平面布局图（分区 / 停车 / 休闲 / 菜园 / 绿化）</li>
         <li>排水走向 + 坡度方向标注</li>
         <li>户外水电预埋点位规划</li>
-        <li>院门 / 入口标高关系</li>
         <li>图纸师傅能直接照图施工</li>
       </ul>
       <ul class="tier-excludes">
         <li>不含效果图</li>
+        <li>不含竖向 / 标高推演</li>
         <li>不含全套施工图（节点大样另议）</li>
       </ul>
       <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="2000" data-tier="硬化前落地定位图">选这个，去付款</a>
@@ -483,6 +488,7 @@
       <div class="tier-desc">方向定了，想看得更细、更直观，提前看到院子长什么样？</div>
       <ul class="tier-includes">
         <li>空间布局逐区推敲（怎么走、哪里放什么）</li>
+        <li>竖向 / 标高推演（哪里高哪里低、台阶挡墙怎么处理）</li>
         <li>SU 建模 + 效果图，提前看到院子样子</li>
         <li>植物、材料、风格整体落位</li>
       </ul>
@@ -516,6 +522,49 @@
   </p>
 </section>
 
+<!-- ============ 施工陪跑 ============ -->
+<section class="design-section peipao-section" id="peipao">
+  <div class="design-head">
+    <h2>施工陪跑 · 图纸落地，全程把关</h2>
+    <p>从图纸交底到现场节点验收全程把关，保证你和当地施工队无障碍沟通。施工队的手艺我们管不了，但「图怎么落地」这件事，我们陪到底。</p>
+  </div>
+  <div class="tiers-grid">
+    <!-- 4999 -->
+    <div class="tier-card fade-up">
+      <div class="tier-badge-slot"><span class="badge">轻版</span></div>
+      <div class="tier-name">🤝 4999 轻版陪跑</div>
+      <div class="price">4999 <small>元</small></div>
+      <div class="tier-desc">SU 视觉模型 + 陪跑 3 个月</div>
+      <ul class="tier-includes">
+        <li>SU 视觉模型，先看清院子长什么样</li>
+        <li>陪跑 3 个月：2 次远程视频 + 不限次咨询</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>不含施工图</li>
+      </ul>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="4999" data-tier="轻版陪跑">选这个，去付款</a>
+    </div>
+
+    <!-- 9999 -->
+    <div class="tier-card tier-popular fade-up">
+      <div class="tier-badge-slot"><span class="badge">🔥 全版 · 到场盯工</span></div>
+      <div class="tier-name">🤝 9999 全版陪跑</div>
+      <div class="price">9999 <small>元</small></div>
+      <div class="tier-desc">全套施工图 + 陪跑 3 个月</div>
+      <ul class="tier-includes">
+        <li>全套施工图，直接发包施工</li>
+        <li>陪跑 3 个月：2 次远程 + 不限次咨询</li>
+        <li>3 次到场盯工（放线 / 骨架 / 种植）</li>
+      </ul>
+      <ul class="tier-excludes">
+        <li>按项目面积 / 复杂度确认</li>
+      </ul>
+      <p class="tier-note">💡 499 方案骨架费可全额抵扣陪跑</p>
+      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="9999" data-tier="全版陪跑">选这个，去付款</a>
+    </div>
+  </div>
+</section>
+
 <!-- ============ 付款 ============ -->
 <section class="pay-zone" id="pay">
   <div class="wrap">
@@ -530,6 +579,8 @@
       <span class="tier-tab" data-amount="2000" data-tier="硬化前落地定位图">2000 落地定位图</span>
       <span class="tier-tab" data-amount="4000" data-tier="方案深化">4000 深化</span>
       <span class="tier-tab" data-amount="6000" data-tier="全套施工图">6000 施工图</span>
+      <span class="tier-tab" data-amount="4999" data-tier="轻版陪跑">4999 轻版陪跑</span>
+      <span class="tier-tab" data-amount="9999" data-tier="全版陪跑">9999 全版陪跑</span>
     </div>
 
     <div class="pay-box">
@@ -562,8 +613,8 @@
     <div style="margin-top:2rem;padding:16px;background:var(--surface);border-radius:var(--radius-sm);text-align:left;">
       <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;">
         <strong>⚠️ 注意：</strong><br>
-        · 付款金额必须与你选的档位一致（9.9 / 199 / 499 / 2000 / 4000 / 6000）<br>
-        · 设计档（2000/4000/6000 起）按面积和复杂度定价，付款前先加微信确认最终金额<br>
+        · 付款金额必须与你选的档位一致（9.9 / 199 / 499 / 2000 / 4000 / 6000 / 4999 / 9999）<br>
+        · 设计/陪跑档（2000 起 / 4999 起）按面积和复杂度定价，付款前先加微信确认最终金额<br>
         · 付款后不加微信、不发资料的，视为自动放弃，不退款<br>
         · 设计是定制服务，出稿前可退，出稿后不退不改<br>
         · 加好友时请备注「院子」，否则可能不通过
@@ -600,14 +651,21 @@
   <div class="faq-item">
     <h3>图纸能直接给施工队用吗？</h3>
     <div class="faq-answer">
-      499 骨架是方向性的，师傅能看懂整体布局。要直接照图施工（分区尺寸 + 排水走向 + 水电预埋点位 + 入口标高），做「硬化前落地定位图」（2000 元起）。
+      499 骨架是方向性的，师傅能看懂整体布局。要直接照图施工（分区尺寸 + 排水走向 + 水电预埋点位），做「硬化前落地定位图」（2000 元起）。
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <h3>施工陪跑是干什么的？</h3>
+    <div class="faq-answer">
+      从图纸交底到现场节点验收全程把关，保证你和当地施工队无障碍沟通——施工队的手艺我们管不了，但「图怎么落地」这件事，我们陪到底。4999 轻版（SU 视觉模型 + 陪跑 3 个月，2 次远程视频 + 不限次咨询，不含施工图）；9999 全版（全套施工图 + 陪跑 3 个月 + 3 次到场盯工：放线 / 骨架 / 种植）。499 方案骨架费可全额抵扣陪跑。
     </div>
   </div>
 
   <div class="faq-item">
     <h3>场地已经整平、马上要浇筑混凝土，该买哪个？</h3>
     <div class="faq-answer">
-      你这个阶段是定水电预埋的关键节点——一旦浇筑，预埋点位就再也改不了了。建议直接做「硬化前落地定位图」（2000 元起）：分区尺寸 + 排水走向 + 水电预埋点位 + 入口标高一次画齐，图纸给师傅就能干。方向还没定的，可以先做 499 骨架，再补差价升级。
+      你这个阶段是定水电预埋的关键节点——一旦浇筑，预埋点位就再也改不了了。建议直接做「硬化前落地定位图」（2000 元起）：分区尺寸 + 排水走向 + 水电预埋点位一次定好，图纸给师傅就能干。方向还没定的，可以先做 499 骨架，再补差价升级。
     </div>
   </div>
 
