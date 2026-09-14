@@ -3,11 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>大一造园 · 把院子变成你想要的样子</title>
+<title>服务与报价 · 大一造园</title>
 <meta name="description" content="大一造园 · 庭院设计：9.9 轻判断 / 199 方向建议 / 499 方案骨架，硬化前落地定位图 2000 元起（分区尺寸+排水走向+水电预埋点位），方案深化 4000、全套施工图 6000 元起。纯设计出图，本地找施工队落地。">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;600;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
 /* ---- 产品页专属样式 ---- */
@@ -87,7 +84,7 @@
 }
 .tier-card .tier-includes {
   text-align: left;
-  font-size: 0.84rem;
+  font-size:0.875rem;
   color: var(--text-muted);
   line-height: 1.8;
   padding: 0 4px;
@@ -107,7 +104,7 @@
 }
 .tier-card .tier-excludes {
   text-align: left;
-  font-size: 0.82rem;
+  font-size:0.875rem;
   color: var(--text-dim);
   line-height: 1.8;
   padding: 8px 4px 0;
@@ -140,7 +137,7 @@
   display: inline-block;
   background: var(--surface-hover);
   color: var(--text-secondary);
-  font-size: 0.72rem;
+  font-size:0.875rem;
   font-weight: 600;
   padding: 3px 12px;
   border-radius: var(--radius-pill);
@@ -209,10 +206,36 @@
   min-height: 3rem;
 }
 .pay-box img {
-  width: 180px;
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  height: auto;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
 }
+.pay-merchant {
+  margin: 20px 0 14px;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+.pay-merchant span {
+  display: block;
+  color: var(--text-muted);
+  font-size:0.875rem;
+}
+.pay-code-link { display: block; }
+.pay-code-enlarge {
+  display: block;
+  margin-top: 12px;
+  font-size:0.875rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.payment-lightbox .lightbox-counter,
+.payment-lightbox .lightbox-prev,
+.payment-lightbox .lightbox-next { display: none; }
+.payment-lightbox .lightbox-toolbar { justify-content: flex-end; }
+.payment-lightbox .lightbox-bottom { display: block; }
 .pay-steps {
   text-align: left;
   max-width: 320px;
@@ -233,7 +256,7 @@
   background: var(--esther-yellow);
   color: var(--text);
   font-weight: 700;
-  font-size: 0.78rem;
+  font-size:0.875rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -332,7 +355,7 @@
   border-top: 1px solid var(--border);
 }
 .tier-note {
-  font-size: 0.78rem;
+  font-size:0.875rem;
   color: var(--text-secondary);
   text-align: left;
   margin-top: 10px;
@@ -348,7 +371,7 @@
   text-align: center;
   padding: 40px 24px;
   color: var(--text-dim);
-  font-size: 0.82rem;
+  font-size:0.875rem;
   border-top: 1px solid var(--border);
 }
 
@@ -357,35 +380,55 @@
   .tiers-grid { grid-template-columns: 1fr; }
 }
 </style>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="studio.css">
+<script src="studio.js" defer></script><link rel="canonical" href="https://fendi945.github.io/first-cc/yard-design.html">
+<meta property="og:url" content="https://fendi945.github.io/first-cc/yard-design.html">
+<meta property="og:image" content="https://fendi945.github.io/first-cc/assets/cases/jiangdi-render.jpg">
 </head>
-<body>
+<body class="service-page">
+<a class="skip-link" href="#main">跳到正文</a>
+<header class="site-header">
+<a class="brand" href="index.html" aria-label="大一造园首页"><span class="brand-mark" aria-hidden="true">大<br>一</span><span><strong>大一造园</strong><small>奥纳园林 · DAYI LANDSCAPE</small></span></a>
+<button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">菜单 <span aria-hidden="true">＋</span></button>
+<nav class="site-nav" id="site-nav" aria-label="主导航">
+<a href="cases.html">作品</a>
+<a href="index.html#about">关于</a>
+<a href="yard-design.html" aria-current="page">服务与报价</a>
+<a href="index.html#contact">联系</a>
+</nav>
+</header>
+<main id="main">
 
 <!-- 鼠标辉光 -->
-<div class="cursor-glow" id="cursorGlow"></div>
+
 
 <!-- ============ HERO ============ -->
-<section class="product-hero">
-  <p class="tagline fade-up">大一造园</p>
-  <h1 class="fade-up">把你的院子<br>变成<em>你想要的样子</em></h1>
-  <p class="subtitle fade-up">
-    10万以上项目可安排差旅，差旅费业主承担。施工请进一步私聊。<br>
-    先判断值不值得做，再看往哪走，最后出方案骨架。
-  </p>
-  <div class="fade-up" style="margin-top:1.5rem;">
-    <a href="#tiers" class="btn btn-primary">看产品和价格</a>
-    <a href="#pay" class="btn btn-outline" style="margin-left:8px;">直接付款下单</a>
-    <a href="cases.html" class="btn btn-outline" style="margin-left:8px;">看项目业绩</a>
-  </div>
+<section class="service-hero section-shell">
+<p class="eyebrow">SERVICES / 合作方式</p>
+<h1>从一个判断开始，<br>一步一步把院子做好。</h1>
+<p>咨询、设计、施工陪跑。<br>根据院子目前的阶段，选择需要的支持。</p>
+<div class="service-shortcuts">
+<a href="#tiers">01 设计咨询 ↓</a>
+<a href="#design">02 庭院设计 ↓</a>
+<a href="#peipao">03 施工陪跑 ↓</a>
+</div>
 </section>
 
 <!-- ============ 产品 ============ -->
 <section class="tiers" id="tiers">
+<div class="design-head">
+<p class="eyebrow">01 / CONSULTATION</p>
+<h2>设计咨询 · 先把方向想清楚</h2>
+</div>
   <div class="tiers-grid">
     <!-- 9.9 元 -->
     <div class="tier-card fade-up">
-      <div class="tier-badge-slot"><span class="badge">一句话诊断</span></div>
-      <div class="tier-name">🧐 轻判断</div>
-      <div class="price">9.9 <small>元</small></div>
+      <div class="tier-badge-slot"><span class="badge">一句话诊断</span>
+</div>
+      <div class="tier-name"> 轻判断</div>
+      <div class="price">9.9 <small>元</small>
+</div>
       <div class="tier-desc">你的院子值不值得折腾？</div>
       <ul class="tier-includes">
         <li>发照片 + 面积，我告诉你值不值得做</li>
@@ -396,14 +439,16 @@
         <li>不含具体方案</li>
         <li>不含图纸</li>
       </ul>
-      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="9.9" data-tier="轻判断">选这个，去付款</a>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="9.9" data-tier="轻判断">选择这项服务 ↗</a>
     </div>
 
     <!-- 199 元 -->
     <div class="tier-card fade-up">
-      <div class="tier-badge-slot"><span class="badge">🔥 方向梳理</span></div>
-      <div class="tier-name">🗺️ 方向建议</div>
-      <div class="price">199 <small>元</small></div>
+      <div class="tier-badge-slot"><span class="badge"> 方向梳理</span>
+</div>
+      <div class="tier-name"> 方向建议</div>
+      <div class="price">199 <small>元</small>
+</div>
       <div class="tier-desc">你的院子应该往哪个方向走？</div>
       <ul class="tier-includes">
         <li>看完照片 + 面积 + 需求，出文字诊断</li>
@@ -416,14 +461,16 @@
         <li>不含平面图/施工图</li>
         <li>不含材料清单</li>
       </ul>
-      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="199" data-tier="方向建议">选这个，去付款</a>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="199" data-tier="方向建议">选择这项服务 ↗</a>
     </div>
 
     <!-- 499 元 -->
     <div class="tier-card tier-popular fade-up">
-      <div class="tier-badge-slot"><span class="badge">🔥 最受欢迎</span></div>
-      <div class="tier-name">📐 方案骨架</div>
-      <div class="price">499 <small>元</small></div>
+      <div class="tier-badge-slot"><span class="badge"> 最受欢迎</span>
+</div>
+      <div class="tier-name"> 方案骨架</div>
+      <div class="price">499 <small>元</small>
+</div>
       <div class="tier-desc">骨架怎么搭？空间布局 + 方向</div>
       <ul class="tier-includes">
         <li>空间布局骨架图（平面布局方向）</li>
@@ -439,13 +486,13 @@
         <li>不含水电预埋点位规划</li>
       </ul>
       <p class="tier-note">适合方向还没定的业主。<br>硬化前自建房 → 直接做 <a href="#design">「硬化前落地定位图」</a>（499 可抵差价升级）</p>
-      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="499" data-tier="方案骨架">选这个，去付款</a>
+      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="499" data-tier="方案骨架">选择这项服务 ↗</a>
     </div>
   </div>
 
   <div style="text-align:center;margin-top:2rem;max-width:600px;margin-left:auto;margin-right:auto;">
     <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.6;">
-      💡 <strong>要落地、要能直接给师傅用？</strong><br>
+       <strong>要落地、要能直接给师傅用？</strong><br>
       硬化前自建房 → 直接做 <a href="#design" style="color:inherit;">「硬化前落地定位图」</a><br>（分区尺寸 + 排水走向 + 水电预埋点位）。<br>
       做过 499 骨架的，升级可抵差价。<br>
       标准庭院设计 2000 元起。
@@ -462,9 +509,11 @@
   <div class="tiers-grid">
     <!-- 硬化前落地定位图 2000 -->
     <div class="tier-card tier-popular fade-up">
-      <div class="tier-badge-slot"><span class="badge">🔥 硬化前必做</span></div>
-      <div class="tier-name">📐 硬化前落地定位图</div>
-      <div class="price">2000 <small>元起</small></div>
+      <div class="tier-badge-slot"><span class="badge"> 硬化前必做</span>
+</div>
+      <div class="tier-name"> 硬化前落地定位图</div>
+      <div class="price">2000 <small>元起</small>
+</div>
       <div class="tier-desc">浇筑前定好分区、排水、水电预埋，避免返工。</div>
       <ul class="tier-includes">
         <li>带尺寸平面布局图（分区 / 停车 / 休闲 / 菜园 / 绿化）</li>
@@ -477,14 +526,16 @@
         <li>不含竖向 / 标高推演</li>
         <li>不含全套施工图（节点大样另议）</li>
       </ul>
-      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="2000" data-tier="硬化前落地定位图">选这个，去付款</a>
+      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="2000" data-tier="硬化前落地定位图">选择这项服务 ↗</a>
     </div>
 
     <!-- 方案深化 4000 -->
     <div class="tier-card fade-up">
-      <div class="tier-badge-slot"><span class="badge">看院子落成后的效果</span></div>
-      <div class="tier-name">📐 方案深化</div>
-      <div class="price">4000 <small>元起</small></div>
+      <div class="tier-badge-slot"><span class="badge">看院子落成后的效果</span>
+</div>
+      <div class="tier-name"> 方案深化</div>
+      <div class="price">4000 <small>元起</small>
+</div>
       <div class="tier-desc">方向定了，想看得更细、更直观，提前看到院子长什么样？</div>
       <ul class="tier-includes">
         <li>空间布局逐区推敲（怎么走、哪里放什么）</li>
@@ -495,14 +546,16 @@
       <ul class="tier-excludes">
         <li>不含全套施工图</li>
       </ul>
-      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="4000" data-tier="方案深化">选这个，去付款</a>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="4000" data-tier="方案深化">选择这项服务 ↗</a>
     </div>
 
     <!-- 全套施工图 6000 -->
     <div class="tier-card fade-up">
-      <div class="tier-badge-slot"><span class="badge">指导预算·施工</span></div>
-      <div class="tier-name">📐 全套施工图</div>
-      <div class="price">6000 <small>元起</small></div>
+      <div class="tier-badge-slot"><span class="badge">指导预算·施工</span>
+</div>
+      <div class="tier-name"> 全套施工图</div>
+      <div class="price">6000 <small>元起</small>
+</div>
       <div class="tier-desc">要完整发包给施工队、照图开工？全专业图纸一次给齐。</div>
       <ul class="tier-includes">
         <li>土建 / 构筑物（含挡土墙）</li>
@@ -513,11 +566,11 @@
       <ul class="tier-excludes">
         <li>100 平内参考价，复杂项目按项目报价</li>
       </ul>
-      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="6000" data-tier="全套施工图">选这个，去付款</a>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="6000" data-tier="全套施工图">选择这项服务 ↗</a>
     </div>
   </div>
 
-  <p style="text-align:center;font-size:0.82rem;color:var(--text-muted);margin-top:1.5rem;line-height:1.6;">
+  <p style="text-align:center;font-size:0.875rem;color:var(--text-muted);margin-top:1.5rem;line-height:1.6;">
     以上为 100 平以内院子参考价；面积更大、更复杂的项目，主区间 1.5万–3万。设计档付款前先加微信确认最终金额。
   </p>
 </section>
@@ -531,9 +584,11 @@
   <div class="tiers-grid">
     <!-- 4999 -->
     <div class="tier-card fade-up">
-      <div class="tier-badge-slot"><span class="badge">轻版</span></div>
-      <div class="tier-name">🤝 4999 轻版陪跑</div>
-      <div class="price">4999 <small>元</small></div>
+      <div class="tier-badge-slot"><span class="badge">轻版</span>
+</div>
+      <div class="tier-name"> 4999 轻版陪跑</div>
+      <div class="price">4999 <small>元</small>
+</div>
       <div class="tier-desc">SU 视觉模型 + 陪跑 3 个月</div>
       <ul class="tier-includes">
         <li>SU 视觉模型，先看清院子长什么样</li>
@@ -542,14 +597,16 @@
       <ul class="tier-excludes">
         <li>不含施工图</li>
       </ul>
-      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="4999" data-tier="轻版陪跑">选这个，去付款</a>
+      <a href="#pay" class="tier-pay-btn btn-pay-normal" data-amount="4999" data-tier="轻版陪跑">选择这项服务 ↗</a>
     </div>
 
     <!-- 9999 -->
     <div class="tier-card tier-popular fade-up">
-      <div class="tier-badge-slot"><span class="badge">🔥 全版 · 到场盯工</span></div>
-      <div class="tier-name">🤝 9999 全版陪跑</div>
-      <div class="price">9999 <small>元</small></div>
+      <div class="tier-badge-slot"><span class="badge"> 全版 · 到场盯工</span>
+</div>
+      <div class="tier-name"> 9999 全版陪跑</div>
+      <div class="price">9999 <small>元</small>
+</div>
       <div class="tier-desc">全套施工图 + 陪跑 3 个月</div>
       <ul class="tier-includes">
         <li>全套施工图，直接发包施工</li>
@@ -559,8 +616,8 @@
       <ul class="tier-excludes">
         <li>按项目面积 / 复杂度确认</li>
       </ul>
-      <p class="tier-note">💡 499 方案骨架费可全额抵扣陪跑</p>
-      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="9999" data-tier="全版陪跑">选这个，去付款</a>
+      <p class="tier-note"> 499 方案骨架费可全额抵扣陪跑</p>
+      <a href="#pay" class="tier-pay-btn btn-pay-popular" data-amount="9999" data-tier="全版陪跑">选择这项服务 ↗</a>
     </div>
   </div>
 </section>
@@ -568,41 +625,45 @@
 <!-- ============ 付款 ============ -->
 <section class="pay-zone" id="pay">
   <div class="wrap">
-    <h2>💳 选档位 → 扫码付款 → 发资料</h2>
+    <h2> 选档位 → 扫码付款 → 发资料</h2>
     <p class="pay-sub">先付钱，再聊需求。不闲聊，不议价，不免费咨询。</p>
 
     <!-- 档位切换标签 -->
     <div class="tier-selector">
-      <span class="tier-tab active" data-amount="9.9" data-tier="轻判断">9.9 轻判断</span>
-      <span class="tier-tab" data-amount="199" data-tier="方向建议">199 方向建议</span>
-      <span class="tier-tab" data-amount="499" data-tier="方案骨架">499 方案骨架</span>
-      <span class="tier-tab" data-amount="2000" data-tier="硬化前落地定位图">2000 落地定位图</span>
-      <span class="tier-tab" data-amount="4000" data-tier="方案深化">4000 深化</span>
-      <span class="tier-tab" data-amount="6000" data-tier="全套施工图">6000 施工图</span>
-      <span class="tier-tab" data-amount="4999" data-tier="轻版陪跑">4999 轻版陪跑</span>
-      <span class="tier-tab" data-amount="9999" data-tier="全版陪跑">9999 全版陪跑</span>
+      <button type="button" class="tier-tab active" data-amount="9.9" data-tier="轻判断">9.9 轻判断</button>
+      <button type="button" class="tier-tab" data-amount="199" data-tier="方向建议">199 方向建议</button>
+      <button type="button" class="tier-tab" data-amount="499" data-tier="方案骨架">499 方案骨架</button>
+      <button type="button" class="tier-tab" data-amount="2000" data-tier="硬化前落地定位图">2000 落地定位图</button>
+      <button type="button" class="tier-tab" data-amount="4000" data-tier="方案深化">4000 深化</button>
+      <button type="button" class="tier-tab" data-amount="6000" data-tier="全套施工图">6000 施工图</button>
+      <button type="button" class="tier-tab" data-amount="4999" data-tier="轻版陪跑">4999 轻版陪跑</button>
+      <button type="button" class="tier-tab" data-amount="9999" data-tier="全版陪跑">9999 全版陪跑</button>
     </div>
 
     <div class="pay-box">
-      <p style="font-size:0.85rem;color:var(--text-muted);">应付金额</p>
+      <p style="font-size:0.875rem;color:var(--text-muted);">应付金额</p>
       <div class="pay-amount" id="payAmount">9.9 元</div>
-      <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:12px;">
+      <p style="font-size:0.875rem;color:var(--text-dim);margin-bottom:12px;">
         产品：<span id="payTierName">轻判断</span>
       </p>
-      <img src="wechat-pay.png" alt="微信收款码" style="width:160px;border-radius:var(--radius-sm);border:1px solid var(--border);">
-      <p style="font-size:0.82rem;color:var(--text-muted);margin-top:10px;">
-        👆 扫码付款 → 加微信 fcf9999 → 发付款信息+院子资料
+      <p class="pay-merchant"><span>公司收款 · 富掌柜</span>河北奥纳园林景观设计有限公司</p>
+      <a class="gallery-link pay-code-link" href="assets/payments/company-collection.jpg" data-caption="公司收款 · 河北奥纳园林景观设计有限公司 · FU28587673" aria-label="放大查看公司收款码">
+        <img src="assets/payments/company-collection.jpg" alt="河北奥纳园林景观设计有限公司富掌柜收款码，商户编号 FU28587673" width="1320" height="1896" loading="lazy">
+        <span class="pay-code-enlarge">点击图片，放大收款码 ↗</span>
+      </a>
+      <p style="font-size:0.875rem;color:var(--text-muted);margin-top:10px;">
+         扫码付款 → 加微信 fcf9999 → 发付款信息+院子资料
       </p>
     </div>
 
     <div class="pay-steps">
       <div class="pay-step">
         <span class="ps-num">1</span>
-        <div><strong>扫收款码，付对应金额</strong><br>选好档位 → 扫码 → 输入金额 → 付款</div>
+        <div><strong>扫公司收款码，付对应金额</strong><br>选好档位 → 扫码 → 输入金额 → 付款</div>
       </div>
       <div class="pay-step">
         <span class="ps-num">2</span>
-        <div><strong>加微信，发付款截图 + 院子资料</strong><br>搜微信号 <strong>fcf9999</strong> 或扫码加好友<br><strong>好友申请时直接发付款信息</strong>（方便我对账）<br>通过后发送：院子照片 + 面积 + 你的想法</div>
+        <div><strong>加微信，发付款截图 + 院子资料</strong><br>搜微信号 <strong>fcf9999</strong> 加好友<br><strong>好友申请时直接发付款信息</strong>（方便我对账）<br>通过后发送：院子照片 + 面积 + 你的想法</div>
       </div>
       <div class="pay-step">
         <span class="ps-num">3</span>
@@ -611,7 +672,7 @@
     </div>
 
     <div style="margin-top:2rem;padding:16px;background:var(--surface);border-radius:var(--radius-sm);text-align:left;">
-      <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;">
+      <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;">
         <strong>⚠️ 注意：</strong><br>
         · 付款金额必须与你选的档位一致（9.9 / 199 / 499 / 2000 / 4000 / 6000 / 4999 / 9999）<br>
         · 设计/陪跑档（2000 起 / 4999 起）按面积和复杂度定价，付款前先加微信确认最终金额<br>
@@ -627,118 +688,72 @@
 <section class="faq" id="faq">
   <h2>常见问题</h2>
 
-  <div class="faq-item">
-    <h3>你在哪个城市？能接外地的吗？</h3>
-    <div class="faq-answer">
+  <details class="faq-item">
+<summary>你在哪个城市？能接外地的吗？</summary>
+<div class="faq-answer">
       我远程做设计，10万以上项目可安排差旅，差旅费业主承担。施工请进一步私聊。你发照片和需求，我出图出清单，你找本地施工队落地。全国都能接。
-    </div>
-  </div>
+    </div></details>
 
-  <div class="faq-item">
-    <h3>我不懂设计，怎么跟你说需求？</h3>
-    <div class="faq-answer">
+  <details class="faq-item">
+<summary>我不懂设计，怎么跟你说需求？</summary>
+<div class="faq-answer">
       发几张院子的照片、你的大概想法（想要休闲区/种菜/停车/烧烤等），剩下的我来问。不用你懂设计。
-    </div>
-  </div>
+    </div></details>
 
-  <div class="faq-item">
-    <h3>499 做完骨架，还能继续深化吗？</h3>
-    <div class="faq-answer">
+  <details class="faq-item">
+<summary>499 做完骨架，还能继续深化吗？</summary>
+<div class="faq-answer">
       可以。499 的费用可抵入「硬化前落地定位图」（2000 元起），补差价升级，赶在浇筑混凝土前把分区尺寸、排水走向、水电预埋点位一次定死。想往全套施工图走也可以，按项目报价。
-    </div>
-  </div>
+    </div></details>
 
-  <div class="faq-item">
-    <h3>图纸能直接给施工队用吗？</h3>
-    <div class="faq-answer">
+  <details class="faq-item">
+<summary>图纸能直接给施工队用吗？</summary>
+<div class="faq-answer">
       499 骨架是方向性的，师傅能看懂整体布局。要直接照图施工（分区尺寸 + 排水走向 + 水电预埋点位），做「硬化前落地定位图」（2000 元起）。
-    </div>
-  </div>
+    </div></details>
 
-  <div class="faq-item">
-    <h3>施工陪跑是干什么的？</h3>
-    <div class="faq-answer">
+  <details class="faq-item">
+<summary>施工陪跑是干什么的？</summary>
+<div class="faq-answer">
       从图纸交底到现场节点验收全程把关，保证你和当地施工队无障碍沟通——施工队的手艺我们管不了，但「图怎么落地」这件事，我们陪到底。4999 轻版（SU 视觉模型 + 陪跑 3 个月，2 次远程视频 + 不限次咨询，不含施工图）；9999 全版（全套施工图 + 陪跑 3 个月 + 3 次到场盯工：放线 / 骨架 / 种植）。499 方案骨架费可全额抵扣陪跑。
-    </div>
-  </div>
+    </div></details>
 
-  <div class="faq-item">
-    <h3>场地已经整平、马上要浇筑混凝土，该买哪个？</h3>
-    <div class="faq-answer">
+  <details class="faq-item">
+<summary>场地已经整平、马上要浇筑混凝土，该买哪个？</summary>
+<div class="faq-answer">
       你这个阶段是定水电预埋的关键节点——一旦浇筑，预埋点位就再也改不了了。建议直接做「硬化前落地定位图」（2000 元起）：分区尺寸 + 排水走向 + 水电预埋点位一次定好，图纸给师傅就能干。方向还没定的，可以先做 499 骨架，再补差价升级。
-    </div>
-  </div>
+    </div></details>
 
-  <div class="faq-item">
-    <h3>必须先付款才能聊吗？</h3>
-    <div class="faq-answer">
+  <details class="faq-item">
+<summary>必须先付款才能聊吗？</summary>
+<div class="faq-answer">
       对。不闲聊不议价，先付钱再沟通。你选的档位决定了我的交付深度，付款后我会认真看你发的资料并给出对等价值的设计判断。
-    </div>
-  </div>
+    </div></details>
 </section>
 
 <!-- ============ FOOTER ============ -->
-<footer class="product-footer">
-  <p>&copy; 2026 大一造园 · 庭院设计咨询</p>
-  <p style="margin-top:4px;">用专业判断帮你少走弯路。施工请进一步私聊。</p>
+</main>
+<footer class="site-footer">
+<a class="footer-brand" href="index.html">大一造园<span>DAYI LANDSCAPE</span></a>
+<p>河北奥纳园林景观设计有限公司</p>
+<p>© 2026 <span>自然 · 自由 · 真实</span></p>
 </footer>
 
-<script>
-/* ---- 鼠标辉光 ---- */
-(function(){
-  const glow = document.getElementById('cursorGlow');
-  if (!glow) return;
-  document.addEventListener('mousemove', function(e) {
-    glow.style.transform = 'translate(' + (e.clientX - 100) + 'px, ' + (e.clientY - 100) + 'px)';
-  });
-})();
 
-/* ---- 滚动浮现 ---- */
-(function(){
-  var els = document.querySelectorAll('.fade-up');
-  var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  els.forEach(function(el) {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(24px)';
-    el.style.transition = 'opacity .6s ease, transform .6s ease';
-    observer.observe(el);
-  });
-})();
-
-/* ---- FAQ 展开 ---- */
-(function(){
-  document.querySelectorAll('.faq-item h3').forEach(function(h3) {
-    h3.addEventListener('click', function() {
-      h3.parentElement.classList.toggle('open');
-    });
-  });
-})();
-
-/* ---- 档位切换（付款区） ---- */
-(function(){
-  var tabs = document.querySelectorAll('.tier-tab');
-  var amountDisplay = document.getElementById('payAmount');
-  var nameDisplay = document.getElementById('payTierName');
-
-  tabs.forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      tabs.forEach(function(t) { t.classList.remove('active'); });
-      tab.classList.add('active');
-      var amount = tab.getAttribute('data-amount');
-      var tier = tab.getAttribute('data-tier');
-      amountDisplay.textContent = amount + ' 元';
-      nameDisplay.textContent = tier;
-    });
-  });
-})();
-</script>
+<dialog class="lightbox payment-lightbox" aria-label="公司收款码">
+  <div class="lightbox-toolbar">
+    <span class="lightbox-counter" aria-live="polite"></span>
+    <div>
+      <button type="button" class="lightbox-zoom" aria-label="放大图片" aria-pressed="false">放大 ＋</button>
+      <button type="button" class="lightbox-close" aria-label="关闭图片">关闭 ×</button>
+    </div>
+  </div>
+  <div class="lightbox-stage"><img class="lightbox-image" alt=""></div>
+  <div class="lightbox-bottom">
+    <button type="button" class="lightbox-prev" aria-label="上一张图片">←</button>
+    <p class="lightbox-caption"></p>
+    <button type="button" class="lightbox-next" aria-label="下一张图片">→</button>
+  </div>
+</dialog>
 </body>
 </html>

@@ -1,786 +1,298 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>项目业绩 · 大一造园</title>
-<meta name="description" content="大一造园项目业绩：5000 亩黄金寨风景区规划、800 亩平山野生园度假村、1 万㎡致活水厂、地产居住区景观，以及白鹿泉段庄理想院子、江堤春晓生态驳岸等落地项目。河北奥纳园林景观设计有限公司。">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Caveat:wght@400;600;700&family=Inter:wght@300;400;600;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<style>
-/* ---- 业绩页专属样式 ---- */
-.top-bar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  padding: 12px 24px;
-  background: rgba(254,252,246,0.86);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  font-size: 0.88rem;
-}
-.top-bar a {
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: var(--ease-quick);
-}
-.top-bar a:hover { color: var(--esther-orange); }
-.top-bar .tb-inner {
-  max-width: var(--wrap-w);
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.top-bar .tb-right a { margin-left: 20px; }
-
-/* 锚点跳转时给固定顶栏留位，避免标题被盖住 */
-section[id] { scroll-margin-top: 68px; }
-
-.hero {
-  padding: 150px 24px 70px;
-  text-align: center;
-  background: linear-gradient(180deg, var(--accent-subtle) 0%, transparent 100%);
-}
-.hero .tagline {
-  font-family: var(--font-cursive);
-  font-size: 1.2rem;
-  color: var(--esther-blue);
-}
-.hero h1 {
-  font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  line-height: 1.3;
-  margin: 12px 0 1rem;
-}
-.hero h1 em { color: var(--esther-orange); font-style: normal; }
-.hero .subtitle {
-  font-size: 1.05rem;
-  color: var(--text-secondary);
-  max-width: 560px;
-  margin: 0 auto;
-  line-height: 1.8;
-}
-.hero .meta-line {
-  margin-top: 1.6rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-/* ---- 大项目履历 ---- */
-.scale-section {
-  padding: 60px 24px 70px;
-  background: var(--surface-alt);
-}
-.sec-head { text-align: center; margin-bottom: 2.2rem; }
-.sec-head h2 {
-  font-family: var(--font-serif);
-  font-size: 1.6rem;
-  margin-bottom: 0.6rem;
-}
-.sec-head p {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.7;
-  max-width: 560px;
-  margin: 0 auto;
-}
-.scale-grid {
-  max-width: var(--wrap-w);
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: var(--card-gap);
-}
-.scale-card {
-  background: var(--surface);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-card);
-  padding: 26px 22px;
-  text-align: center;
-  transition: var(--ease);
-}
-.scale-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.06);
-  border-color: var(--esther-yellow);
-}
-.scale-card .num {
-  font-family: var(--font-serif);
-  font-size: 2.1rem;
-  font-weight: 700;
-  color: var(--esther-orange);
-  line-height: 1.1;
-}
-.scale-card .num small {
-  font-size: 0.9rem;
-  font-weight: 400;
-  color: var(--text-muted);
-  margin-left: 2px;
-}
-.scale-card .proj {
-  font-size: 0.98rem;
-  font-weight: 600;
-  color: var(--text);
-  margin: 10px 0 6px;
-}
-.scale-card .note {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  line-height: 1.6;
-}
-.scale-foot {
-  max-width: var(--wrap-w);
-  margin: 1.8rem auto 0;
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  line-height: 1.8;
-}
-
-/* ---- 案例 ---- */
-.cases { padding: 70px 24px 40px; }
-.case-block {
-  max-width: var(--wrap-w);
-  margin: 0 auto 84px;
-}
-.case-block:last-child { margin-bottom: 0; }
-.case-head { margin-bottom: 1.6rem; }
-.case-idx {
-  font-family: var(--font-cursive);
-  font-size: 1.1rem;
-  color: var(--esther-blue);
-}
-.case-head h3 {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  margin: 4px 0 10px;
-}
-.case-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-.case-tags span {
-  display: inline-block;
-  background: var(--accent-subtle);
-  color: var(--text-secondary);
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 4px 12px;
-  border-radius: var(--radius-pill);
-}
-.case-lead {
-  max-width: 640px;
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  line-height: 1.95;
-  margin-bottom: 1.6rem;
-}
-.case-lead p { margin-bottom: 0.9rem; }
-.case-lead p:last-child { margin-bottom: 0; }
-.case-lead strong { color: var(--text); }
-
-/* 图文并排（理想院子门楼） */
-.case-split {
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap: 32px;
-  align-items: start;
-  margin-bottom: 1.8rem;
-}
-.case-split .case-lead { margin-bottom: 0; }
-.case-split .accent-fig { margin: 0; }
-.case-split .accent-fig img {
-  width: 100%;
-  max-width: 320px;
-  display: block;
-  margin: 0 auto;
-  border-radius: var(--radius-card);
-  border: 1px solid var(--border);
-}
-.case-split .accent-fig figcaption {
-  text-align: center;
-  font-size: 0.78rem;
-  color: var(--text-dim);
-  margin-top: 10px;
-}
-
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 16px;
-}
-.gallery figure { margin: 0; }
-.gallery img {
-  width: 100%;
-  display: block;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-}
-.gallery figure.ph img {
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-}
-.gallery figure.doc {
-  grid-column: 1 / -1;
-  background: var(--surface-alt);
-  padding: 12px;
-  border-radius: var(--radius-sm);
-}
-.gallery figure.doc-narrow {
-  background: var(--surface-alt);
-  padding: 12px;
-  border-radius: var(--radius-sm);
-}
-.gallery figcaption {
-  font-size: 0.78rem;
-  color: var(--text-dim);
-  margin-top: 8px;
-  line-height: 1.6;
-}
-
-/* ---- 底部长尾 ---- */
-.outro {
-  padding: 30px 24px 70px;
-}
-.outro .outro-box {
-  max-width: var(--wrap-w-narrow);
-  margin: 0 auto;
-  background: var(--surface-alt);
-  border-radius: var(--radius-card);
-  padding: 30px 28px;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.9;
-}
-.outro .outro-box h3 {
-  font-family: var(--font-serif);
-  font-size: 1.1rem;
-  color: var(--text);
-  margin-bottom: 0.7rem;
-}
-.outro .outro-box ul { list-style: none; }
-.outro .outro-box li {
-  padding-left: 18px;
-  position: relative;
-}
-.outro .outro-box li::before {
-  content: "\00B7";
-  position: absolute;
-  left: 4px;
-  color: var(--esther-yellow);
-  font-weight: 700;
-  font-size: 1.2rem;
-}
-
-/* ---- CTA ---- */
-.cta {
-  padding: 70px 24px 80px;
-  background: var(--surface-alt);
-  text-align: center;
-}
-.cta h2 {
-  font-family: var(--font-serif);
-  font-size: 1.7rem;
-  margin-bottom: 0.7rem;
-}
-.cta p {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.7;
-  max-width: 500px;
-  margin: 0 auto 1.8rem;
-}
-
-.product-footer {
-  text-align: center;
-  padding: 40px 24px;
-  color: var(--text-dim);
-  font-size: 0.82rem;
-  border-top: 1px solid var(--border);
-}
-
-/* ---- 合作伙伴 ---- */
-.partners { padding: 60px 24px 70px; background: var(--surface-alt); }
-.partner-wrap {
-  max-width: var(--wrap-w);
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-}
-.partner-wrap span {
-  background: var(--surface);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-pill);
-  padding: 10px 22px;
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  transition: var(--ease-quick);
-}
-.partner-wrap span:hover { border-color: var(--esther-yellow); color: var(--text); }
-
-/* ---- 项目清单 ---- */
-.roster { padding: 70px 24px 30px; }
-.roster-grid {
-  max-width: var(--wrap-w);
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
-  gap: 24px;
-}
-.roster-group {
-  background: var(--surface);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-card);
-  padding: 24px 22px;
-  transition: var(--ease);
-}
-.roster-group:hover { border-color: var(--esther-yellow); }
-.roster-group h3 {
-  font-family: var(--font-serif);
-  font-size: 1.08rem;
-  margin-bottom: 3px;
-}
-.roster-group .rg-en {
-  font-size: 0.68rem;
-  color: var(--text-dim);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  margin-bottom: 14px;
-}
-.roster-group ul { list-style: none; }
-.roster-group li {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  padding: 7px 0 7px 16px;
-  position: relative;
-  border-bottom: 1px dashed var(--border);
-}
-.roster-group li:last-child { border-bottom: none; }
-.roster-group li::before {
-  content: "";
-  position: absolute;
-  left: 2px; top: 15px;
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--esther-yellow);
-}
-.roster-group li em {
-  font-style: normal;
-  color: var(--text-dim);
-  font-size: 0.76rem;
-  margin-left: 6px;
-}
-
-@media (max-width: 720px) {
-  .case-split { grid-template-columns: 1fr; gap: 20px; }
-  .top-bar .tb-right { display: none; }
-}
-</style>
-</head>
-<body>
-
-<!-- 鼠标辉光 -->
-<div class="cursor-glow" id="cursorGlow"></div>
-
-<!-- ============ 顶部返回条 ============ -->
-<div class="top-bar">
-  <div class="tb-inner">
-    <a href="yard-design.html">← 返回 服务与报价</a>
-    <span class="tb-right">
-      <a href="#scale">项目履历</a>
-      <a href="#cases">案例</a>
-      <a href="#roster">项目清单</a>
-      <a href="#cta">联系</a>
-    </span>
-  </div>
+<!doctype html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>作品 · 大一造园</title>
+<meta name="description" content="庭院、居住、公共空间、商业、校园和园区设计作品。设计效果图、平面图与现场记录分类展示。">
+<meta name="theme-color" content="#f7f7f2">
+<meta property="og:title" content="作品 · 大一造园">
+<meta property="og:description" content="庭院、居住、公共空间、商业、校园和园区设计作品。设计效果图、平面图与现场记录分类展示。">
+<meta property="og:type" content="website">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="studio.css">
+<script src="studio.js" defer></script><link rel="canonical" href="https://fendi945.github.io/first-cc/cases.html">
+<meta property="og:url" content="https://fendi945.github.io/first-cc/cases.html">
+<meta property="og:image" content="https://fendi945.github.io/first-cc/assets/cases/jiangdi-render.jpg">
+</head><body class="cases-page">
+<a class="skip-link" href="#main">跳到正文</a>
+<header class="site-header">
+<a class="brand" href="index.html" aria-label="大一造园首页"><span class="brand-mark" aria-hidden="true">大<br>一</span><span><strong>大一造园</strong><small>奥纳园林 · DAYI LANDSCAPE</small></span></a>
+<button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">菜单 <span aria-hidden="true">＋</span></button>
+<nav class="site-nav" id="site-nav" aria-label="主导航">
+<a href="cases.html" aria-current="page">作品</a>
+<a href="index.html#about">关于</a>
+<a href="yard-design.html">服务与报价</a>
+<a href="index.html#contact">联系</a>
+</nav>
+</header>
+<main id="main">
+<section class="works-heading section-shell">
+<p class="eyebrow">SELECTED WORK / 作品</p>
+<div>
+<h1>院子里的生活，<br>山水间的实践。</h1>
+<p>从一方私家庭院，到社区与山地景观。<br>在不同的尺度里，寻找自然与生活的关系。</p>
 </div>
-
-<!-- ============ HERO ============ -->
-<section class="hero">
-  <p class="tagline fade-up">大一造园 · 项目业绩</p>
-  <h1 class="fade-up">做过的院子<br>和<em>更大的山水</em></h1>
-  <p class="subtitle fade-up">
-    从 80㎡ 的山居小院，到 5000 亩的风景区规划。<br>
-    图纸自己画，不外包。
-  </p>
-  <p class="meta-line fade-up">2015 年成立 · 河北奥纳园林景观设计有限公司 · 河北石家庄</p>
 </section>
-
-<!-- ============ 大项目履历 ============ -->
-<section class="scale-section" id="scale">
-  <div class="sec-head">
-    <h2>做过的事，按亩算</h2>
-    <p>下面这些不是效果图，是签过合同、做过落地的项目。</p>
-  </div>
-  <div class="scale-grid">
-    <div class="scale-card fade-up">
-      <div class="num">5000<small>亩</small></div>
-      <div class="proj">黄金寨风景区</div>
-      <div class="note">5A 级旅游风景区规划<br>含 100 亩影视基地</div>
-    </div>
-    <div class="scale-card fade-up">
-      <div class="num">800<small>亩</small></div>
-      <div class="proj">平山野生园度假村</div>
-      <div class="note">30 套别墅集中区域<br>做过落地</div>
-    </div>
-    <div class="scale-card fade-up">
-      <div class="num">1<small>万㎡</small></div>
-      <div class="proj">致活水厂</div>
-      <div class="note">敬业集团 · 思泉涌饮用水<br>花园式厂区</div>
-    </div>
-    <div class="scale-card fade-up">
-      <div class="num">11<small>栋</small></div>
-      <div class="proj">地产居住区景观</div>
-      <div class="note">场地 1 万㎡以上<br>群体业主项目</div>
-    </div>
-    <div class="scale-card fade-up">
-      <div class="num">300<small>㎡</small></div>
-      <div class="proj">售楼部景观</div>
-      <div class="note">做过最小的项目<br>再小的活儿也接得住</div>
-    </div>
-  </div>
-  <p class="scale-foot">
-    以上项目均由河北奥纳园林景观设计有限公司承接。<br>
-    黄金寨项目设计合同可提供查验。
-  </p>
+<section class="works-section section-shell" aria-label="项目作品">
+<div class="filter-bar" role="group" aria-label="按项目类型筛选">
+<button type="button" data-filter="全部" aria-pressed="true">全部<sup>13</sup></button>
+<button type="button" data-filter="庭院" aria-pressed="false">庭院<sup>03</sup></button>
+<button type="button" data-filter="居住" aria-pressed="false">居住<sup>03</sup></button>
+<button type="button" data-filter="公共" aria-pressed="false">公共<sup>02</sup></button>
+<button type="button" data-filter="商业" aria-pressed="false">商业<sup>02</sup></button>
+<button type="button" data-filter="园区" aria-pressed="false">园区<sup>02</sup></button>
+<button type="button" data-filter="校园" aria-pressed="false">校园<sup>01</sup></button><span class="filter-count" aria-live="polite">13 组作品</span>
+</div>
+<div class="works-grid">
+<article class="project-card " data-category="庭院">
+<a href="projects/jiangdi.html" class="project-link">
+<div class="project-image"><img src="assets/cases/jiangdi-render.jpg" alt="江堤春晓 · 庭院水景，设计效果图 · 松石与流水" width="919" height="666" class="" loading="eager" decoding="async" fetchpriority="high"><span class="image-kind">设计效果图</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>江堤春晓 · 庭院水景</h3>
+<p>杭州<span> / 庭院 / 2026</span></p>
+</div><span class="project-number">01</span>
+</div></a>
+</article>
+<article class="project-card " data-category="庭院">
+<a href="projects/lixiang.html" class="project-link">
+<div class="project-image"><img src="assets/cases/lixiang-render-tea.jpg" alt="白鹿泉段庄 · 理想院子，设计效果图 · 向院子敞开的茶空间" width="1000" height="609" class="" loading="eager" decoding="async" fetchpriority="high"><span class="image-kind">设计效果图</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>白鹿泉段庄 · 理想院子</h3>
+<p>石家庄 · 白鹿泉<span> / 庭院 / 2023</span></p>
+</div><span class="project-number">02</span>
+</div></a>
+</article>
+<article class="project-card " data-category="庭院">
+<a href="projects/luquan.html" class="project-link">
+<div class="project-image"><img src="assets/portfolio/luquan.jpg" alt="鹿泉区 · 别墅小院，设计效果图 · 别墅庭院鸟瞰" width="1379" height="626" class="" loading="lazy" decoding="async"><span class="image-kind">设计效果图</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>鹿泉区 · 别墅小院</h3>
+<p>石家庄 · 鹿泉<span> / 庭院 / 2019</span></p>
+</div><span class="project-number">03</span>
+</div></a>
+</article>
+<article class="project-card " data-category="居住">
+<a href="projects/houde.html" class="project-link">
+<div class="project-image"><img src="assets/portfolio/houde-arrival.jpg" alt="厚德 · 雅园，设计效果图 · 入口景观" width="922" height="561" class="" loading="lazy" decoding="async"><span class="image-kind">设计效果图</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>厚德 · 雅园</h3>
+<p>石家庄 · 鹿泉<span> / 居住 / 2019</span></p>
+</div><span class="project-number">04</span>
+</div></a>
+</article>
+<article class="project-card " data-category="居住">
+<a href="projects/changrui.html" class="project-link">
+<div class="project-image"><img src="assets/portfolio/changrui.jpg" alt="长瑞 · 阳光华苑，设计效果图 · 社区入口" width="978" height="581" class="" loading="lazy" decoding="async"><span class="image-kind">设计效果图</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>长瑞 · 阳光华苑</h3>
+<p>河北 · 晋州<span> / 居住 / 2020</span></p>
+</div><span class="project-number">05</span>
+</div></a>
+</article>
+<article class="project-card " data-category="公共">
+<a href="projects/jiguan.html" class="project-link">
+<div class="project-image"><img src="assets/portfolio/jiguan.jpg" alt="鸡冠山地质博物馆，设计效果图 · 山地景观全景" width="1520" height="804" class="" loading="lazy" decoding="async"><span class="image-kind">设计效果图</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>鸡冠山地质博物馆</h3>
+<p>河北 · 承德<span> / 公共</span></p>
+</div><span class="project-number">06</span>
+</div></a>
+</article>
+<article class="project-card " data-category="园区">
+<a href="projects/huangjin.html" class="project-link">
+<div class="project-image"><img src="assets/cases/huangjin-site-1.jpg" alt="黄金寨 · 致活水厂，在建现场 · 山体与保留的古树 · 2016" width="1000" height="750" class="" loading="lazy" decoding="async"><span class="image-kind">现场记录</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>黄金寨 · 致活水厂</h3>
+<p>河北 · 平山<span> / 园区 / 2016</span></p>
+</div><span class="project-number">07</span>
+</div></a>
+</article>
+<article class="project-card " data-category="商业">
+<a href="projects/beiguo.html" class="project-link">
+<div class="project-image"><img src="assets/portfolio/beiguo.jpg" alt="北国商城，设计效果图 · 商业建筑及室外景观" width="940" height="588" class="" loading="lazy" decoding="async"><span class="image-kind">设计效果图</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>北国商城</h3>
+<p>石家庄 · 鹿泉<span> / 商业</span></p>
+</div><span class="project-number">08</span>
+</div></a>
+</article>
+<article class="project-card " data-category="商业">
+<a href="projects/jincheng.html" class="project-link">
+<div class="project-image"><img src="assets/portfolio/jincheng.jpg" alt="中央锦城售楼部，设计效果图 · 售楼部室外景观" width="880" height="588" class="" loading="lazy" decoding="async"><span class="image-kind">设计效果图</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>中央锦城售楼部</h3>
+<p>石家庄 · 鹿泉<span> / 商业</span></p>
+</div><span class="project-number">09</span>
+</div></a>
+</article>
+<article class="project-card " data-category="居住">
+<a href="projects/tianyue.html" class="project-link">
+<div class="project-image"><img src="assets/portfolio/tianyue.jpg" alt="天悦花苑，设计效果图 · 居住区景观鸟瞰" width="1353" height="901" class="" loading="lazy" decoding="async"><span class="image-kind">设计效果图</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>天悦花苑</h3>
+<p>石家庄 · 新乐<span> / 居住 / 2012</span></p>
+</div><span class="project-number">10</span>
+</div></a>
+</article>
+<article class="project-card " data-category="公共">
+<a href="projects/luanwu.html" class="project-link">
+<div class="project-image"><img src="assets/portfolio/luanwu.jpg" alt="栾武路景观改造，设计效果图 · 道路景观鸟瞰" width="956" height="613" class="" loading="lazy" decoding="async"><span class="image-kind">设计效果图</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>栾武路景观改造</h3>
+<p>河北 · 石家庄<span> / 公共</span></p>
+</div><span class="project-number">11</span>
+</div></a>
+</article>
+<article class="project-card " data-category="园区">
+<a href="projects/keying.html" class="project-link">
+<div class="project-image"><img src="assets/portfolio/keying.jpg" alt="科瀛产业园，总平面设计图 · 园区景观布局" width="1802" height="972" class="" loading="lazy" decoding="async"><span class="image-kind">平面设计图</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>科瀛产业园</h3>
+<p>石家庄 · 鹿泉上庄<span> / 园区</span></p>
+</div><span class="project-number">12</span>
+</div></a>
+</article>
+<article class="project-card " data-category="校园">
+<a href="projects/campus.html" class="project-link">
+<div class="project-image"><img src="assets/portfolio/campus.jpg" alt="石家庄步兵学院，设计效果图 · 校园景观鸟瞰" width="2000" height="764" class="" loading="lazy" decoding="async"><span class="image-kind">设计效果图</span><span class="image-arrow" aria-hidden="true">↗</span>
+</div>
+<div class="project-meta">
+<div>
+<h3>石家庄步兵学院</h3>
+<p>石家庄 · 鹿泉<span> / 校园 / 2012</span></p>
+</div><span class="project-number">13</span>
+</div></a>
+</article>
+</div>
 </section>
-
-<!-- ============ 案例 ============ -->
-<section class="cases" id="cases">
-  <div class="sec-head">
-    <h2>三个走完的项目</h2>
-    <p>一个厂区、一个山居小院、一条水岸。从现场到图纸，都是我们自己走的。</p>
-  </div>
-
-  <!-- ---------- 案例 1 · 黄金寨致活水厂 ---------- -->
-  <article class="case-block fade-up">
-    <div class="case-head">
-      <div class="case-idx">01</div>
-      <h3>黄金寨 · 致活水厂</h3>
-      <div class="case-tags">
-        <span>1950㎡</span>
-        <span>2016 年</span>
-        <span>平山县王坡乡</span>
-        <span>敬业集团 · 思泉涌饮用水</span>
-      </div>
-    </div>
-    <div class="case-lead">
-      <p>
-        业主是敬业集团旗下的思泉涌饮用水有限公司。场地 1950 平方米，南北长 100 米。
-        2016 年 3 月签的合同，5 月完工。
-      </p>
-      <p>
-        项目在一个长寿村，村里老人大多活到 90 岁以上——因为地下水里含锶。
-        据史书记载，西汉末年刘秀被王莽追赶，曾在此处作过诗。四面环山，场地里还有长势很好的古树。
-      </p>
-      <p>
-        厂区需要大面积的停车和货运场地，能绿化的地方其实不多。
-        但我当时的判断是：<strong>在这样的大环境里，尽量少硬化、多绿化，做一个花园式厂区。</strong>
-        最后绿化率做到 60%，比居住区要求的 40% 还高。
-      </p>
-      <p>
-        这是公司最早在「工业园」和「康养」之间找平衡的一次尝试，也是在探索园林专业怎么落地到大尺度的自然山貌里。
-      </p>
-      <p>
-        <strong>十年过去了，厂区里现在应该绿树成荫。</strong>
-        2023 年我回访过一次，忘了拍照——下次再去黄金寨，一定补上。
-      </p>
-    </div>
-    <div class="gallery">
-      <figure class="ph">
-        <img src="assets/cases/huangjin-site-1.jpg" alt="黄金寨致活水厂施工现场，远处为山体与古树" loading="lazy">
-        <figcaption>2016 年在建现场 · 场地里的古树都保留了下来</figcaption>
-      </figure>
-      <figure class="ph">
-        <img src="assets/cases/huangjin-site-2.jpg" alt="黄金寨致活水厂施工现场，正在硬化的厂区场地" loading="lazy">
-        <figcaption>2016 年在建现场 · 厂区硬化前的场地</figcaption>
-      </figure>
-    </div>
-  </article>
-
-  <!-- ---------- 案例 2 · 理想院子 ---------- -->
-  <article class="case-block fade-up">
-    <div class="case-head">
-      <div class="case-idx">02</div>
-      <h3>白鹿泉段庄 · 理想院子</h3>
-      <div class="case-tags">
-        <span>80㎡</span>
-        <span>2023 年</span>
-        <span>200 年古村落</span>
-        <span>禅意茶空间</span>
-      </div>
-    </div>
-    <div class="case-split">
-      <div class="case-lead">
-        <p>
-          大山里一个有两百年历史的古村落，院子叫理想院子，占地 80 平方米。
-          原有建筑已经破败不堪，四面环山，坐北朝南，西侧是一条通往山顶的小路。
-        </p>
-        <p>
-          这套院子有个天然优势——<strong>高差</strong>。
-          城里的院子没有，这里有。我们就在高差上做文章，主题定成禅意茶空间，整体木石结合。
-        </p>
-        <p>
-          院落空间很小，于是用小中见大的手法：入口收一条窄窄的通道，正对面就是一整面凸出来的木质落地窗。
-          <strong>太阳升起来的时候，阳光会洒满窗。</strong>
-        </p>
-        <p>
-          城市里的人被快节奏驱赶着，唯有大自然能让灵魂栖息。
-          在这样一个四面环山、松弛的环境里喝喝茶、闻闻花香、听着流水潺潺——这套院子想给的就是这个。
-        </p>
-      </div>
-      <figure class="accent-fig">
-        <img src="assets/cases/lixiang-before-gate.jpg" alt="理想院子原有石拱门与红对联木门" loading="lazy">
-        <figcaption>改造前的石拱门 · 这对联一直留着</figcaption>
-      </figure>
-    </div>
-    <div class="gallery">
-      <figure class="ph">
-        <img src="assets/cases/lixiang-before-house.jpg" alt="理想院子改造前的石砌旧屋与荒草" loading="lazy">
-        <figcaption>改造前 · 原有石砌旧屋</figcaption>
-      </figure>
-      <figure class="ph">
-        <img src="assets/cases/lixiang-sketch.jpg" alt="理想院子手绘草图，落款 2023 年 6 月 6 日" loading="lazy">
-        <figcaption>现场手绘草图 · 2023.06.06</figcaption>
-      </figure>
-      <figure class="ph">
-        <img src="assets/cases/lixiang-render-aerial.jpg" alt="理想院子鸟瞰效果图" loading="lazy">
-        <figcaption>鸟瞰效果图 · 木石结合的院落</figcaption>
-      </figure>
-      <figure class="ph">
-        <img src="assets/cases/lixiang-render-tea.jpg" alt="理想院子茶空间室内效果图" loading="lazy">
-        <figcaption>茶空间 · 正对那面落地窗</figcaption>
-      </figure>
-      <figure class="ph">
-        <img src="assets/cases/lixiang-render-bed.jpg" alt="理想院子卧室室内效果图" loading="lazy">
-        <figcaption>室内 · 木质格栅与自然光</figcaption>
-      </figure>
-      <figure class="doc">
-        <img src="assets/cases/lixiang-plan.jpg" alt="理想院子带尺寸平面图" loading="lazy">
-        <figcaption>带尺寸平面图 · 落地方案（10500 × 6900）</figcaption>
-      </figure>
-    </div>
-  </article>
-
-  <!-- ---------- 案例 3 · 江堤春晓 ---------- -->
-  <article class="case-block fade-up">
-    <div class="case-head">
-      <div class="case-idx">03</div>
-      <h3>江堤春晓 · 庭院水景</h3>
-      <div class="case-tags">
-        <span>杭州</span>
-        <span>2026 年</span>
-        <span>庭院水景</span>
-        <span>生态池</span>
-      </div>
-    </div>
-    <div class="case-lead">
-      <p>
-        杭州的一个院子，业主要在里面做一方水。
-      </p>
-      <p>
-        水岸不拿硬邦邦的挡墙收边——做成生态池，石头之间留缝，水能渗、植物能自己长上来，
-        几年之后岸线会长出自己的样子。
-      </p>
-      <p>
-        背景是一面干净的白墙，前面配松和红枫，中间压一组雪浪石，跌水从石缝里落下来。
-        这是「虽由人作，宛自天开」最直白的一次练习。
-      </p>
-      <p>
-        院子不光是看的。平面图上排了大门、石桥、汀步、葡萄架、秋千、生态菜园和花架。
-        <strong>好看是第一步，好不好用才是院子成不成立的关键。</strong>
-      </p>
-      <p>
-        这一套从平面、轴测、立面到施工断面都出齐了，施工队拿到图不用猜。
-      </p>
-    </div>
-    <div class="gallery">
-      <figure class="ph">
-        <img src="assets/cases/jiangdi-render.jpg" alt="江堤春晓庭院水景效果图，白墙、松石与跌水" loading="lazy">
-        <figcaption>效果图 · 白墙、松石与跌水</figcaption>
-      </figure>
-      <figure class="ph">
-        <img src="assets/cases/jiangdi-axo.jpg" alt="江堤春晓方案 SU 轴测模型" loading="lazy">
-        <figcaption>SU 轴测 · 整个院子的空间关系</figcaption>
-      </figure>
-      <figure class="doc-narrow">
-        <img src="assets/cases/jiangdi-plan.jpg" alt="江堤春晓庭院平面布置图" loading="lazy">
-        <figcaption>平面布置图 · 大门／石桥／汀步／生态池／葡萄架／秋千／生态菜园</figcaption>
-      </figure>
-      <figure class="doc">
-        <img src="assets/cases/jiangdi-elevation.jpg" alt="江堤春晓庭院立面图" loading="lazy">
-        <figcaption>立面图 · 雪浪石与植栽的高差关系</figcaption>
-      </figure>
-    </div>
-  </article>
+<section class="archive-section section-shell" id="archive">
+<div class="section-heading">
+<div>
+<p class="eyebrow">PROJECT INDEX</p>
+<h2>更多项目经历</h2>
+</div>
+<p class="section-note">居住、商业、公共空间、校园、文旅、园区</p>
+</div>
+<div class="archive-grid">
+<div>
+<h3>居住区</h3>
+<ul>
+<li>
+<a href="projects/houde.html">厚德 · 雅园 <span aria-hidden="true">↗</span></a></li>
+<li>厚德锦园</li>
+<li>厚德福城</li>
+<li>
+<a href="projects/changrui.html">长瑞 · 阳光华苑 <span aria-hidden="true">↗</span></a></li>
+<li>
+<a href="projects/tianyue.html">天悦花苑 <span aria-hidden="true">↗</span></a></li>
+<li>
+<a href="projects/luquan.html">鹿泉区 · 别墅小院 <span aria-hidden="true">↗</span></a></li>
+<li>地产居住区景观</li></ul>
+</div>
+<div>
+<h3>商业空间</h3>
+<ul>
+<li>
+<a href="projects/beiguo.html">北国商城 <span aria-hidden="true">↗</span></a></li>
+<li>
+<a href="projects/jincheng.html">中央锦城售楼部 <span aria-hidden="true">↗</span></a></li>
+<li>安纳溪小镇</li></ul>
+</div>
+<div>
+<h3>公共空间</h3>
+<ul>
+<li>白鹿泉公园景观提升</li>
+<li>锁云湖</li>
+<li>
+<a href="projects/luanwu.html">栾武路景观改造 <span aria-hidden="true">↗</span></a></li>
+<li>城市更新 · 南长街 / 礼让街精品街形象提升</li>
+<li>九门乡乡村振兴形象提升</li>
+<li>张庄镇景观提升</li>
+<li>
+<a href="projects/jiguan.html">鸡冠山地质博物馆 <span aria-hidden="true">↗</span></a></li></ul>
+</div>
+<div>
+<h3>校园</h3>
+<ul>
+<li>
+<a href="projects/campus.html">石家庄步兵学院 <span aria-hidden="true">↗</span></a></li>
+<li>敬业中学</li>
+<li>中国邮政石家庄学院旧房改造</li></ul>
+</div>
+<div>
+<h3>文旅</h3>
+<ul>
+<li>黄金寨风景区</li>
+<li>野生原度假村</li>
+<li>藏龙镇</li></ul>
+</div>
+<div>
+<h3>园区</h3>
+<ul>
+<li>
+<a href="projects/keying.html">科瀛产业园 <span aria-hidden="true">↗</span></a></li>
+<li>上元科技新厂区景观规划设计</li>
+<li>
+<a href="projects/huangjin.html">致活水厂 <span aria-hidden="true">↗</span></a></li></ul>
+</div>
+</div>
+<p class="archive-note">项目经历包含公司项目及设计师早期实践。图片分别标明设计成果与现场记录。</p>
 </section>
-
-<!-- ============ 合作伙伴 ============ -->
-<section class="partners" id="partners">
-  <div class="sec-head">
-    <h2>合作过的单位</h2>
-    <p>2015 年至今，落地项目 28+，合作伙伴 8+。业主里有集团，也有政府。</p>
-  </div>
-  <div class="partner-wrap fade-up">
-    <span>河北敬业集团</span>
-    <span>厚德集团</span>
-    <span>润石集团</span>
-    <span>上元科技集团</span>
-    <span>藁城区政府</span>
-    <span>栾城区政府</span>
-    <span>桥西区政府</span>
-    <span>白鹿泉政府</span>
-  </div>
+<section class="contact-section section-shell" id="contact">
+<div>
+<p class="eyebrow">LET'S MAKE A GARDEN</p>
+<h2>聊聊你想过的<br>院子生活。</h2>
+</div>
+<div class="contact-content">
+<p>从院子的照片、面积和你的想法开始。<br>一起把生活的需要，变成清晰的设计方向。</p>
+<div class="wechat-line"><span>微信</span><strong>fcf9999</strong>
+<button type="button" class="copy-wechat" data-copy="fcf9999">复制微信号 <span aria-hidden="true">↗</span></button>
+</div>
+<p class="contact-note" aria-live="polite">加好友请备注「院子」</p>
+<a class="text-link" href="yard-design.html">了解合作方式 <span aria-hidden="true">↗</span></a>
+</div>
 </section>
-
-<!-- ============ 项目清单 ============ -->
-<section class="roster" id="roster">
-  <div class="sec-head">
-    <h2>其它落地项目</h2>
-    <p>按六条产品线排列。上面是三个走完的案例，这里是其余落地项目。</p>
-  </div>
-  <div class="roster-grid">
-
-    <div class="roster-group fade-up">
-      <h3>居住区设计</h3>
-      <div class="rg-en">Residential area</div>
-      <ul>
-        <li>厚德 · 雅园<em>石家庄鹿泉区 · 2019</em></li>
-        <li>厚德锦园</li>
-        <li>厚德福城</li>
-        <li>长瑞 · 阳光华苑<em>晋州 · 2020</em></li>
-        <li>天悦花苑</li>
-        <li>鹿泉区 · 别墅小院<em>石家庄鹿泉区</em></li>
-        <li>地产居住区景观<em>11 栋住宅</em></li>
-      </ul>
-    </div>
-
-    <div class="roster-group fade-up">
-      <h3>商业区设计</h3>
-      <div class="rg-en">Commercial space</div>
-      <ul>
-        <li>北国商城<em>石家庄鹿泉区 · 2017</em></li>
-        <li>中央锦城售楼部<em>2018 · 厚德地产</em></li>
-        <li>安纳溪小镇</li>
-      </ul>
-    </div>
-
-    <div class="roster-group fade-up">
-      <h3>公共空间设计</h3>
-      <div class="rg-en">Public space</div>
-      <ul>
-        <li>白鹿泉公园景观提升</li>
-        <li>锁云湖</li>
-        <li>栾武路景观改造</li>
-        <li>城市更新 · 南长街 / 礼让街精品街形象提升</li>
-        <li>九门乡乡村振兴形象提升</li>
-        <li>张庄镇景观提升</li>
-        <li>鸡冠山地质博物馆<em>承德市</em></li>
-      </ul>
-    </div>
-
-    <div class="roster-group fade-up">
-      <h3>校园设计</h3>
-      <div class="rg-en">Campus design</div>
-      <ul>
-        <li>石家庄步兵学院<em>石家庄鹿泉区 · 2012</em></li>
-        <li>敬业中学</li>
-        <li>中国邮政石家庄学院旧房改造</li>
-      </ul>
-    </div>
-
-    <div class="roster-group fade-up">
-      <h3>文旅设计</h3>
-      <div class="rg-en">Travel design</div>
-      <ul>
-        <li>黄金寨风景区<em>5000 亩 · 5A 级景区规划</em></li>
-        <li>野生原度假村<em>800 亩 · 30 套别墅区</em></li>
-        <li>藏龙镇</li>
-      </ul>
-    </div>
-
-    <div class="roster-group fade-up">
-      <h3>园区规划</h3>
-      <div class="rg-en">Industrial park</div>
-      <ul>
-        <li>科瀛产业园<em>石家庄鹿泉区上庄</em></li>
-        <li>上元科技新厂区景观规划设计</li>
-        <li>致活水厂<em>1 万㎡ · 敬业集团 · 思泉涌</em></li>
-      </ul>
-    </div>
-
-  </div>
-  <p class="scale-foot" style="margin-top:2rem;">
-    以上为部分落地项目，含公司 2015 年成立以来的居住区、商业、公共空间、校园、文旅、园区六类项目。
-  </p>
-</section>
-
-<!-- ============ 一句实话 ============ -->
-<section class="outro">
-  <div class="outro-box fade-up">
-    <h3>最后说三句实话</h3>
-    <ul>
-      <li>上面的大项目是公司做的，庭院设计是同一支笔画的——<strong>做过 5000 亩，也知道 80㎡ 里哪堵墙该拆</strong>。</li>
-      <li>项目有图的我放了图，没图的我不编。黄金寨的成品照片确实没有，回访补上就更新。</li>
-      <li>设计不外包，图纸自己画。你拿到手的每一张图，都是同一个人画的。</li>
-    </ul>
-  </div>
-</section>
-
-<!-- ============ CTA ============ -->
-<section class="cta" id="cta">
-  <h2>看完了，聊聊你的院子</h2>
-  <p>
-    从 9.9 元的一句话判断，到全套施工图，都能做。<br>
-    你发照片和需求，我出图出清单。
-  </p>
-  <a href="yard-design.html#tiers" class="btn btn-primary">看服务与报价</a>
-  <a href="yard-design.html#pay" class="btn btn-outline" style="margin-left:8px;">直接付款下单</a>
-  <p style="margin-top:1.5rem;font-size:0.85rem;color:var(--text-muted);">
-    微信：<strong>fcf9999</strong>（加好友请备注「院子」）
-  </p>
-</section>
-
-<!-- ============ FOOTER ============ -->
-<footer class="product-footer">
-  <p>&copy; 2026 大一造园 · 河北奥纳园林景观设计有限公司</p>
-  <p style="margin-top:4px;">用专业判断帮你少走弯路。施工请进一步私聊。</p>
+</main>
+<footer class="site-footer">
+<a class="footer-brand" href="index.html">大一造园<span>DAYI LANDSCAPE</span></a>
+<p>河北奥纳园林景观设计有限公司</p>
+<p>© 2026 <span>自然 · 自由 · 真实</span></p>
 </footer>
-
-<script>
-/* ---- 鼠标辉光 ---- */
-(function(){
-  const glow = document.getElementById('cursorGlow');
-  if (!glow) return;
-  document.addEventListener('mousemove', function(e) {
-    glow.style.transform = 'translate(' + (e.clientX - 100) + 'px, ' + (e.clientY - 100) + 'px)';
-  });
-})();
-
-/* ---- 滚动浮现 ---- */
-(function(){
-  var els = document.querySelectorAll('.fade-up');
-  var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  els.forEach(function(el) {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(24px)';
-    el.style.transition = 'opacity .6s ease, transform .6s ease';
-    observer.observe(el);
-  });
-})();
-</script>
-</body>
-</html>
+<dialog class="lightbox" aria-label="作品图片浏览">
+<div class="lightbox-toolbar"><span class="lightbox-counter" aria-live="polite"></span>
+<div>
+<button type="button" class="lightbox-zoom" aria-label="放大图片" aria-pressed="false">放大 ＋</button>
+<button type="button" class="lightbox-close" aria-label="关闭图片">关闭 ×</button>
+</div>
+</div>
+<div class="lightbox-stage"><img class="lightbox-image" alt="">
+</div>
+<div class="lightbox-bottom">
+<button type="button" class="lightbox-prev" aria-label="上一张图片">←</button>
+<p class="lightbox-caption"></p>
+<button type="button" class="lightbox-next" aria-label="下一张图片">→</button>
+</div>
+</dialog></body></html>
