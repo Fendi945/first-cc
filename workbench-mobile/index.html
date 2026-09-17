@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#F8F6F3" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="大一工作台" />
+  <title>大一工作台 · 元点</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./icon.svg" />
+  <style>
+    :root{--paper:#F8F6F3;--ink:#222;--muted:#77716b;--line:#ddd7cf;--brick:#C6402F;--white:#fff;--shadow:0 12px 40px rgba(34,34,34,.06)}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+    body{min-height:100dvh;padding-bottom:90px}
+    button,textarea,input{font:inherit}
+    .app{max-width:720px;margin:auto;min-height:100dvh}
+    header{padding:calc(18px + env(safe-area-inset-top)) 20px 10px;display:flex;justify-content:space-between;align-items:flex-start}
+    .brand{font-family:Georgia,"Times New Roman",serif;font-size:25px;letter-spacing:-1px;font-weight:700}.brand i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--brick);margin-left:3px;vertical-align:5px}
+    .sub{margin-top:5px;font-size:11px;letter-spacing:2.3px;color:var(--muted)}
+    .ghost{border:0;background:transparent;color:var(--muted);padding:7px 0;font-size:13px}
+    main{padding:8px 20px 24px}
+    .hello{margin:18px 0 14px}.hello h1{font-size:28px;margin:0 0 8px;font-weight:630;letter-spacing:-.8px}.hello p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
+    .composer{background:var(--white);border:1px solid rgba(34,34,34,.08);border-radius:22px;padding:16px;box-shadow:var(--shadow)}
+    textarea{width:100%;min-height:126px;resize:none;border:0;outline:0;background:transparent;color:var(--ink);font-size:18px;line-height:1.65;padding:2px 2px 12px}
+    textarea::placeholder{color:#aaa49d}
+    .composer-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #eee8e1;padding-top:12px;gap:10px}
+    .mic{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;font-size:19px}.mic.listening{background:var(--brick);color:#fff;border-color:var(--brick);animation:pulse 1.2s infinite}
+    @keyframes pulse{50%{transform:scale(1.06)}}
+    .save{border:0;border-radius:999px;background:var(--ink);color:white;padding:12px 19px;font-weight:600}.save:active{transform:scale(.98)}
+    .hint{margin:9px 5px 0;color:#99938c;font-size:12px;line-height:1.5;min-height:18px}
+    .result{display:none;margin-top:13px;padding:13px 15px;border-radius:15px;background:#f0ece6;font-size:14px;line-height:1.55}.result.show{display:block}.result b{color:var(--brick)}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin:28px 2px 12px}.section-head h2{font-size:14px;margin:0;letter-spacing:.5px}.section-head span{font-size:12px;color:var(--muted)}
+    .list{display:grid;gap:10px}.card{background:rgba(255,255,255,.72);border:1px solid rgba(34,34,34,.07);border-radius:16px;padding:14px 15px}.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.tag{font-size:11px;padding:4px 8px;background:#ece6df;border-radius:999px;color:#625d57}.time{font-size:11px;color:#aaa29a}.text{font-size:15px;line-height:1.65;white-space:pre-wrap;word-break:break-word}.card-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:10px}.linkbtn{border:0;background:transparent;color:#8e877f;font-size:12px;padding:2px}.empty{padding:30px 12px;text-align:center;color:#aaa29a;font-size:13px}
+    .search{width:100%;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.7);outline:none;padding:12px 14px;color:var(--ink);margin-bottom:13px}
+    .view{display:none}.view.active{display:block}
+    .groups{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.group{background:#fff;border:1px solid rgba(34,34,34,.07);border-radius:17px;padding:16px;min-height:96px}.group b{display:block;font-size:15px;margin-bottom:10px}.group strong{font-family:Georgia,serif;font-size:28px;font-weight:500}.group small{color:var(--muted);margin-left:4px}
+    nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(720px,100%);height:calc(67px + env(safe-area-inset-bottom));padding:8px 22px env(safe-area-inset-bottom);display:grid;grid-template-columns:repeat(3,1fr);background:rgba(248,246,243,.94);backdrop-filter:blur(18px);border-top:1px solid rgba(34,34,34,.08);z-index:20}
+    nav button{border:0;background:transparent;color:#8e877f;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px}nav button .ico{font-size:20px;line-height:20px}nav button.active{color:var(--ink);font-weight:600}nav button.active .ico{color:var(--brick)}
+    .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);background:#222;color:#fff;padding:10px 14px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:50}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    @media(min-width:721px){header,main{padding-left:30px;padding-right:30px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div><div class="brand">day1<i></i></div><div class="sub">大一工作台 · 元点</div></div>
+    <button class="ghost" id="exportBtn">导出备份</button>
+  </header>
+
+  <main>
+    <section class="view active" id="homeView">
+      <div class="hello"><h1>现在有什么事？</h1><p>不用分类。想到什么就说什么，工作台来整理。</p></div>
+      <div class="composer">
+        <textarea id="input" placeholder="例如：今天来了一个客户，想做一个给流浪猫住的小院……"></textarea>
+        <div class="composer-foot">
+          <button class="mic" id="micBtn" aria-label="语音输入">◉</button>
+          <button class="save" id="saveBtn">交给工作台</button>
+        </div>
+        <div class="hint" id="hint">可以打字，也可以点左侧语音按钮。</div>
+        <div class="result" id="result"></div>
+      </div>
+      <div class="section-head"><h2>最近记录</h2><span id="countAll">0 条</span></div>
+      <div class="list" id="recentList"></div>
+    </section>
+
+    <section class="view" id="todayView">
+      <div class="hello"><h1>今天</h1><p>今天说过的事情，都在这里。</p></div>
+      <div class="list" id="todayList"></div>
+    </section>
+
+    <section class="view" id="libraryView">
+      <div class="hello"><h1>资料</h1><p>不用先建文件夹，工作台先替你归到正确的位置。</p></div>
+      <input class="search" id="search" placeholder="搜索客户、项目、灵感、事情……" />
+      <div class="groups" id="groups"></div>
+      <div class="section-head"><h2>搜索结果</h2><span id="searchCount"></span></div>
+      <div class="list" id="searchList"></div>
+    </section>
+  </main>
+
+  <nav>
+    <button class="active" data-view="homeView"><span class="ico">⌂</span>首页</button>
+    <button data-view="todayView"><span class="ico">◷</span>今日</button>
+    <button data-view="libraryView"><span class="ico">◇</span>资料</button>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='dayi_workbench_entries_v1';
+const cats=['客户','项目','灵感','待办','财务','私人','认知','其他'];
+const catRules={
+ '客户':['客户','业主','咨询','报价','设计费','成交','付费','老人','奶奶','甲方'],
+ '项目':['项目','施工','庭院','院子','图纸','现场','铺装','排水','鱼池','植物','方案'],
+ '灵感':['灵感','突然想到','想法','选题','视频','文章','公众号','口播','内容'],
+ '待办':['记得','明天','后天','下周','要做','需要做','提醒','约','联系','跟进','待办'],
+ '财务':['钱','收入','支出','现金流','成本','利润','发票','报销','预算','转账','收款','财务'],
+ '私人':['家里','孩子','父母','生活','私人','感情','朋友','学校'],
+ '认知':['我觉得','我发现','我意识到','困惑','为什么','反思','认知','判断','原则','价值观']
+};
+let entries=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return []}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(entries))}
+function classify(text){let best='其他',score=0;for(const [cat,words] of Object.entries(catRules)){let s=0;for(const w of words) if(text.includes(w)) s++;if(s>score){score=s;best=cat}}return best}
+function nextStep(cat){return ({'客户':'已进入客户线索，后续可继续补充需求、报价和跟进。','项目':'已进入项目记录，后续相关现场与决策可继续往这里累积。','灵感':'已进入灵感库，以后可以继续发展成文章、视频或产品。','待办':'已标记为待办事项。','财务':'已进入财务记录，后续可继续补充金额、日期和风险。','私人':'已进入私人事务，不与工作资料混在一起。','认知':'已沉淀为认知记录，适合以后继续复盘。','其他':'先收进总入口，后续信息更多时再重新归类。'})[cat]}
+function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function fmt(ts){const d=new Date(ts);return d.toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}
+function isToday(ts){const a=new Date(ts),b=new Date();return a.toDateString()===b.toDateString()}
+function card(e){return `<article class="card"><div class="card-top"><span class="tag">${e.category}</span><span class="time">${fmt(e.createdAt)}</span></div><div class="text">${esc(e.text)}</div><div class="card-actions"><button class="linkbtn" onclick="cycleCat('${e.id}')">改分类</button><button class="linkbtn" onclick="removeEntry('${e.id}')">删除</button></div></article>`}
+function render(){
+ document.getElementById('countAll').textContent=entries.length+' 条';
+ document.getElementById('recentList').innerHTML=entries.slice(0,8).map(card).join('')||'<div class="empty">还没有记录。第一句话，就从这里开始。</div>';
+ const today=entries.filter(e=>isToday(e.createdAt));document.getElementById('todayList').innerHTML=today.map(card).join('')||'<div class="empty">今天还没有记录。</div>';
+ document.getElementById('groups').innerHTML=cats.map(c=>{const n=entries.filter(e=>e.category===c).length;return `<div class="group"><b>${c}</b><strong>${n}</strong><small>条</small></div>`}).join('');
+ runSearch();
+}
+function add(){const el=document.getElementById('input');const text=el.value.trim();if(!text){toast('先说点什么');return}const category=classify(text);const e={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),text,category,createdAt:Date.now()};entries.unshift(e);persist();el.value='';const r=document.getElementById('result');r.innerHTML=`已收录到 <b>${category}</b>。${nextStep(category)}`;r.classList.add('show');render();toast('已收录');setTimeout(()=>r.classList.remove('show'),4800)}
+function removeEntry(id){entries=entries.filter(e=>e.id!==id);persist();render();toast('已删除')}
+function cycleCat(id){const e=entries.find(x=>x.id===id);if(!e)return;const i=cats.indexOf(e.category);e.category=cats[(i+1)%cats.length];persist();render();toast('已改为 '+e.category)}
+function runSearch(){const q=(document.getElementById('search').value||'').trim().toLowerCase();const rows=q?entries.filter(e=>(e.text+' '+e.category).toLowerCase().includes(q)):entries.slice(0,12);document.getElementById('searchCount').textContent=rows.length+' 条';document.getElementById('searchList').innerHTML=rows.map(card).join('')||'<div class="empty">没有找到相关记录。</div>'}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1700)}
+document.getElementById('saveBtn').addEventListener('click',add);document.getElementById('input').addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter')add()});document.getElementById('search').addEventListener('input',runSearch);
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(b.dataset.view).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});render()}));
+document.getElementById('exportBtn').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),entries},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dayi-workbench-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('备份已导出')});
+const mic=document.getElementById('micBtn'),hint=document.getElementById('hint');const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null;if(SR){rec=new SR();rec.lang='zh-CN';rec.continuous=true;rec.interimResults=true;let base='';rec.onstart=()=>{base=document.getElementById('input').value.trim();mic.classList.add('listening');hint.textContent='正在听，你可以自然地说……'};rec.onresult=e=>{let final='',interim='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)final+=t;else interim+=t}const el=document.getElementById('input');const sep=base?' ':' ';if(final){base=(base+sep+final).trim()}el.value=(base+(interim?' '+interim:'')).trim()};rec.onend=()=>{mic.classList.remove('listening');hint.textContent='语音结束。确认文字后点“交给工作台”。'};rec.onerror=()=>{mic.classList.remove('listening');hint.textContent='语音识别没有启动，可直接使用 iPhone 键盘上的麦克风口述。'};mic.addEventListener('click',()=>{try{if(mic.classList.contains('listening'))rec.stop();else rec.start()}catch(e){}})}else{mic.addEventListener('click',()=>{hint.textContent='当前浏览器不支持网页语音识别，请点 iPhone 键盘上的麦克风直接口述。';document.getElementById('input').focus()})}
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+render();
+</script>
+</body>
+</html>
