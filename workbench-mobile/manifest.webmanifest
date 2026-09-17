@@ -1,0 +1,12 @@
+{
+  "name": "大一工作台 · 元点",
+  "short_name": "大一工作台",
+  "description": "以自然语言为入口的个人智能工作台",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F8F6F3",
+  "theme_color": "#F8F6F3",
+  "lang": "zh-CN",
+  "icons": [{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}
