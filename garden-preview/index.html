@@ -10,7 +10,7 @@
 <meta name="description" content="上传你的院子，选一种感觉，先看清一个更适合你和家人的庭院方向。">
 <style>
 :root{--bg:#f8f6f3;--paper:#fffdfa;--text:#222;--muted:#746f69;--line:#e4ddd6;--accent:#c6402f;--soft:#f3eee8}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif}button,input{font:inherit}button{cursor:pointer}.app{max-width:980px;margin:auto;padding:24px 16px 72px}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.brand{display:flex;gap:8px;align-items:center;font-weight:700}.latin{font:700 28px Georgia,serif}.dot{width:9px;height:9px;border-radius:50%;background:var(--accent)}.ver{font-size:12px;color:var(--muted)}.bar{height:4px;border-radius:99px;overflow:hidden;background:#e9e2db}.bar i{display:block;height:100%;background:#222;width:16%;transition:.25s}.stepLabel{font-size:12px;color:var(--muted);margin:8px 0 20px;letter-spacing:.06em}.screen{display:none;background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:44px;box-shadow:0 18px 44px rgba(30,24,20,.06)}.screen.on{display:block}h1{font-size:clamp(38px,6vw,64px);line-height:1.05;letter-spacing:-.04em;margin:10px 0 18px}h2{font-size:clamp(28px,4vw,44px);line-height:1.12;margin:8px 0 14px;letter-spacing:-.025em}.lead{font-size:18px;line-height:1.8;color:#514c48;max-width:760px}.muted,.small{color:var(--muted)}.small{font-size:13px}.upload{margin-top:28px;border:1.5px dashed #bbb2aa;border-radius:18px;background:#fbf9f6;padding:22px}.uploadRow{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.pick{display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;background:#222;color:white;border-radius:999px;font-weight:700;min-width:150px}.pick input{display:none}.thumbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:16px}.thumb{aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:#eee}.thumb img{width:100%;height:100%;object-fit:cover}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:24px}.card{border:1px solid var(--line);border-radius:16px;background:#fff;padding:18px;min-height:118px;display:flex;flex-direction:column;justify-content:space-between}.card.sel{border-color:#222;box-shadow:inset 0 0 0 1px #222}.eye{font-size:11px;letter-spacing:.08em;color:var(--muted)}.q{margin-top:24px}.row,.tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}.pill,.tag{border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 14px}.pill.sel{background:#222;color:#fff;border-color:#222}.tag.sel{color:var(--accent);border-color:var(--accent);background:#fff8f6}.actions{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-top:32px}.btn{border:none;border-radius:999px;padding:13px 20px;font-weight:700}.primary{background:#222;color:#fff}.ghost{border:1px solid var(--line);background:transparent}.box{margin-top:20px;border:1px solid var(--line);background:var(--soft);border-radius:16px;padding:18px;line-height:1.8}.price{font-size:48px;font-weight:800;margin-top:20px}.sheet{margin-top:20px;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#fff}.sheetHead{padding:26px;background:linear-gradient(#fffdfa,#f7f3ef)}.sheetBody{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;padding:22px}.photo{min-height:300px;border-radius:16px;overflow:hidden;background:#eee}.photo img{width:100%;height:100%;object-fit:cover}.facts{display:grid;grid-template-columns:1fr 1fr;gap:9px}.fact{border:1px solid var(--line);border-radius:13px;padding:13px;background:#f7f3ef}.fact small{display:block;color:var(--muted);margin-bottom:5px}.need{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.need span{border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:12px}.judge{border-left:3px solid var(--accent);padding-left:12px;line-height:1.7;margin-top:14px}.prompt{width:100%;min-height:300px;border:1px solid var(--line);border-radius:14px;padding:14px;line-height:1.65;background:#fcfbf9}.notice{margin-top:14px;padding:12px 14px;border:1px solid #ead1cc;background:#fff8f6;border-radius:12px;color:#6c342b;font-size:13px;line-height:1.6}.statusRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}.statusPill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 11px;font-size:13px;font-weight:700;border:1px solid #ead7ae;background:#fff8e8;color:#8a5a16}.statusDot{width:7px;height:7px;border-radius:50%;background:#d69a2d}.error{display:none;color:var(--accent);font-size:13px;margin-top:10px}.payPanel{display:block;margin-top:22px;border:1px solid var(--line);border-radius:20px;background:#fff;padding:24px;text-align:center}.payPanel .qr{width:min(320px,82vw);margin:16px auto 12px;padding:16px;border:1px solid var(--line);border-radius:18px;background:#fff}.payPanel .qr img{width:100%;display:block;border-radius:8px}.payMeta{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:12px 0 18px}.payMeta span{font-size:13px;color:var(--muted)}.payMeta strong{display:block;color:var(--text);font-size:18px;margin-top:4px}.payHint{font-size:13px;color:var(--muted);line-height:1.7}@media(max-width:700px){.screen{padding:28px 20px}.grid,.sheetBody{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}.pick{width:100%}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif}button,input{font:inherit}button{cursor:pointer}.app{max-width:980px;margin:auto;padding:24px 16px 72px}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.brand{display:flex;gap:8px;align-items:center;font-weight:700}.latin{font:700 28px Georgia,serif}.dot{width:9px;height:9px;border-radius:50%;background:var(--accent)}.ver{font-size:12px;color:var(--muted)}.bar{height:4px;border-radius:99px;overflow:hidden;background:#e9e2db}.bar i{display:block;height:100%;background:#222;width:16%;transition:.25s}.stepLabel{font-size:12px;color:var(--muted);margin:8px 0 20px;letter-spacing:.06em}.screen{display:none;background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:44px;box-shadow:0 18px 44px rgba(30,24,20,.06)}.screen.on{display:block}h1{font-size:clamp(38px,6vw,64px);line-height:1.05;letter-spacing:-.04em;margin:10px 0 18px}h2{font-size:clamp(28px,4vw,44px);line-height:1.12;margin:8px 0 14px;letter-spacing:-.025em}.lead{font-size:18px;line-height:1.8;color:#514c48;max-width:760px}.muted,.small{color:var(--muted)}.small{font-size:13px}.upload{margin-top:28px;border:1.5px dashed #bbb2aa;border-radius:18px;background:#fbf9f6;padding:22px}.uploadRow{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.pick{display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;background:#222;color:white;border-radius:999px;font-weight:700;min-width:150px}.pick input{display:none}.thumbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:16px}.thumb{aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:#eee}.thumb img{width:100%;height:100%;object-fit:cover}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:24px}.card{border:1px solid var(--line);border-radius:16px;background:#fff;padding:18px;min-height:118px;display:flex;flex-direction:column;justify-content:space-between}.card.sel{border-color:#222;box-shadow:inset 0 0 0 1px #222}.eye{font-size:11px;letter-spacing:.08em;color:var(--muted)}.q{margin-top:24px}.row,.tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}.pill,.tag{border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 14px}.pill.sel{background:#222;color:#fff;border-color:#222}.tag.sel{color:var(--accent);border-color:var(--accent);background:#fff8f6}.actions{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-top:32px}.btn{border:none;border-radius:999px;padding:13px 20px;font-weight:700}.primary{background:#222;color:#fff}.ghost{border:1px solid var(--line);background:transparent}.box{margin-top:20px;border:1px solid var(--line);background:var(--soft);border-radius:16px;padding:18px;line-height:1.8}.price{font-size:48px;font-weight:800;margin-top:20px}.sheet{margin-top:20px;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#fff}.sheetHead{padding:26px;background:linear-gradient(#fffdfa,#f7f3ef)}.sheetBody{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;padding:22px}.photo{min-height:300px;border-radius:16px;overflow:hidden;background:#eee}.photo img{width:100%;height:100%;object-fit:cover}.facts{display:grid;grid-template-columns:1fr 1fr;gap:9px}.fact{border:1px solid var(--line);border-radius:13px;padding:13px;background:#f7f3ef}.fact small{display:block;color:var(--muted);margin-bottom:5px}.need{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.need span{border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:12px}.judge{border-left:3px solid var(--accent);padding-left:12px;line-height:1.7;margin-top:14px}.prompt{width:100%;min-height:300px;border:1px solid var(--line);border-radius:14px;padding:14px;line-height:1.65;background:#fcfbf9}.notice{margin-top:14px;padding:12px 14px;border:1px solid #ead1cc;background:#fff8f6;border-radius:12px;color:#6c342b;font-size:13px;line-height:1.6}.statusRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}.statusPill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:8px 11px;font-size:13px;font-weight:700;border:1px solid #ead7ae;background:#fff8e8;color:#8a5a16}.statusDot{width:7px;height:7px;border-radius:50%;background:#d69a2d}.error{display:none;color:var(--accent);font-size:13px;margin-top:10px}.payPanel{display:block;margin-top:22px;border:1px solid var(--line);border-radius:20px;background:#fff;padding:24px;text-align:center}.payPanel .qr{width:min(320px,82vw);margin:16px auto 12px;padding:16px;border:1px solid var(--line);border-radius:18px;background:#fff}.payPanel .qr img{width:100%;display:block;border-radius:8px}.payMeta{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:12px 0 18px}.payMeta span{font-size:13px;color:var(--muted)}.payMeta strong{display:block;color:var(--text);font-size:18px;margin-top:4px}.payHint{font-size:13px;color:var(--muted);line-height:1.7}.resultPanel{display:none;margin-top:24px;border:1px solid var(--line);border-radius:22px;background:#fff;padding:22px}.resultPanel.on{display:block}.resultGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.resultCard{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#faf8f5;min-height:220px;display:flex;flex-direction:column}.resultCard img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover}.resultMeta{padding:12px 14px}.resultMeta strong{display:block;margin-bottom:4px}.waiting{padding:34px 18px;text-align:center;color:var(--muted)}.recentOrder{display:none;margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}.recentOrder.on{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}@media(max-width:700px){.screen{padding:28px 20px}.grid,.sheetBody,.resultGrid{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}.pick{width:100%}}
 </style>
 </head>
 <body>
@@ -23,6 +23,7 @@
 <p class="lead">上传 1 张院子照片。先看清一个更适合你和家人的方向。</p>
 <div class="upload"><div class="uploadRow"><label class="pick">＋ 选择照片<input id="photos" type="file" accept="image/*"></label><div><strong>上传你的院子</strong><br><span class="small">照片会在你提交订单后安全上传，用于生成你的庭院预览。</span></div></div><div class="thumbs" id="thumbs"></div></div>
 <div class="error" id="e1">请至少上传 1 张照片。</div>
+<div class="recentOrder" id="recentOrder"><div><strong>你有一张刚刚提交的订单</strong><div class="small" id="recentOrderText"></div></div><button class="btn ghost" onclick="resumeLatestOrder()">查看订单进度</button></div>
 <div class="actions"><span class="small">完成大于完美。先看方向，再决定要不要深入。</span><button class="btn primary" onclick="next()">下一步</button></div>
 </section>
 
@@ -77,7 +78,13 @@
 <div class="statusRow"><span class="statusPill" id="paymentStatusPill"><span class="statusDot"></span>付款状态：待核验 · 通常 3–5 分钟</span></div>
 <div class="sheet"><div class="sheetHead"><div class="eye" id="order"></div><h2 id="briefTitle"></h2><div class="muted" id="briefSub"></div></div><div class="sheetBody"><div class="photo"><img id="briefPhoto"></div><div><div class="facts" id="facts"></div><div class="need" id="needs"></div><div class="judge" id="judge"></div></div></div></div>
 <div class="notice" id="generationNotice">确认这就是你想要的方向后，点击“生成我的未来庭院”。</div>
-<div class="actions"><button class="btn primary" id="generateBtn" onclick="generateFuture()">生成我的未来庭院</button><button class="btn ghost" onclick="tryAnotherStyle()">我还想再试一下另一种风格</button></div>
+<div class="resultPanel" id="resultPanel">
+  <div class="eye">YOUR GARDEN PREVIEW</div>
+  <h3 style="font-size:26px;margin:8px 0 4px">你的未来庭院</h3>
+  <div class="small" id="resultStatus">正在查看最新进度…</div>
+  <div class="resultGrid" id="resultGrid"></div>
+</div>
+<div class="actions"><button class="btn primary" id="generateBtn" onclick="generateFuture()">生成我的未来庭院</button><button class="btn ghost" onclick="checkCloudResult(true)">刷新效果图</button><button class="btn ghost" onclick="tryAnotherStyle()">我还想再试一下另一种风格</button></div>
 <textarea id="prompt" class="prompt" style="display:none"></textarea>
 </section>
 </div>
@@ -87,8 +94,21 @@ const SUPABASE_URL="https://fhvhnibznphatfnbvvnb.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_8_ElUXtWKbEM9Of37zdYug_mdWjcV4B";
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const s={step:1,photos:[],photoData:[],style:null,desc:null,owner:null,size:null,effort:null,tags:[],order:null,paymentStatus:"未支付",processStatus:"未提交",createdAt:null,photoPath:null,cloudSaved:false};
+let resultTimer=null;
 const labels=["STEP 1 / 6 · 上传照片","STEP 2 / 6 · 选择感觉","STEP 3 / 6 · 认识主人","STEP 4 / 6 · 真实需求","STEP 5 / 6 · 确认订单","STEP 6 / 6 · 需求单"];
-function render(){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("on"));document.querySelector('.screen[data-step="'+s.step+'"]').classList.add("on");bar.style.width=(s.step/6*100)+"%";label.textContent=labels[s.step-1];scrollTo({top:0,behavior:"smooth"});if(s.step===5){summary.innerHTML="<strong>当前选择</strong><br>"+s.style+" · "+s.owner+" · "+s.size+" · "+s.effort+"<br>需求："+(s.tags.length?s.tags.join("、"):"未额外选择");if(!s.order)s.order="DY-"+Date.now().toString().slice(-8);if(document.getElementById("payOrder"))payOrder.textContent=s.order}}
+function render(){
+  document.querySelectorAll(".screen").forEach(x=>x.classList.remove("on"));
+  document.querySelector('.screen[data-step="'+s.step+'"]').classList.add("on");
+  bar.style.width=(Math.min(s.step,6)/6*100)+"%";
+  label.textContent=labels[Math.min(s.step,6)-1];
+  scrollTo({top:0,behavior:"smooth"});
+  if(s.step===5){
+    summary.innerHTML="<strong>当前选择</strong><br>"+s.style+" · "+s.owner+" · "+s.size+" · "+s.effort+"<br>需求："+(s.tags.length?s.tags.join("、"):"未额外选择");
+    if(!s.order)s.order="DY-"+Date.now().toString().slice(-8);
+    if(document.getElementById("payOrder"))payOrder.textContent=s.order;
+  }
+  if(s.step===6){setTimeout(()=>checkCloudResult(false),300);startResultPolling()}else{stopResultPolling()}
+}
 function err(id){const e=document.getElementById(id);e.style.display="block";setTimeout(()=>e.style.display="none",1800)}
 function next(){if(s.step===1&&!s.photos.length){err("e1");return}if(s.step===2&&!s.style){err("e2");return}if(s.step===3&&(!s.owner||!s.size||!s.effort)){err("e3");return}s.step++;render()}
 function prev(){s.step=Math.max(1,s.step-1);render()}
@@ -167,6 +187,65 @@ function generateFuture(){
   btn.textContent="已提交，等待核验";
   note.textContent="你的庭院需求已收到。付款正在核验中，通常 3–5 分钟内完成；确认到账后我们就开始生成你的未来庭院。";
 }
+function publicResultUrl(path){
+  if(!path)return "";
+  return SUPABASE_URL+"/storage/v1/object/public/order-results/"+path.split("/").map(encodeURIComponent).join("/");
+}
+async function checkCloudResult(manual=false){
+  if(!s.order)return;
+  const panel=document.getElementById("resultPanel");
+  const grid=document.getElementById("resultGrid");
+  const status=document.getElementById("resultStatus");
+  if(!panel||!grid||!status)return;
+  if(manual)status.textContent="正在刷新最新效果…";
+  const {data,error}=await sb.rpc("get_order_result",{p_order_code:s.order});
+  if(error){if(manual)status.textContent="暂时没有读取到结果，请稍后再试。";return}
+  const r=Array.isArray(data)?data[0]:data;
+  if(!r){status.textContent="订单已提交，正在等待处理。";return}
+  if(r.payment_status==="confirmed"){
+    s.paymentStatus="已确认";
+    const pill=document.getElementById("paymentStatusPill");
+    if(pill)pill.innerHTML='<span class="statusDot" style="background:#4d8b5c"></span>付款状态：已确认';
+  }
+  const cards=[];
+  if(r.result_a_path){
+    cards.push('<div class="resultCard"><img src="'+publicResultUrl(r.result_a_path)+'?v='+Date.now()+'" alt="方向 A"><div class="resultMeta"><strong>方向 A</strong><span class="small">偏生活感与松弛感</span></div></div>');
+  }
+  if(r.result_b_path){
+    cards.push('<div class="resultCard"><img src="'+publicResultUrl(r.result_b_path)+'?v='+Date.now()+'" alt="方向 B"><div class="resultMeta"><strong>方向 B</strong><span class="small">另一种庭院方向</span></div></div>');
+  }
+  if(cards.length){
+    panel.classList.add("on");
+    grid.innerHTML=cards.join("")+(cards.length===1?'<div class="resultCard"><div class="waiting">方向 B 还在准备中</div></div>':"");
+    status.textContent=cards.length===2?"两张效果图已经准备好了。":"方向 A 已经准备好了，方向 B 还在制作中。";
+    const btn=document.getElementById("generateBtn");
+    if(btn){btn.disabled=true;btn.textContent=cards.length===2?"效果图已生成":"方向 A 已生成";}
+  }else{
+    panel.classList.add("on");
+    grid.innerHTML='<div class="resultCard" style="grid-column:1/-1"><div class="waiting">'+(r.payment_status==="confirmed"?"付款已确认，正在生成你的庭院效果图。":"付款正在核验中，请稍候。")+'</div></div>';
+    status.textContent=r.payment_status==="confirmed"?"正在生成中…":"等待付款核验…";
+  }
+}
+function startResultPolling(){
+  stopResultPolling();
+  resultTimer=setInterval(()=>{if(s.step===6)checkCloudResult(false)},15000);
+}
+function stopResultPolling(){if(resultTimer){clearInterval(resultTimer);resultTimer=null}}
+function showRecentOrder(){
+  let arr=[];try{arr=JSON.parse(localStorage.getItem("dayiGardenOrders")||"[]")}catch(e){}
+  const o=arr[0];
+  if(o&&o.order){
+    recentOrder.classList.add("on");
+    recentOrderText.textContent=o.order+" · "+(o.style||"庭院预览");
+  }
+}
+function resumeLatestOrder(){
+  let arr=[];try{arr=JSON.parse(localStorage.getItem("dayiGardenOrders")||"[]")}catch(e){}
+  const o=arr[0];if(!o||!o.order)return;
+  s.order=o.order;s.createdAt=o.createdAt;s.style=o.style;s.desc=o.desc;s.owner=o.owner;s.size=o.size;s.effort=o.effort;s.tags=o.tags||[];
+  s.photoData=o.photo?[o.photo]:[];s.paymentStatus=o.paymentStatus||"待核验";s.processStatus=o.processStatus||"等待付款核验";
+  buildBrief();s.step=6;render();
+}
 function saveOrder(){
   const key="dayiGardenOrders";
   let arr=[];try{arr=JSON.parse(localStorage.getItem(key)||"[]")}catch(e){}
@@ -181,7 +260,7 @@ function tryAnotherStyle(){
 }
 function downloadBrief(){const body='<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+s.order+' 庭院需求单</title><style>body{font-family:system-ui,"Microsoft YaHei";margin:0;background:#f8f6f3;color:#222}.w{max-width:900px;margin:auto;padding:24px}.p{background:white;border-radius:22px;overflow:hidden;border:1px solid #ddd}.h{padding:28px;background:#f7f3ef}.g{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:22px}.g img{width:100%;border-radius:16px}.f{line-height:1.9}.tag{display:inline-block;border:1px solid #ddd;border-radius:99px;padding:6px 9px;margin:3px}</style><div class="w"><div class="p"><div class="h"><small>'+s.order+'</small><h1>我的院子</h1><p>'+s.style+'｜'+s.desc+'</p></div><div class="g"><img src="'+s.photoData[0]+'"><div class="f"><b>主人：</b>'+s.owner+'<br><b>尺度：</b>'+s.size+'<br><b>维护：</b>'+s.effort+'<br><p>'+s.tags.map(x=>'<span class="tag">'+x+'</span>').join("")+'</p><p>'+judgeText()+'</p></div></div></div></div>';const blob=new Blob([body],{type:"text/html"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=s.order+"_庭院需求单.html";a.click()}
 function restart(){location.reload()}
-render()
+render();showRecentOrder();
 </script>
 </body>
 </html>
