@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026-09-18 · 庭院即时预览 MVP｜大一工作台</title>
+<style>
+:root{--bg:#f7f4ee;--paper:#fbfaf6;--ink:#242321;--muted:#8b867e;--line:#ded9cf;--red:#c6402f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif}
+.wrap{max-width:820px;margin:auto;padding:28px 20px 70px}.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:34px}
+.logo{font-family:Georgia,serif;font-size:30px}.logo i{display:inline-block;width:8px;height:8px;background:var(--red);border-radius:50%;vertical-align:top;margin-left:-4px}
+.meta{font-size:10px;color:var(--muted);letter-spacing:.12em;text-align:right;line-height:1.7}.kicker{font-size:10px;color:var(--red);letter-spacing:.16em}
+h1{font-family:Georgia,"Songti SC",serif;font-size:34px;font-weight:500;margin:8px 0 10px}h2{font-size:15px;font-weight:600;letter-spacing:.05em;margin:0 0 12px}h3{font-size:14px;margin:18px 0 8px}
+.lead{color:var(--muted);font-size:14px;line-height:1.8}.section{border-top:1px solid var(--line);padding-top:22px;margin-top:26px}
+.card{border:1px solid var(--line);background:rgba(255,255,255,.4);border-radius:8px;padding:15px;margin:10px 0}.note{border-left:2px solid var(--red);padding-left:12px;line-height:1.8}
+ul,ol{padding-left:20px;line-height:1.85;font-size:14px}p{line-height:1.85;font-size:14px}.small{font-size:12px;color:var(--muted);line-height:1.7}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 9px;margin:3px;font-size:12px}
+a{color:var(--ink);text-decoration-thickness:1px;text-underline-offset:3px}.back{display:inline-block;margin-top:28px;font-size:13px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main class="wrap">
+<div class="top"><div><div class="logo">day1<i></i></div><div class="small">大一 · 元点</div></div><div class="meta">ASSET ARCHIVE<br>2026-09-18</div></div>
+<div class="kicker">PRODUCT / SYSTEM / DESIGN STANDARD</div>
+<h1>庭院即时预览 MVP · 当日资产归档</h1>
+<p class="lead">今天把“¥69.9 庭院即时预览”从前端演示推进到可真实接单的云端 MVP，并完成第一轮生图标准、后台工作流与客户端结果回传闭环。</p>
+
+<section class="section">
+<h2>01 · 产品资产</h2>
+<div class="card">
+<p><strong>产品定位：</strong>客户上传 1 张院子照片，选一种想靠近的感觉，回答少量真实生活问题，支付 ¥69.9，先看到自己院子的未来方向。</p>
+<p><strong>核心价值：</strong>不是先做完整设计，而是帮助客户在施工前快速“看清方向”，减少做错不可逆节点的风险，同时成为咨询 → 设计 → 施工陪跑的低门槛入口。</p>
+</div>
+<p><strong>客户端：</strong><a href="https://fendi945.github.io/first-cc/garden-preview/">https://fendi945.github.io/first-cc/garden-preview/</a></p>
+<p><strong>内部后台：</strong><a href="https://fendi945.github.io/first-cc/garden-preview/dayi-console.html">https://fendi945.github.io/first-cc/garden-preview/dayi-console.html</a></p>
+<p class="small">后台地址仅内部使用，不对客户发送。</p>
+</section>
+
+<section class="section">
+<h2>02 · 客户端流程</h2>
+<ol>
+<li>上传 1 张庭院原图。</li>
+<li>选择感觉：自然松弛 / 东方留白 / 花园生活 / 静谧疗愈 / 自然野趣。</li>
+<li>回答 3 个问题：谁住、院子尺度、愿意投入多少维护时间。</li>
+<li>选择真实需求：猫咪友好、老人友好、孩子活动、低维护、想种花、喝茶发呆、朋友聚会、收纳工具、遮阴、防潮排水。</li>
+<li>扫码支付 ¥69.9。</li>
+<li>点击“我已完成支付，提交订单”。</li>
+<li>进入需求单；付款状态显示“待核验 · 通常 3–5 分钟”。</li>
+<li>后台上传效果图后，客户端可刷新 / 自动读取“你的未来庭院”。</li>
+</ol>
+<div class="note">前期不问预算。先明确生活方式、空间承载力和维护能力，再决定投入与设计深度。</div>
+</section>
+
+<section class="section">
+<h2>03 · 云端与后台资产</h2>
+<div class="grid">
+<div class="card"><strong>Supabase</strong><p class="small">项目：day1garden-orders<br>真实订单进入云数据库。</p></div>
+<div class="card"><strong>原图 Storage</strong><p class="small">order-photos<br>客户原始照片保持私有。</p></div>
+<div class="card"><strong>结果 Storage</strong><p class="small">order-results<br>MVP 当前用于客户端显示交付图。</p></div>
+<div class="card"><strong>订单状态</strong><p class="small">待核验 → 准备生图 → 已完成。</p></div>
+</div>
+<p>后台已实现：登录保护、云端读取订单、查看客户原图、确认到账、生成 ChatGPT 生图任务卡、回填方向 A / B、替换结果图、标记完成。</p>
+<p class="small">当前 MVP 技术债：为了让客户端直接显示结果图，结果图存储采用了可公开访问方式；后续正式产品应升级为更严格的客户专属结果页 / 临时签名访问。</p>
+</section>
+
+<section class="section">
+<h2>04 · 半自动生图工作流</h2>
+<ol>
+<li>客户提交订单，后台出现“待核验”。</li>
+<li>设计师确认到账，状态进入“准备生图”。</li>
+<li>后台自动整理“ChatGPT 生图任务卡”。</li>
+<li>设计师打开 / 下载客户原图，复制任务卡。</li>
+<li>把原图 + 任务卡上传到固定的 ChatGPT 庭院生图对话。</li>
+<li>ChatGPT 生成方向 A / B。</li>
+<li>设计师审图、提出专业修正，直到满足方案标准。</li>
+<li>把最终效果图上传回后台。</li>
+<li>客户端自动读取交付结果。</li>
+</ol>
+<div class="note">人工保留在“设计判断”和“审图”环节；重复的信息整理、订单流转和结果展示交给系统。</div>
+</section>
+
+<section class="section">
+<h2>05 · 生图 / 方案设计硬性标准</h2>
+<h3>A. 原场地约束</h3>
+<ul>
+<li><strong>严格保留</strong>原始建筑边界、门窗、围墙、主要地形和真实尺度。</li>
+<li>构图尽量对应原照片视角，不凭空放大空间，不随意改变建筑结构。</li>
+<li>已有可利用的鱼池、山石、树木、构筑物，优先在真实条件上优化，而不是全部推翻重造。</li>
+</ul>
+<h3>B. 交通与安全</h3>
+<ul>
+<li><strong>主要交通干线必须清晰、连续、无障碍物。</strong></li>
+<li>桌椅、花盆、山石、小品不能放在入口、门口和主通行动线上。</li>
+<li>老人友好时，优先保证平稳、连续、防滑、无绊脚高差。</li>
+<li>好看之前先保证好用、安全和长期成立。</li>
+</ul>
+<h3>C. 水池与竖向</h3>
+<ul>
+<li><strong>水池岸线不能无理由高高凸起。</strong></li>
+<li>水池旁铺装应与大面铺装形成合理、连续的水平关系。</li>
+<li>需要自然岸线时，以<strong>自然山石环绕 / 收边</strong>，避免生硬高墙式池边。</li>
+<li>池岸、山石、跌水必须符合真实施工与使用逻辑，不为造型牺牲安全。</li>
+</ul>
+<h3>D. 防潮与排水</h3>
+<ul>
+<li>防潮、坡向、排水节点优先于表面装饰。</li>
+<li>靠墙区域不能因种植或堆景阻碍排水、加剧返潮。</li>
+<li>硬化、绿地、水体之间需要有真实的排水逻辑。</li>
+</ul>
+<h3>E. 植物与维护</h3>
+<ul>
+<li>植物自然生长、有层次、有光影，但不过密。</li>
+<li>根据客户维护投入控制植物数量、修剪频率和复杂度。</li>
+<li>低维护不是“没有植物”，而是少而精、结构稳定。</li>
+</ul>
+<h3>F. 审美原则</h3>
+<ul>
+<li>自然、克制、舒适、有秩序。</li>
+<li><strong>留白 ＞ 堆砌。</strong></li>
+<li>避免网红式元素堆满、过度硬化、不现实的大型景观和“设计感用力过猛”。</li>
+<li>最终效果要像真实住宅庭院，而不是概念效果图。</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>06 · 当前方向 A 标准</h2>
+<div class="card">
+<p><strong>方向 A：偏生活感与松弛感。</strong></p>
+<p>舒适和使用优先；让人愿意坐下来、喝茶、看鱼、陪家人、朋友小聚。家具只进入真正的停留区，不侵占主要交通动线。</p>
+<p>东方留白时，重点不是继续增加元素，而是通过减法、整理边界、扩大呼吸感，让空间安静下来。</p>
+</div>
+</section>
+
+<section class="section">
+<h2>07 · 今天验证通过的关键节点</h2>
+<ul>
+<li>客户手机提交订单 → 电脑后台成功收到真实云订单。</li>
+<li>邮箱 / 后台登录成功。</li>
+<li>公司收款二维码替换为真实原码。</li>
+<li>付款核验提示明确为“通常 3–5 分钟”。</li>
+<li>后台可生成 ChatGPT 任务卡。</li>
+<li>方向 A / B 可上传、重新上传并处理浏览器缓存问题。</li>
+<li>客户端已接入后台结果显示，并增加“查看订单进度 / 刷新效果图”。</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>08 · 下一阶段</h2>
+<ul>
+<li>完善“客户专属结果页”，替代当前通用客户端结果展示。</li>
+<li>方向 A / B 都完成后，自动生成分享页与“我也想看看自己的院子”入口。</li>
+<li>结果图访问权限进一步收紧。</li>
+<li>继续沉淀不同庭院类型的生图硬标准，形成“大一造园 AI 方案审图标准”。</li>
+<li>未来有 OpenAI API 或其他稳定图像接口时，再考虑从半自动升级为全自动。</li>
+</ul>
+</section>
+
+<a class="back" href="../index.html#assets">← 返回大一工作台</a>
+</main></body></html>
