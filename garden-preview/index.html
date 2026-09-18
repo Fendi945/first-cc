@@ -61,8 +61,8 @@
 <section class="screen" data-step="6">
 <div class="muted">DAYI GARDEN BRIEF</div><h2>你的庭院需求单</h2>
 <div class="sheet"><div class="sheetHead"><div class="eye" id="order"></div><h2 id="briefTitle"></h2><div class="muted" id="briefSub"></div></div><div class="sheetBody"><div class="photo"><img id="briefPhoto"></div><div><div class="facts" id="facts"></div><div class="need" id="needs"></div><div class="judge" id="judge"></div></div></div></div>
-<div class="notice">测试阶段：这张需求单可以直接下载或截图发给大一。效果图由大一根据需求单生成后再回传。正式版会把这一步自动化。</div>
-<div class="actions"><div><button class="btn ghost" onclick="downloadBrief()">下载需求单网页</button> <button class="btn ghost" onclick="copyPrompt()">复制生图任务</button></div><button class="btn primary" onclick="restart()">我也想再试一个院子</button></div>
+<div class="notice" id="generationNotice">确认这就是你想要的方向后，点击“生成我的未来庭院”。</div>
+<div class="actions"><button class="btn primary" id="generateBtn" onclick="generateFuture()">生成我的未来庭院</button><button class="btn ghost" onclick="tryAnotherStyle()">我还想再试一下另一种风格</button></div>
 <textarea id="prompt" class="prompt" style="display:none"></textarea>
 </section>
 </div>
@@ -83,6 +83,17 @@ function judgeText(){let a=[s.style+"是这次改造的主方向。"];if(s.owner
 function makePrompt(){return "请基于用户上传的庭院原始照片，生成一张可落地、不过度改造的庭院改造效果图。\n\n【核心要求】\n1. 保留建筑边界、门窗、围墙、主要地形与真实尺度，不凭空扩大空间。\n2. 风格方向："+s.style+"。\n3. 情绪关键词："+s.desc+"\n4. 居住者："+s.owner+"。\n5. 院子尺度："+s.size+"。\n6. 日常维护投入："+s.effort+"。\n7. 真实需求："+(s.tags.length?s.tags.join("、"):"无额外标签")+"。\n8. 舒适、克制、自然、有秩序，避免网红堆砌、过度硬化和不现实的大型景观。\n9. 植物自然生长、有层次、有光影，同时考虑维护。\n10. 所有改造符合真实住宅庭院施工和使用逻辑。\n\n【方向 A】偏生活感与松弛感，把舒适和使用放在第一位。\n\n请输出真实摄影感庭院改造效果图，构图尽量对应原照片视角。"}
 function buildBrief(){order.textContent="订单 "+s.order;briefTitle.textContent="我的院子";briefSub.textContent=s.style+"｜"+s.desc;briefPhoto.src=s.photoData[0];facts.innerHTML='<div class="fact"><small>主人</small><strong>'+s.owner+'</strong></div><div class="fact"><small>尺度</small><strong>'+s.size+'</strong></div><div class="fact"><small>维护投入</small><strong>'+s.effort+'</strong></div><div class="fact"><small>风格</small><strong>'+s.style+'</strong></div>';needs.innerHTML=(s.tags.length?s.tags:["暂无额外标签"]).map(x=>"<span>"+x+"</span>").join("");judge.textContent=judgeText();prompt.value=makePrompt()}
 function copyPrompt(){navigator.clipboard.writeText(prompt.value).then(()=>alert("生图任务已复制"))}
+function generateFuture(){
+  const btn=document.getElementById("generateBtn");
+  const note=document.getElementById("generationNotice");
+  btn.disabled=true;
+  btn.textContent="正在准备你的庭院…";
+  note.textContent="需求已经整理完成。当前 Beta 版还没有接入自动收单后台；下一版会把照片和需求自动提交给大一，并在这里返回效果图。";
+}
+function tryAnotherStyle(){
+  s.step=2;
+  render();
+}
 function downloadBrief(){const body='<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+s.order+' 庭院需求单</title><style>body{font-family:system-ui,"Microsoft YaHei";margin:0;background:#f8f6f3;color:#222}.w{max-width:900px;margin:auto;padding:24px}.p{background:white;border-radius:22px;overflow:hidden;border:1px solid #ddd}.h{padding:28px;background:#f7f3ef}.g{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:22px}.g img{width:100%;border-radius:16px}.f{line-height:1.9}.tag{display:inline-block;border:1px solid #ddd;border-radius:99px;padding:6px 9px;margin:3px}</style><div class="w"><div class="p"><div class="h"><small>'+s.order+'</small><h1>我的院子</h1><p>'+s.style+'｜'+s.desc+'</p></div><div class="g"><img src="'+s.photoData[0]+'"><div class="f"><b>主人：</b>'+s.owner+'<br><b>尺度：</b>'+s.size+'<br><b>维护：</b>'+s.effort+'<br><p>'+s.tags.map(x=>'<span class="tag">'+x+'</span>').join("")+'</p><p>'+judgeText()+'</p></div></div></div></div>';const blob=new Blob([body],{type:"text/html"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=s.order+"_庭院需求单.html";a.click()}
 function restart(){location.reload()}
 render()
