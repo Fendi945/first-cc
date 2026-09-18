@@ -74,7 +74,7 @@
 
 <section class="screen" data-step="6">
 <div class="muted">DAYI GARDEN BRIEF</div><h2>你的庭院需求单</h2>
-<div class="statusRow"><span class="statusPill" id="paymentStatusPill"><span class="statusDot"></span>付款状态：待核验</span></div>
+<div class="statusRow"><span class="statusPill" id="paymentStatusPill"><span class="statusDot"></span>付款状态：待核验 · 通常 3–5 分钟</span></div>
 <div class="sheet"><div class="sheetHead"><div class="eye" id="order"></div><h2 id="briefTitle"></h2><div class="muted" id="briefSub"></div></div><div class="sheetBody"><div class="photo"><img id="briefPhoto"></div><div><div class="facts" id="facts"></div><div class="need" id="needs"></div><div class="judge" id="judge"></div></div></div></div>
 <div class="notice" id="generationNotice">确认这就是你想要的方向后，点击“生成我的未来庭院”。</div>
 <div class="actions"><button class="btn primary" id="generateBtn" onclick="generateFuture()">生成我的未来庭院</button><button class="btn ghost" onclick="tryAnotherStyle()">我还想再试一下另一种风格</button></div>
@@ -94,7 +94,7 @@ document.querySelectorAll("#styles .card").forEach(c=>c.onclick=()=>{document.qu
 document.querySelectorAll(".single").forEach(r=>r.querySelectorAll(".pill").forEach(b=>b.onclick=()=>{r.querySelectorAll(".pill").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");s[r.dataset.k]=b.textContent.trim()}))
 document.querySelectorAll("#tags .tag").forEach(t=>t.onclick=()=>{t.classList.toggle("sel");s.tags=Array.from(document.querySelectorAll("#tags .tag.sel")).map(x=>x.textContent.trim())})
 function openPayment(){if(!s.order)s.order="DY-"+Date.now().toString().slice(-8);if(document.getElementById("payOrder"))payOrder.textContent=s.order}
-function confirmPayment(){s.paymentStatus="待核验";s.processStatus="等待付款核验";s.createdAt=new Date().toISOString();saveOrder();buildBrief();s.step=6;render();if(document.getElementById("paymentStatusPill"))document.getElementById("paymentStatusPill").innerHTML='<span class="statusDot"></span>付款状态：待核验'}
+function confirmPayment(){s.paymentStatus="待核验";s.processStatus="等待付款核验";s.createdAt=new Date().toISOString();saveOrder();buildBrief();s.step=6;render();if(document.getElementById("paymentStatusPill"))document.getElementById("paymentStatusPill").innerHTML='<span class="statusDot"></span>付款状态：待核验 · 通常 3–5 分钟'}
 function judgeText(){let a=[s.style+"是这次改造的主方向。"];if(s.owner==="父母 / 长辈"||s.tags.includes("老人友好"))a.push("安全、平稳和清晰动线优先于造景。");if(s.owner==="我和猫狗"||s.tags.includes("猫咪友好"))a.push("围合、安全植物和宠物活动边界需要先解决。");if(s.effort==="几乎没时间"||s.tags.includes("低维护"))a.push("植物数量与修剪频率都应该克制。");if(s.tags.includes("防潮排水"))a.push("靠墙防潮、坡向和排水节点要先于表面装饰。");a.push("第一版不追求堆满，而是先做对。");return a.join(" ")}
 function makePrompt(){return "请基于用户上传的庭院原始照片，生成一张可落地、不过度改造的庭院改造效果图。\n\n【核心要求】\n1. 保留建筑边界、门窗、围墙、主要地形与真实尺度，不凭空扩大空间。\n2. 风格方向："+s.style+"。\n3. 情绪关键词："+s.desc+"\n4. 居住者："+s.owner+"。\n5. 院子尺度："+s.size+"。\n6. 日常维护投入："+s.effort+"。\n7. 真实需求："+(s.tags.length?s.tags.join("、"):"无额外标签")+"。\n8. 舒适、克制、自然、有秩序，避免网红堆砌、过度硬化和不现实的大型景观。\n9. 植物自然生长、有层次、有光影，同时考虑维护。\n10. 所有改造符合真实住宅庭院施工和使用逻辑。\n\n【方向 A】偏生活感与松弛感，把舒适和使用放在第一位。\n\n请输出真实摄影感庭院改造效果图，构图尽量对应原照片视角。"}
 function buildBrief(){order.textContent="订单 "+s.order;briefTitle.textContent="我的院子";briefSub.textContent=s.style+"｜"+s.desc;briefPhoto.src=s.photoData[0];facts.innerHTML='<div class="fact"><small>主人</small><strong>'+s.owner+'</strong></div><div class="fact"><small>尺度</small><strong>'+s.size+'</strong></div><div class="fact"><small>维护投入</small><strong>'+s.effort+'</strong></div><div class="fact"><small>风格</small><strong>'+s.style+'</strong></div>';needs.innerHTML=(s.tags.length?s.tags:["暂无额外标签"]).map(x=>"<span>"+x+"</span>").join("");judge.textContent=judgeText();prompt.value=makePrompt()}
@@ -107,7 +107,7 @@ function generateFuture(){
     saveOrder();
     btn.disabled=true;
     btn.textContent="已提交，等待核验";
-    note.textContent="你的庭院需求已收到。当前付款状态为待核验，确认到账后我们将开始生成你的未来庭院。";
+    note.textContent="你的庭院需求已收到。付款正在核验中，通常 3–5 分钟内完成；确认到账后我们就开始生成你的未来庭院。";
     return;
   }
   s.processStatus="待生图";
