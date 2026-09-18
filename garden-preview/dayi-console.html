@@ -24,7 +24,7 @@ button,input,textarea{font:inherit}.wrap{max-width:1240px;margin:auto;padding:26
 .detailBody{padding:20px}.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.photo{border-radius:16px;overflow:hidden;background:#eee;min-height:300px;display:flex;align-items:center;justify-content:center}.photo img{width:100%;height:100%;object-fit:cover}.facts{display:grid;grid-template-columns:1fr 1fr;gap:9px}.fact{background:var(--soft);border:1px solid var(--line);border-radius:13px;padding:13px}.fact small{display:block;color:var(--muted);margin-bottom:5px}.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.tag{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:6px 9px}
 .section{margin-top:20px}.section h3{margin:0 0 10px}.prompt{width:100%;min-height:210px;border:1px solid var(--line);border-radius:14px;padding:14px;line-height:1.6;background:#fcfbf9}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.slots{display:grid;grid-template-columns:1fr 1fr;gap:12px}.slot{min-height:190px;border:1.5px dashed #bbb2aa;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:#faf8f5}.slot input{display:none}.slot label{cursor:pointer;color:var(--muted);padding:20px;text-align:center}.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .empty{padding:40px;color:var(--muted);text-align:center}.small{font-size:12px;color:var(--muted)}.hidden{display:none!important}
-.loginWrap{max-width:520px;margin:70px auto}.loginCard{background:#fff;border:1px solid var(--line);border-radius:24px;padding:30px;box-shadow:0 18px 44px rgba(30,24,20,.06)}.loginCard h1{font-size:34px;margin:6px 0 10px}.loginCard p{color:var(--muted);line-height:1.7}.field{display:flex;flex-direction:column;gap:7px;margin-top:14px}.field label{font-size:13px;color:var(--muted)}.field input{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff}.loginActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.statusText{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.6}
+.loginWrap{max-width:520px;margin:70px auto}.loginCard{background:#fff;border:1px solid var(--line);border-radius:24px;padding:30px;box-shadow:0 18px 44px rgba(30,24,20,.06)}.loginCard h1{font-size:34px;margin:6px 0 10px}.loginCard p{color:var(--muted);line-height:1.7}.field{display:flex;flex-direction:column;gap:7px;margin-top:14px}.field label{font-size:13px;color:var(--muted)}.field input{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff}.loginActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.statusText{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.6}.taskCard{margin-top:18px;border:1px solid var(--line);border-radius:16px;background:#faf8f5;padding:16px}.taskCard h4{margin:0 0 8px}.taskMeta{font-size:13px;color:var(--muted);line-height:1.7}.taskText{white-space:pre-wrap;border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px;margin-top:10px;line-height:1.65;font-size:14px}
 @media(max-width:900px){.stats{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.list{min-height:0}.orders{max-height:360px}}
 </style>
 </head>
@@ -51,18 +51,18 @@ button,input,textarea{font:inherit}.wrap{max-width:1240px;margin:auto;padding:26
   </div>
 
   <div id="appView" class="hidden">
-    <div class="notice"><strong>云端后台已接通。</strong> 客户从任意手机或电脑提交后，订单会进入这里。处理顺序：核验付款 → 生图 → 回填两张效果图 → 标记完成。</div>
+    <div class="notice"><strong>云端后台已接通。</strong> 客户从任意手机或电脑提交后，订单会进入这里。处理顺序：核验付款 → 准备生图任务 → 在 ChatGPT 生成两张效果图 → 回填结果 → 标记完成。</div>
     <div class="stats">
       <div class="stat"><small>全部订单</small><strong id="stAll">0</strong></div>
       <div class="stat"><small>待核验付款</small><strong id="stPay">0</strong></div>
-      <div class="stat"><small>待生图</small><strong id="stGen">0</strong></div>
+      <div class="stat"><small>准备生图</small><strong id="stGen">0</strong></div>
       <div class="stat"><small>已完成</small><strong id="stDone">0</strong></div>
     </div>
     <div class="toolbar">
       <div class="tabs">
         <button class="tab on" data-f="all">全部</button>
         <button class="tab" data-f="pay">① 待核验</button>
-        <button class="tab" data-f="gen">② 待生图</button>
+        <button class="tab" data-f="gen">② 准备生图</button>
         <button class="tab" data-f="done">③ 已完成</button>
       </div>
       <div style="display:flex;gap:8px">
@@ -93,7 +93,7 @@ let allOrders=[], filter="all", selected=null;
 
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function payLabel(v){return v==="confirmed"?"已确认":"待核验"}
-function processLabel(v){return v==="pending_generation"?"待生图":v==="completed"?"已完成":"等待付款核验"}
+function processLabel(v){return v==="pending_generation"?"准备生图":v==="completed"?"已完成":"等待付款核验"}
 function match(o){if(filter==="pay")return o.payment_status!=="confirmed";if(filter==="gen")return o.process_status==="pending_generation";if(filter==="done")return o.process_status==="completed";return true}
 function counts(a){stAll.textContent=a.length;stPay.textContent=a.filter(x=>x.payment_status!=="confirmed").length;stGen.textContent=a.filter(x=>x.process_status==="pending_generation").length;stDone.textContent=a.filter(x=>x.process_status==="completed").length}
 
@@ -181,11 +181,11 @@ async function drawDetail(o){
         '</div>'+
         '<div class="tags">'+(o.needs||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join("")+'</div>'+
         '<div class="actions">'+
-          (o.payment_status!=="confirmed"?'<button class="btn primary" onclick="confirmPay(\''+o.id+'\')">确认到账并进入待生图</button>':'<span class="chip ok">款项已确认</span>')+
+          (o.payment_status!=="confirmed"?'<button class="btn primary" onclick="confirmPay(\''+o.id+'\')">确认到账并进入准备生图</button>':'<span class="chip ok">款项已确认</span>')+
         '</div>'+
       '</div>'+
     '</div>'+
-    '<div class="section"><h3>生图任务</h3><textarea class="prompt" id="p">'+esc(o.prompt||"")+'</textarea><div class="actions"><button class="btn" onclick="copyPrompt()">复制提示词</button></div></div>'+
+    '<div class="section"><h3>准备生图</h3><div class="taskCard"><h4>ChatGPT 生图任务卡</h4><div class="taskMeta">把客户原图下载下来后，上传到固定的 ChatGPT 庭院生图对话；再复制下面任务卡，一起发给 ChatGPT。</div><div class="taskText" id="taskText">'+esc(makeTaskCard(o))+'</div><div class="actions"><button class="btn" onclick="copyTaskCard()">复制任务卡</button>'+(photoUrl?'<a class="btn" href="'+photoUrl+'" target="_blank" download>打开 / 下载客户原图</a>':'')+'</div></div><textarea class="prompt hidden" id="p">'+esc(o.prompt||"")+'</textarea></div>'+
     '<div class="section"><h3>效果图回填</h3><div class="slots">'+
       '<div class="slot" id="slotA">'+(aUrl?'<img src="'+aUrl+'">':'<label>上传方向 A<input type="file" accept="image/*" onchange="uploadResult(event,\''+o.id+'\',\'A\')"></label>')+'</div>'+
       '<div class="slot" id="slotB">'+(bUrl?'<img src="'+bUrl+'">':'<label>上传方向 B<input type="file" accept="image/*" onchange="uploadResult(event,\''+o.id+'\',\'B\')"></label>')+'</div>'+
@@ -221,6 +221,11 @@ async function finishOrder(id){
   if(error){alert("更新失败："+error.message);return}
   await loadOrders();selected=id;await openOrder(id);
 }
+function makeTaskCard(o){
+  const needs=(o.needs||[]).length?(o.needs||[]).join("、"):"无额外标签";
+  return "【大一造园 · 庭院生图任务】\n订单号："+(o.order_code||"—")+"\n风格："+(o.style||"—")+"\n情绪方向："+(o.style_desc||"—")+"\n居住者："+(o.owner_type||"—")+"\n院子尺度："+(o.yard_size||"—")+"\n维护投入："+(o.maintenance_level||"—")+"\n真实需求："+needs+"\n\n请基于我同时上传的客户院子原始照片，严格保留建筑边界、门窗、围墙、主要地形与真实尺度，生成可落地、不过度改造的庭院效果图。\n画面要求舒适、克制、自然、有秩序，避免网红堆砌、过度硬化和不现实的大型景观。植物要有自然生长感、层次和光影，同时考虑后期维护。所有改造符合真实住宅庭院施工和使用逻辑。\n\n请先生成方向 A：偏生活感与松弛感，把舒适与使用放在第一位。构图尽量对应原照片视角，真实摄影感。";
+}
+function copyTaskCard(){const t=document.getElementById("taskText");navigator.clipboard.writeText(t.innerText).then(()=>alert("任务卡已复制"))}
 function copyPrompt(){const t=document.getElementById("p");navigator.clipboard.writeText(t.value).then(()=>alert("提示词已复制"))}
 
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");filter=t.dataset.f;renderList()});
