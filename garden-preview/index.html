@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>大一造园｜庭院即时预览</title>
+<meta name="description" content="上传你的院子，选一种感觉，先看清一个更适合你和家人的庭院方向。">
+<style>
+:root{--bg:#f8f6f3;--paper:#fffdfa;--text:#222;--muted:#746f69;--line:#e4ddd6;--accent:#c6402f;--soft:#f3eee8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif}button,input{font:inherit}button{cursor:pointer}.app{max-width:980px;margin:auto;padding:24px 16px 72px}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.brand{display:flex;gap:8px;align-items:center;font-weight:700}.latin{font:700 28px Georgia,serif}.dot{width:9px;height:9px;border-radius:50%;background:var(--accent)}.ver{font-size:12px;color:var(--muted)}.bar{height:4px;border-radius:99px;overflow:hidden;background:#e9e2db}.bar i{display:block;height:100%;background:#222;width:16%;transition:.25s}.stepLabel{font-size:12px;color:var(--muted);margin:8px 0 20px;letter-spacing:.06em}.screen{display:none;background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:44px;box-shadow:0 18px 44px rgba(30,24,20,.06)}.screen.on{display:block}h1{font-size:clamp(38px,6vw,64px);line-height:1.05;letter-spacing:-.04em;margin:10px 0 18px}h2{font-size:clamp(28px,4vw,44px);line-height:1.12;margin:8px 0 14px;letter-spacing:-.025em}.lead{font-size:18px;line-height:1.8;color:#514c48;max-width:760px}.muted,.small{color:var(--muted)}.small{font-size:13px}.upload{margin-top:28px;border:1.5px dashed #bbb2aa;border-radius:18px;background:#fbf9f6;padding:22px}.uploadRow{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.pick{display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;background:#222;color:white;border-radius:999px;font-weight:700;min-width:150px}.pick input{display:none}.thumbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:16px}.thumb{aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:#eee}.thumb img{width:100%;height:100%;object-fit:cover}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:24px}.card{border:1px solid var(--line);border-radius:16px;background:#fff;padding:18px;min-height:118px;display:flex;flex-direction:column;justify-content:space-between}.card.sel{border-color:#222;box-shadow:inset 0 0 0 1px #222}.eye{font-size:11px;letter-spacing:.08em;color:var(--muted)}.q{margin-top:24px}.row,.tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}.pill,.tag{border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 14px}.pill.sel{background:#222;color:#fff;border-color:#222}.tag.sel{color:var(--accent);border-color:var(--accent);background:#fff8f6}.actions{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-top:32px}.btn{border:none;border-radius:999px;padding:13px 20px;font-weight:700}.primary{background:#222;color:#fff}.ghost{border:1px solid var(--line);background:transparent}.box{margin-top:20px;border:1px solid var(--line);background:var(--soft);border-radius:16px;padding:18px;line-height:1.8}.price{font-size:48px;font-weight:800;margin-top:20px}.sheet{margin-top:20px;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#fff}.sheetHead{padding:26px;background:linear-gradient(#fffdfa,#f7f3ef)}.sheetBody{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;padding:22px}.photo{min-height:300px;border-radius:16px;overflow:hidden;background:#eee}.photo img{width:100%;height:100%;object-fit:cover}.facts{display:grid;grid-template-columns:1fr 1fr;gap:9px}.fact{border:1px solid var(--line);border-radius:13px;padding:13px;background:#f7f3ef}.fact small{display:block;color:var(--muted);margin-bottom:5px}.need{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.need span{border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:12px}.judge{border-left:3px solid var(--accent);padding-left:12px;line-height:1.7;margin-top:14px}.prompt{width:100%;min-height:300px;border:1px solid var(--line);border-radius:14px;padding:14px;line-height:1.65;background:#fcfbf9}.notice{margin-top:14px;padding:12px 14px;border:1px solid #ead1cc;background:#fff8f6;border-radius:12px;color:#6c342b;font-size:13px;line-height:1.6}.error{display:none;color:var(--accent);font-size:13px;margin-top:10px}@media(max-width:700px){.screen{padding:28px 20px}.grid,.sheetBody{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}.pick{width:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top"><div class="brand"><span class="latin">dayi</span><span class="dot"></span><span>大一造园</span></div><div class="ver">庭院即时预览 · Beta</div></div>
+<div class="bar"><i id="bar"></i></div><div class="stepLabel" id="label"></div>
+
+<section class="screen on" data-step="1">
+<div class="muted">先别想得太复杂。</div><h1>你想立刻看到自己的院子<br>变美的样子吗？</h1>
+<p class="lead">上传 1–5 张院子照片。先看清一个更适合你和家人的方向。</p>
+<div class="upload"><div class="uploadRow"><label class="pick">＋ 选择照片<input id="photos" type="file" accept="image/*" multiple></label><div><strong>上传你的院子</strong><br><span class="small">照片只在你的浏览器里处理，测试版不会自动上传到服务器。</span></div></div><div class="thumbs" id="thumbs"></div></div>
+<div class="error" id="e1">请至少上传 1 张照片。</div>
+<div class="actions"><span class="small">完成大于完美。先看方向，再决定要不要深入。</span><button class="btn primary" onclick="next()">下一步</button></div>
+</section>
+
+<section class="screen" data-step="2">
+<div class="muted">选一种你想靠近的感觉。</div><h2>你希望这个院子，是什么状态？</h2>
+<p class="lead">不是选“装修风格”，而是选你真正想在里面生活时的感受。</p>
+<div class="grid" id="styles">
+<div class="card" data-s="自然松弛" data-d="被你的院子轻轻抱住。"><div><div class="eye">01 / NATURAL</div><h3>自然松弛</h3></div><p>被你的院子轻轻抱住。</p></div>
+<div class="card" data-s="东方留白" data-d="少一点堆砌，多一点呼吸。"><div><div class="eye">02 / EASTERN</div><h3>东方留白</h3></div><p>少一点堆砌，多一点呼吸。</p></div>
+<div class="card" data-s="花园生活" data-d="让吃饭、喝茶、晒太阳都有位置。"><div><div class="eye">03 / LIVING</div><h3>花园生活</h3></div><p>让吃饭、喝茶、晒太阳都有位置。</p></div>
+<div class="card" data-s="静谧疗愈" data-d="安静、柔和，回家以后慢下来。"><div><div class="eye">04 / HEALING</div><h3>静谧疗愈</h3></div><p>安静、柔和，回家以后慢下来。</p></div>
+<div class="card" data-s="自然野趣" data-d="有一点野，但依然干净、有秩序。"><div><div class="eye">05 / WILD</div><h3>自然野趣</h3></div><p>有一点野，但依然干净、有秩序。</p></div>
+</div><div class="error" id="e2">请先选一种感觉。</div>
+<div class="actions"><button class="btn ghost" onclick="prev()">返回</button><button class="btn primary" onclick="next()">下一步</button></div>
+</section>
+
+<section class="screen" data-step="3">
+<div class="muted">先看人，再看院子。</div><h2>这个院子真正为谁服务？</h2>
+<div class="q"><h3>1. 谁住这个院子？</h3><div class="row single" data-k="owner"><button class="pill">我和家人</button><button class="pill">我和猫狗</button><button class="pill">父母 / 长辈</button><button class="pill">我一个人</button></div></div>
+<div class="q"><h3>2. 院子大概多大？</h3><div class="row single" data-k="size"><button class="pill">30㎡以内</button><button class="pill">30–60㎡</button><button class="pill">60–100㎡</button><button class="pill">100㎡以上</button></div></div>
+<div class="q"><h3>3. 愿意投入多少时间打理？</h3><div class="row single" data-k="effort"><button class="pill">几乎没时间</button><button class="pill">偶尔打理</button><button class="pill">愿意慢慢养</button></div></div>
+<div class="error" id="e3">三个问题都选一下。</div>
+<div class="actions"><button class="btn ghost" onclick="prev()">返回</button><button class="btn primary" onclick="next()">下一步</button></div>
+</section>
+
+<section class="screen" data-step="4">
+<div class="muted">再补一点真实生活。</div><h2>这个院子还要照顾什么？</h2>
+<div class="tags" id="tags"><button class="tag">猫咪友好</button><button class="tag">老人友好</button><button class="tag">孩子活动</button><button class="tag">低维护</button><button class="tag">想种花</button><button class="tag">喝茶发呆</button><button class="tag">朋友聚会</button><button class="tag">收纳工具</button><button class="tag">遮阴</button><button class="tag">防潮排水</button></div>
+<div class="actions"><button class="btn ghost" onclick="prev()">返回</button><button class="btn primary" onclick="next()">看看订单</button></div>
+</section>
+
+<section class="screen" data-step="5">
+<div class="muted">这不是完整设计费。</div><h2>￥69.9，先买一个“看清方向”</h2>
+<p class="lead">得到庭院方向判断、改造预览任务单和针对你的建议。Beta 版暂时使用模拟支付。</p>
+<div class="box" id="summary"></div><div class="price">¥69.9</div>
+<div class="actions"><button class="btn ghost" onclick="prev()">返回修改</button><button class="btn primary" onclick="pay()">模拟支付并生成需求单</button></div>
+</section>
+
+<section class="screen" data-step="6">
+<div class="muted">DAYI GARDEN BRIEF</div><h2>你的庭院需求单</h2>
+<div class="sheet"><div class="sheetHead"><div class="eye" id="order"></div><h2 id="briefTitle"></h2><div class="muted" id="briefSub"></div></div><div class="sheetBody"><div class="photo"><img id="briefPhoto"></div><div><div class="facts" id="facts"></div><div class="need" id="needs"></div><div class="judge" id="judge"></div></div></div></div>
+<div class="notice">测试阶段：这张需求单可以直接下载或截图发给大一。效果图由大一根据需求单生成后再回传。正式版会把这一步自动化。</div>
+<div class="actions"><div><button class="btn ghost" onclick="downloadBrief()">下载需求单网页</button> <button class="btn ghost" onclick="copyPrompt()">复制生图任务</button></div><button class="btn primary" onclick="restart()">我也想再试一个院子</button></div>
+<textarea id="prompt" class="prompt" style="display:none"></textarea>
+</section>
+</div>
+<script>
+const s={step:1,photos:[],photoData:[],style:null,desc:null,owner:null,size:null,effort:null,tags:[],order:null};
+const labels=["STEP 1 / 6 · 上传照片","STEP 2 / 6 · 选择感觉","STEP 3 / 6 · 认识主人","STEP 4 / 6 · 真实需求","STEP 5 / 6 · 确认订单","STEP 6 / 6 · 需求单"];
+function render(){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("on"));document.querySelector('.screen[data-step="'+s.step+'"]').classList.add("on");bar.style.width=(s.step/6*100)+"%";label.textContent=labels[s.step-1];scrollTo({top:0,behavior:"smooth"});if(s.step===5)summary.innerHTML="<strong>当前选择</strong><br>"+s.style+" · "+s.owner+" · "+s.size+" · "+s.effort+"<br>需求："+(s.tags.length?s.tags.join("、"):"未额外选择")}
+function err(id){const e=document.getElementById(id);e.style.display="block";setTimeout(()=>e.style.display="none",1800)}
+function next(){if(s.step===1&&!s.photos.length){err("e1");return}if(s.step===2&&!s.style){err("e2");return}if(s.step===3&&(!s.owner||!s.size||!s.effort)){err("e3");return}s.step++;render()}
+function prev(){s.step=Math.max(1,s.step-1);render()}
+function toData(f){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(f)})}
+photos.onchange=async e=>{s.photos=Array.from(e.target.files).slice(0,5);s.photoData=[];thumbs.innerHTML="";for(const f of s.photos){const d=await toData(f);s.photoData.push(d);thumbs.innerHTML+='<div class="thumb"><img src="'+d+'"></div>'}}
+document.querySelectorAll("#styles .card").forEach(c=>c.onclick=()=>{document.querySelectorAll("#styles .card").forEach(x=>x.classList.remove("sel"));c.classList.add("sel");s.style=c.dataset.s;s.desc=c.dataset.d})
+document.querySelectorAll(".single").forEach(r=>r.querySelectorAll(".pill").forEach(b=>b.onclick=()=>{r.querySelectorAll(".pill").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");s[r.dataset.k]=b.textContent.trim()}))
+document.querySelectorAll("#tags .tag").forEach(t=>t.onclick=()=>{t.classList.toggle("sel");s.tags=Array.from(document.querySelectorAll("#tags .tag.sel")).map(x=>x.textContent.trim())})
+function pay(){s.order="DY-"+Date.now().toString().slice(-8);buildBrief();s.step=6;render()}
+function judgeText(){let a=[s.style+"是这次改造的主方向。"];if(s.owner==="父母 / 长辈"||s.tags.includes("老人友好"))a.push("安全、平稳和清晰动线优先于造景。");if(s.owner==="我和猫狗"||s.tags.includes("猫咪友好"))a.push("围合、安全植物和宠物活动边界需要先解决。");if(s.effort==="几乎没时间"||s.tags.includes("低维护"))a.push("植物数量与修剪频率都应该克制。");if(s.tags.includes("防潮排水"))a.push("靠墙防潮、坡向和排水节点要先于表面装饰。");a.push("第一版不追求堆满，而是先做对。");return a.join(" ")}
+function makePrompt(){return "请基于用户上传的庭院原始照片，生成一张可落地、不过度改造的庭院改造效果图。\n\n【核心要求】\n1. 保留建筑边界、门窗、围墙、主要地形与真实尺度，不凭空扩大空间。\n2. 风格方向："+s.style+"。\n3. 情绪关键词："+s.desc+"\n4. 居住者："+s.owner+"。\n5. 院子尺度："+s.size+"。\n6. 日常维护投入："+s.effort+"。\n7. 真实需求："+(s.tags.length?s.tags.join("、"):"无额外标签")+"。\n8. 舒适、克制、自然、有秩序，避免网红堆砌、过度硬化和不现实的大型景观。\n9. 植物自然生长、有层次、有光影，同时考虑维护。\n10. 所有改造符合真实住宅庭院施工和使用逻辑。\n\n【方向 A】偏生活感与松弛感，把舒适和使用放在第一位。\n\n请输出真实摄影感庭院改造效果图，构图尽量对应原照片视角。"}
+function buildBrief(){order.textContent="订单 "+s.order;briefTitle.textContent="我的院子";briefSub.textContent=s.style+"｜"+s.desc;briefPhoto.src=s.photoData[0];facts.innerHTML='<div class="fact"><small>主人</small><strong>'+s.owner+'</strong></div><div class="fact"><small>尺度</small><strong>'+s.size+'</strong></div><div class="fact"><small>维护投入</small><strong>'+s.effort+'</strong></div><div class="fact"><small>风格</small><strong>'+s.style+'</strong></div>';needs.innerHTML=(s.tags.length?s.tags:["暂无额外标签"]).map(x=>"<span>"+x+"</span>").join("");judge.textContent=judgeText();prompt.value=makePrompt()}
+function copyPrompt(){navigator.clipboard.writeText(prompt.value).then(()=>alert("生图任务已复制"))}
+function downloadBrief(){const body='<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+s.order+' 庭院需求单</title><style>body{font-family:system-ui,"Microsoft YaHei";margin:0;background:#f8f6f3;color:#222}.w{max-width:900px;margin:auto;padding:24px}.p{background:white;border-radius:22px;overflow:hidden;border:1px solid #ddd}.h{padding:28px;background:#f7f3ef}.g{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:22px}.g img{width:100%;border-radius:16px}.f{line-height:1.9}.tag{display:inline-block;border:1px solid #ddd;border-radius:99px;padding:6px 9px;margin:3px}</style><div class="w"><div class="p"><div class="h"><small>'+s.order+'</small><h1>我的院子</h1><p>'+s.style+'｜'+s.desc+'</p></div><div class="g"><img src="'+s.photoData[0]+'"><div class="f"><b>主人：</b>'+s.owner+'<br><b>尺度：</b>'+s.size+'<br><b>维护：</b>'+s.effort+'<br><p>'+s.tags.map(x=>'<span class="tag">'+x+'</span>').join("")+'</p><p>'+judgeText()+'</p></div></div></div></div>';const blob=new Blob([body],{type:"text/html"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=s.order+"_庭院需求单.html";a.click()}
+function restart(){location.reload()}
+render()
+</script>
+</body>
+</html>
