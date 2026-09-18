@@ -21,7 +21,7 @@
 <section class="screen on" data-step="1">
 <div class="muted">先别想得太复杂。</div><h1>你想立刻看到自己的院子<br>变美的样子吗？</h1>
 <p class="lead">上传 1 张院子照片。先看清一个更适合你和家人的方向。</p>
-<div class="upload"><div class="uploadRow"><label class="pick">＋ 选择照片<input id="photos" type="file" accept="image/*"></label><div><strong>上传你的院子</strong><br><span class="small">照片只在你的浏览器里处理，测试版不会自动上传到服务器。</span></div></div><div class="thumbs" id="thumbs"></div></div>
+<div class="upload"><div class="uploadRow"><label class="pick">＋ 选择照片<input id="photos" type="file" accept="image/*"></label><div><strong>上传你的院子</strong><br><span class="small">照片会在你提交订单后安全上传，用于生成你的庭院预览。</span></div></div><div class="thumbs" id="thumbs"></div></div>
 <div class="error" id="e1">请至少上传 1 张照片。</div>
 <div class="actions"><span class="small">完成大于完美。先看方向，再决定要不要深入。</span><button class="btn primary" onclick="next()">下一步</button></div>
 </section>
@@ -67,7 +67,7 @@
     <span>订单号<strong id="payOrder">—</strong></span>
   </div>
   <div class="payHint">微信/支付宝等请扫码支付；手机端可以直接点二维码尝试打开支付页面。完成付款后，再提交订单。</div>
-  <div style="margin-top:18px"><button class="btn primary" onclick="confirmPayment()">我已完成支付，提交订单</button></div>
+  <div style="margin-top:18px"><button class="btn primary" id="paymentSubmitBtn" onclick="confirmPayment()">我已完成支付，提交订单</button></div>
   <div style="margin-top:14px"><button class="btn ghost" onclick="prev()">← 返回修改</button></div>
 </div>
 </section>
@@ -81,8 +81,12 @@
 <textarea id="prompt" class="prompt" style="display:none"></textarea>
 </section>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const s={step:1,photos:[],photoData:[],style:null,desc:null,owner:null,size:null,effort:null,tags:[],order:null,paymentStatus:"未支付",processStatus:"未提交",createdAt:null};
+const SUPABASE_URL="https://fhvhnibznphatfnbvvnb.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_8_ElUXtWKbEM9Of37zdYug_mdWjcV4B";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const s={step:1,photos:[],photoData:[],style:null,desc:null,owner:null,size:null,effort:null,tags:[],order:null,paymentStatus:"未支付",processStatus:"未提交",createdAt:null,photoPath:null,cloudSaved:false};
 const labels=["STEP 1 / 6 · 上传照片","STEP 2 / 6 · 选择感觉","STEP 3 / 6 · 认识主人","STEP 4 / 6 · 真实需求","STEP 5 / 6 · 确认订单","STEP 6 / 6 · 需求单"];
 function render(){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("on"));document.querySelector('.screen[data-step="'+s.step+'"]').classList.add("on");bar.style.width=(s.step/6*100)+"%";label.textContent=labels[s.step-1];scrollTo({top:0,behavior:"smooth"});if(s.step===5){summary.innerHTML="<strong>当前选择</strong><br>"+s.style+" · "+s.owner+" · "+s.size+" · "+s.effort+"<br>需求："+(s.tags.length?s.tags.join("、"):"未额外选择");if(!s.order)s.order="DY-"+Date.now().toString().slice(-8);if(document.getElementById("payOrder"))payOrder.textContent=s.order}}
 function err(id){const e=document.getElementById(id);e.style.display="block";setTimeout(()=>e.style.display="none",1800)}
@@ -94,7 +98,62 @@ document.querySelectorAll("#styles .card").forEach(c=>c.onclick=()=>{document.qu
 document.querySelectorAll(".single").forEach(r=>r.querySelectorAll(".pill").forEach(b=>b.onclick=()=>{r.querySelectorAll(".pill").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");s[r.dataset.k]=b.textContent.trim()}))
 document.querySelectorAll("#tags .tag").forEach(t=>t.onclick=()=>{t.classList.toggle("sel");s.tags=Array.from(document.querySelectorAll("#tags .tag.sel")).map(x=>x.textContent.trim())})
 function openPayment(){if(!s.order)s.order="DY-"+Date.now().toString().slice(-8);if(document.getElementById("payOrder"))payOrder.textContent=s.order}
-function confirmPayment(){s.paymentStatus="待核验";s.processStatus="等待付款核验";s.createdAt=new Date().toISOString();saveOrder();buildBrief();s.step=6;render();if(document.getElementById("paymentStatusPill"))document.getElementById("paymentStatusPill").innerHTML='<span class="statusDot"></span>付款状态：待核验 · 通常 3–5 分钟'}
+async function confirmPayment(){
+  const btn=document.getElementById("paymentSubmitBtn");
+  if(!s.photos[0]){alert("请先上传院子照片。");return}
+  btn.disabled=true;
+  btn.textContent="正在提交订单…";
+  try{
+    if(!s.order)s.order="DY-"+Date.now().toString().slice(-8);
+    s.paymentStatus="待核验";
+    s.processStatus="等待付款核验";
+    s.createdAt=new Date().toISOString();
+
+    const file=s.photos[0];
+    const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+    const safeExt=ext||"jpg";
+    const photoPath="incoming/"+s.order+"/"+Date.now()+"."+safeExt;
+
+    const upload=await sb.storage.from("order-photos").upload(photoPath,file,{
+      cacheControl:"3600",
+      upsert:false,
+      contentType:file.type||"image/jpeg"
+    });
+    if(upload.error) throw upload.error;
+    s.photoPath=upload.data.path;
+
+    const row={
+      order_code:s.order,
+      status:"pending_verify",
+      style:s.style,
+      style_desc:s.desc,
+      owner_type:s.owner,
+      yard_size:s.size,
+      maintenance_level:s.effort,
+      needs:s.tags,
+      photo_path:s.photoPath,
+      photo_urls:s.photoPath,
+      payment_status:"pending_verification",
+      process_status:"waiting_payment_verification",
+      prompt:makePrompt(),
+      notes:judgeText()
+    };
+    const ins=await sb.from("orders").insert(row);
+    if(ins.error) throw ins.error;
+    s.cloudSaved=true;
+    saveOrder();
+    buildBrief();
+    s.step=6;
+    render();
+    if(document.getElementById("paymentStatusPill"))document.getElementById("paymentStatusPill").innerHTML='<span class="statusDot"></span>付款状态：待核验 · 通常 3–5 分钟';
+  }catch(e){
+    console.error(e);
+    alert("订单提交没有成功，请检查网络后再试一次。\n"+(e?.message||""));
+  }finally{
+    btn.disabled=false;
+    btn.textContent="我已完成支付，提交订单";
+  }
+}
 function judgeText(){let a=[s.style+"是这次改造的主方向。"];if(s.owner==="父母 / 长辈"||s.tags.includes("老人友好"))a.push("安全、平稳和清晰动线优先于造景。");if(s.owner==="我和猫狗"||s.tags.includes("猫咪友好"))a.push("围合、安全植物和宠物活动边界需要先解决。");if(s.effort==="几乎没时间"||s.tags.includes("低维护"))a.push("植物数量与修剪频率都应该克制。");if(s.tags.includes("防潮排水"))a.push("靠墙防潮、坡向和排水节点要先于表面装饰。");a.push("第一版不追求堆满，而是先做对。");return a.join(" ")}
 function makePrompt(){return "请基于用户上传的庭院原始照片，生成一张可落地、不过度改造的庭院改造效果图。\n\n【核心要求】\n1. 保留建筑边界、门窗、围墙、主要地形与真实尺度，不凭空扩大空间。\n2. 风格方向："+s.style+"。\n3. 情绪关键词："+s.desc+"\n4. 居住者："+s.owner+"。\n5. 院子尺度："+s.size+"。\n6. 日常维护投入："+s.effort+"。\n7. 真实需求："+(s.tags.length?s.tags.join("、"):"无额外标签")+"。\n8. 舒适、克制、自然、有秩序，避免网红堆砌、过度硬化和不现实的大型景观。\n9. 植物自然生长、有层次、有光影，同时考虑维护。\n10. 所有改造符合真实住宅庭院施工和使用逻辑。\n\n【方向 A】偏生活感与松弛感，把舒适和使用放在第一位。\n\n请输出真实摄影感庭院改造效果图，构图尽量对应原照片视角。"}
 function buildBrief(){order.textContent="订单 "+s.order;briefTitle.textContent="我的院子";briefSub.textContent=s.style+"｜"+s.desc;briefPhoto.src=s.photoData[0];facts.innerHTML='<div class="fact"><small>主人</small><strong>'+s.owner+'</strong></div><div class="fact"><small>尺度</small><strong>'+s.size+'</strong></div><div class="fact"><small>维护投入</small><strong>'+s.effort+'</strong></div><div class="fact"><small>风格</small><strong>'+s.style+'</strong></div>';needs.innerHTML=(s.tags.length?s.tags:["暂无额外标签"]).map(x=>"<span>"+x+"</span>").join("");judge.textContent=judgeText();prompt.value=makePrompt()}
@@ -102,19 +161,11 @@ function copyPrompt(){navigator.clipboard.writeText(prompt.value).then(()=>alert
 function generateFuture(){
   const btn=document.getElementById("generateBtn");
   const note=document.getElementById("generationNotice");
-  if(s.paymentStatus!=="已确认"){
-    s.processStatus="等待付款核验";
-    saveOrder();
-    btn.disabled=true;
-    btn.textContent="已提交，等待核验";
-    note.textContent="你的庭院需求已收到。付款正在核验中，通常 3–5 分钟内完成；确认到账后我们就开始生成你的未来庭院。";
-    return;
-  }
-  s.processStatus="待生图";
+  s.processStatus="等待付款核验";
   saveOrder();
   btn.disabled=true;
-  btn.textContent="已提交";
-  note.textContent="付款已确认，我们将开始生成你的未来庭院。";
+  btn.textContent="已提交，等待核验";
+  note.textContent="你的庭院需求已收到。付款正在核验中，通常 3–5 分钟内完成；确认到账后我们就开始生成你的未来庭院。";
 }
 function saveOrder(){
   const key="dayiGardenOrders";
