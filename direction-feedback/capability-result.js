@@ -33,9 +33,17 @@
   }
   async function decodeImage(url){
     var img=$('resultImg'),timeout;
+    img.referrerPolicy='no-referrer';
     img.src=url;
     try{
-      await Promise.race([img.decode(),new Promise(function(_,reject){timeout=setTimeout(function(){reject(new Error('image_timeout'))},20000)})]);
+      await Promise.race([
+        new Promise(function(resolve,reject){
+          if(img.complete&&img.naturalWidth){resolve();return}
+          img.onload=function(){resolve()};
+          img.onerror=function(){reject(new Error('image_unavailable'))};
+        }),
+        new Promise(function(_,reject){timeout=setTimeout(function(){reject(new Error('image_timeout'))},30000)})
+      ]);
       if(!img.complete||!img.naturalWidth)throw new Error('image_unavailable');
     }finally{clearTimeout(timeout);}
   }
