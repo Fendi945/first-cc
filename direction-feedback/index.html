@@ -30,6 +30,23 @@ button{cursor:pointer}
 .top-note{font-size:10px;letter-spacing:.18em;color:#99918a}
 .progress-track{position:fixed;top:74px;left:0;right:0;height:2px;z-index:21;background:transparent}
 .progress{height:2px;background:var(--red);width:0;transition:width .32s ease}
+.journey{position:sticky;top:76px;z-index:15;width:min(760px,calc(100% - 36px));margin:14px auto 0;padding:12px 12px 9px;background:rgba(248,246,243,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.journey-line{height:1px;background:#d8d1ca;position:relative;margin:13px 10px 7px}
+.journey-fill{position:absolute;left:0;top:0;height:1px;background:var(--ink);width:0;transition:width .35s ease}
+.journey-nodes{display:flex;justify-content:space-between;position:absolute;left:-2px;right:-2px;top:-5px}
+.journey-node{width:11px;height:11px;border:1px solid #aaa19a;border-radius:50%;background:var(--bg);transition:.25s}
+.journey-node.done{background:var(--ink);border-color:var(--ink)}
+.journey-node.current{background:var(--red);border-color:var(--red);transform:scale(1.25)}
+.journey-avatar{position:absolute;top:-17px;left:0;width:28px;height:28px;transform:translateX(-50%);transition:left .35s ease;filter:drop-shadow(0 3px 4px rgba(0,0,0,.12))}
+.journey-avatar .head{position:absolute;left:7px;top:5px;width:14px;height:14px;border-radius:5px;background:#d8aa8b;border:1px solid #222}
+.journey-avatar .hair{position:absolute;left:4px;top:5px;width:20px;height:17px;border-radius:8px 8px 5px 5px;background:#222}
+.journey-avatar .face{position:absolute;left:7px;top:7px;width:14px;height:10px;border-radius:4px;background:#d8aa8b}
+.journey-avatar .glasses{position:absolute;left:7px;top:9px;width:14px;height:5px;border-top:2px solid #222;border-bottom:1px solid transparent}
+.journey-avatar .cap{position:absolute;left:5px;top:1px;width:18px;height:7px;border-radius:7px 7px 2px 2px;background:var(--red)}
+.journey-avatar .body{position:absolute;left:7px;top:17px;width:14px;height:9px;border-radius:3px;background:#50647a;border-top:3px solid #f4f0ea}
+.journey-labels{display:flex;justify-content:space-between;font-size:9px;color:#9a928b;letter-spacing:.03em}
+.journey-labels span:first-child,.journey-labels span:last-child{color:var(--red)}
+.finish-flag{display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:9px solid var(--red);margin-left:3px}
 .stage{flex:1;display:flex;justify-content:center;padding:38px 24px 54px}
 .step{
   display:none;width:min(760px,100%);min-height:calc(100vh - 166px);
@@ -124,6 +141,7 @@ textarea:focus,input[type=text]:focus{border-color:#8e857d}
 .hidden{display:none!important}
 @media(max-width:720px){
   .topbar{height:66px;padding:0 18px}.progress-track{top:66px}
+  .journey{top:68px;margin-top:8px;padding-left:8px;padding-right:8px}.journey-labels{font-size:8px}
   .top-note{display:none}
   .stage{padding:22px 18px 34px}
   .step{min-height:calc(100vh - 122px);align-items:flex-start;padding-top:34px}
@@ -143,13 +161,23 @@ textarea:focus,input[type=text]:focus{border-color:#8e857d}
     <div class="top-note">NATURAL / MINIMAL / LASTING</div>
   </header>
   <div class="progress-track"><div id="progress" class="progress"></div></div>
+  <div class="journey" aria-label="体验进度">
+    <div class="journey-line">
+      <div id="journeyFill" class="journey-fill"></div>
+      <div class="journey-nodes">
+        <i class="journey-node"></i><i class="journey-node"></i><i class="journey-node"></i><i class="journey-node"></i><i class="journey-node"></i><i class="journey-node"></i><i class="journey-node"></i>
+      </div>
+      <div id="journeyAvatar" class="journey-avatar" aria-hidden="true"><i class="hair"></i><i class="face"></i><i class="glasses"></i><i class="cap"></i><i class="body"></i></div>
+    </div>
+    <div class="journey-labels"><span>看现场</span><span>量尺度</span><span>说需求</span><span>选感觉</span><span>补一句</span><span>看方向</span><span>完成<i class="finish-flag"></i></span></div>
+  </div>
 
   <main class="stage">
     <section class="step active" data-step="0">
       <div class="panel">
         <div class="kicker">开工前 · 先看方向</div>
-        <h1>开工前，先看一眼<br>你的院子适合什么方向。</h1>
-        <p class="lead">别急着买材料、定铺装、种植物。先把真实现场和你的生活需求放在一起，看清这个院子更适合往哪个方向走。</p>
+        <h1>开工前，先看一眼<br>你的院子该往哪儿走。</h1>
+        <p class="lead">不用先懂风格，也不用先做完整设计。给我一张真实院子照片，再回答几个关于生活的问题，我们先把方向看清楚。</p>
         <div class="hero-actions">
           <button class="btn red" data-go="1">先看看我的院子 →</button>
           <div class="price-line">¥39.9 <small>1 张方向图 + 3 条设计建议</small></div>
@@ -159,7 +187,7 @@ textarea:focus,input[type=text]:focus{border-color:#8e857d}
 
     <section class="step" data-step="1">
       <div class="panel">
-        <div class="step-no">01 / 06</div>
+        <div class="step-no">第一关 · 看现场</div>
         <div class="question">
           <h2>先让我看看你的院子。</h2>
           <p class="sub">上传一张最能看清现场关系的照片。尽量让地面、围墙、建筑和主要空间同时出现在画面里。</p>
@@ -177,7 +205,7 @@ textarea:focus,input[type=text]:focus{border-color:#8e857d}
 
     <section class="step" data-step="2">
       <div class="panel">
-        <div class="step-no">02 / 06</div>
+        <div class="step-no">第二关 · 量尺度</div>
         <div class="question">
           <h2>你的院子，大约多大？</h2>
           <p class="sub">不用精确测量，先选一个最接近的范围。</p>
@@ -189,7 +217,7 @@ textarea:focus,input[type=text]:focus{border-color:#8e857d}
 
     <section class="step" data-step="3">
       <div class="panel">
-        <div class="step-no">03 / 06</div>
+        <div class="step-no">第三关 · 说需求</div>
         <div class="question">
           <h2>你最希望这个院子解决什么问题？</h2>
           <p class="sub">可以多选。先选真正影响你日常生活的，不需要想“设计语言”。</p>
@@ -204,7 +232,7 @@ textarea:focus,input[type=text]:focus{border-color:#8e857d}
 
     <section class="step" data-step="4">
       <div class="panel">
-        <div class="step-no">04 / 06</div>
+        <div class="step-no">第四关 · 选感觉</div>
         <div class="question">
           <h2>你更喜欢哪种感觉？</h2>
           <p class="sub">不用懂风格名称，选最接近你想过的生活。</p>
@@ -216,7 +244,7 @@ textarea:focus,input[type=text]:focus{border-color:#8e857d}
 
     <section class="step" data-step="5">
       <div class="panel">
-        <div class="step-no">05 / 06</div>
+        <div class="step-no">第五关 · 补一句</div>
         <div class="question">
           <h2>还有哪一件事，你特别在意？</h2>
           <p class="sub">比如怕墙根返潮、家里有老人、想保留一棵树、不想大面积硬化、预算有限。没有也可以直接继续。</p>
@@ -231,16 +259,16 @@ textarea:focus,input[type=text]:focus{border-color:#8e857d}
 
     <section class="step" data-step="6">
       <div class="panel">
-        <div class="step-no">06 / 06</div>
+        <div class="step-no">终点前 · 看方向</div>
         <div class="question">
           <h2>先看方向，再决定要不要继续深入。</h2>
-          <p class="sub">这是一次庭院改造方向反馈，不是完整设计方案。</p>
+          <p class="sub">前面这些选择，会变成这一版方向判断的依据。先看见，再决定要不要继续深化。</p>
         </div>
         <div class="offer-card">
           <div class="offer-top">
             <div>
               <div class="kicker" style="margin-bottom:8px">首发测试价</div>
-              <div style="font-size:14px;color:var(--muted)">庭院改造方向反馈 · 1 次</div>
+              <div style="font-size:14px;color:var(--muted)">开工前方向判断 · 1 次</div>
             </div>
             <div class="offer-price">¥39.9</div>
           </div>
@@ -379,6 +407,14 @@ textarea:focus,input[type=text]:focus{border-color:#8e857d}
     });
     var pct=n===0?0:(n>=8?100:Math.min(96,Math.round((n/7)*96)));
     $('progress').style.width=pct+'%';
+    var journeyIndex=n===0?0:(n>=6?6:n);
+    var journeyPct=(journeyIndex/6)*100;
+    $('journeyFill').style.width=journeyPct+'%';
+    $('journeyAvatar').style.left=journeyPct+'%';
+    document.querySelectorAll('.journey-node').forEach(function(node,i){
+      node.classList.toggle('done',i<journeyIndex);
+      node.classList.toggle('current',i===journeyIndex);
+    });
     window.scrollTo({top:0,behavior:'smooth'});
     if(n===6){ renderSummary(); trackEvent('offer_view',{step:n}); }
     if(n===7) trackEvent('payment_page_view',{step:n});
