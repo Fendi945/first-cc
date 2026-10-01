@@ -20,7 +20,7 @@
     return;
   }
 
-  function schedule(){clearTimeout(timer);timer=setTimeout(poll,12000);}
+  function schedule(){clearTimeout(timer);}
   async function request(action,deliveryId){
     var body={action:action,order_code:code,access_token:key};
     if(deliveryId)body.delivery_id=deliveryId;
@@ -86,6 +86,5 @@
       schedule();
     }finally{inFlight=false;}
   }
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)poll()});
   poll();
 })();
