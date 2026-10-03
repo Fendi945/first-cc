@@ -4,85 +4,101 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>大一造园｜先看见自己想要的生活，再设计承载它的院子</title>
-<meta name="description" content="大一造园 DAY1｜东方自然主义庭院设计。先梳理生活，再设计院子。">
+<meta name="description" content="大一造园 DAY1｜东方自然主义庭院设计。先看见生活，再设计院子。">
 <link rel="canonical" href="https://dayi.homes/">
 <style>
-:root{--ink:#222;--paper:#f6f3ee;--red:#c6402f;--line:#ddd6cc;--muted:#706b64}
+:root{--ink:#1f1f1d;--paper:#f7f4ee;--red:#c6402f;--muted:#706a61;--night:#111512}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}a{text-decoration:none;color:inherit}img{display:block;width:100%}
-.header{position:fixed;z-index:20;top:0;left:0;right:0;height:64px;padding:0 4.5vw;display:flex;align-items:center;justify-content:space-between;background:#f6f3eef2;backdrop-filter:blur(12px);border-bottom:1px solid #0000000b}
-.logo{font-family:Georgia,"Songti SC",serif;font-size:25px;letter-spacing:.06em}.logo i{font-style:normal;color:var(--red);font-size:19px}.logo span{font-family:"Songti SC",serif;font-size:17px;margin-left:8px}
-.nav{display:flex;gap:30px;font-size:13px}.nav a{padding:22px 0}.nav a:hover{color:var(--red)}.cta{border:1px solid #333;padding:10px 20px;font-size:13px}
-.hero{margin-top:64px;min-height:calc(100vh - 64px);position:relative;overflow:hidden;background:#222}.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#000a 0,#0004 40%,#0000 72%),linear-gradient(0deg,#0006,transparent 35%)}.hero-copy{position:relative;z-index:2;min-height:calc(100vh - 64px);display:flex;align-items:center;padding:8vw;color:white}.eyebrow{font-family:Georgia,serif;letter-spacing:.18em;font-size:13px}.hero h1{font:400 clamp(42px,6vw,82px)/1.25 "Songti SC",Georgia,serif;margin:22px 0 12px}.hero p{font:400 clamp(17px,2vw,23px)/1.8 "Songti SC",serif;margin:0;color:#eee}.hero-link{display:inline-block;margin-top:28px;border:1px solid #fff;padding:13px 22px;font-size:14px}
-.split{display:grid;grid-template-columns:1fr 1fr;min-height:520px}.split.reverse .visual{order:2}.copy{display:flex;align-items:center;padding:7vw}.copy-inner{max-width:560px}.index{color:var(--red);font:13px Georgia,serif;letter-spacing:.16em}.copy h2{font:400 clamp(34px,4vw,58px)/1.35 "Songti SC",Georgia,serif;margin:18px 0}.copy p{font:16px/2;color:var(--muted);margin:0}.visual{min-height:520px;overflow:hidden}.visual img{height:100%;object-fit:cover}
-.paper{background:var(--paper)}.dark{background:#20251f;color:#f5f1eb}.dark p{color:#c8c3bb}.dark .index{color:#d56a59}
-.statement{text-align:center;padding:120px 7vw;background:#fff}.statement h2{font:400 clamp(35px,5vw,64px)/1.35 "Songti SC",Georgia,serif;margin:18px 0}.statement p{max-width:680px;margin:auto;font-size:16px;line-height:2;color:var(--muted)}
-.cases{padding:110px 5vw;background:#ece7df}.cases-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:38px}.cases h2{font:400 46px "Songti SC",Georgia,serif;margin:10px 0}.cases-head p{color:var(--muted)}.case-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.case{background:white}.case img{height:300px;object-fit:cover}.case-body{padding:22px}.case-body small{color:var(--red);letter-spacing:.12em}.case-body h3{font:400 25px "Songti SC",serif;margin:10px 0}.case-body p{color:var(--muted);font-size:14px;line-height:1.8}
-.service{padding:110px 7vw}.service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:45px}.service-card{background:var(--paper);padding:38px;min-height:260px}.service-card b{font:400 28px "Songti SC",serif}.service-card p{font-size:14px;line-height:1.9;color:var(--muted)}.service-card a{display:inline-block;margin-top:14px;color:var(--red);font-size:14px}
-.footer{background:#171d18;color:#eee;padding:70px 7vw;display:flex;justify-content:space-between;gap:40px}.footer h2{font:400 35px "Songti SC",serif;margin:0 0 15px}.footer p{color:#bcb8b1;line-height:1.8}.footer-links{display:flex;gap:28px;align-items:center}.footer-links a{border:1px solid #ffffff55;padding:12px 18px;font-size:13px}.footer-links .primary{background:var(--red);border-color:var(--red)}
-@media(max-width:800px){.header{height:58px;padding:0 20px}.logo{font-size:21px}.nav{display:none}.header .cta{padding:8px 12px}.hero{margin-top:58px}.hero-copy{min-height:calc(100vh - 58px);padding:28px}.hero img{object-position:58% center}.split,.case-grid,.service-grid{grid-template-columns:1fr}.split.reverse .visual{order:0}.visual{min-height:340px}.copy{padding:60px 28px}.statement,.cases,.service{padding:75px 28px}.cases-head{display:block}.case-grid{gap:14px}.case img{height:240px}.service-card{min-height:auto}.footer{display:block;padding:55px 28px}.footer-links{margin-top:30px;flex-wrap:wrap}.hero h1{font-size:43px}}
+header{position:sticky;top:0;z-index:30;height:68px;padding:0 5vw;display:flex;align-items:center;justify-content:space-between;background:#f7f4eef2;backdrop-filter:blur(12px);border-bottom:1px solid #0000000d}.brand{font:28px Georgia,"Songti SC",serif;letter-spacing:.04em}.brand i{font-style:normal;color:var(--red)}.brand span{font:17px "Songti SC",serif;margin-left:8px}.nav{display:flex;gap:28px;font-size:13px}.nav a:hover{color:var(--red)}.topcta{border:1px solid #222;padding:10px 18px;font-size:13px}
+.hero{display:grid;grid-template-columns:42% 58%;min-height:610px;background:#fff}.hero-copy{padding:9vw 5vw 7vw;display:flex;align-items:center}.eyebrow,.num{font:13px Georgia,serif;letter-spacing:.13em}.num{color:var(--red)}h1,h2{font-family:"Songti SC",Georgia,serif;font-weight:400}h1{font-size:clamp(44px,5.5vw,76px);line-height:1.18;margin:20px 0 16px}h2{font-size:clamp(34px,4vw,58px);line-height:1.25;margin:14px 0 18px}.lead,.copy p{font-size:16px;line-height:1.95;color:var(--muted)}.hero-media{min-height:610px;overflow:hidden}.hero-media img,.media img{height:100%;object-fit:cover}.hero-media img{object-position:center}
+.chapter{display:grid;grid-template-columns:1fr 1fr;min-height:470px;background:#fff}.chapter.reverse .media{order:1}.chapter.reverse .copy{order:2}.copy{padding:6.5vw 5.5vw;display:flex;align-items:center}.copy-inner{max-width:560px}.media{min-height:470px;overflow:hidden}.paper{background:var(--paper)}.dark{background:var(--night);color:#f3efe8}.dark p{color:#c6c0b8}.dark .num{color:#df6958}
+.band{display:grid;grid-template-columns:1.05fr .95fr;background:#fff}.band .media{min-height:430px}.band .copy{padding:5.5vw}
+.exit{background:#f6f1e9}.ending{display:grid;grid-template-columns:58% 42%;min-height:520px;background:#0d120f;color:#fff}.ending .media{min-height:520px}.ending .copy p{color:#c9c2b9}
+.final{background:#0d120f;color:#fff;padding:52px 5vw;display:flex;align-items:center;justify-content:space-between;gap:30px}.final h2{font-size:34px;margin:0 0 8px}.final p{margin:0;color:#bbb5ad}.actions{display:flex;gap:12px;flex-wrap:wrap}.btn{padding:13px 20px;border:1px solid #ffffff55;font-size:14px}.btn.primary{background:var(--red);border-color:var(--red)}
+@media(max-width:800px){header{height:58px;padding:0 20px}.brand{font-size:22px}.brand span{font-size:15px}.nav{display:none}.topcta{padding:8px 11px}.hero,.chapter,.band,.ending{grid-template-columns:1fr}.hero-copy,.copy{padding:54px 26px}.hero-media{min-height:360px}.chapter.reverse .media,.chapter.reverse .copy{order:initial}.media,.band .media,.ending .media{min-height:330px}.ending .copy{order:-1}.final{display:block;padding:42px 26px}.actions{margin-top:24px}.btn{flex:1;text-align:center;min-width:145px}h1{font-size:44px}h2{font-size:35px}}
 </style>
 </head>
 <body>
-<header class="header">
-<a class="logo" href="/">dayi<i>•</i><span>大一造园</span></a>
-<nav class="nav"><a href="/">首页</a><a href="#story">真实故事</a><a href="#services">设计服务</a><a href="cases.html">案例作品</a><a href="yard-design.html">关于大一</a></nav>
-<a class="cta" href="direction-feedback/">开始咨询 →</a>
+<header>
+<a class="brand" href="/">dayi<i>•</i><span>大一造园</span></a>
+<nav class="nav"><a href="/">首页</a><a href="cases.html">真实案例</a><a href="yard-design.html">设计服务</a><a href="yard-design.html">关于大一</a></nav>
+<a class="topcta" href="direction-feedback/">开始咨询 →</a>
 </header>
 
 <main>
 <section class="hero">
-<img src="assets/studio/hero-day1-garden.png" alt="大一造园庭院生活">
 <div class="hero-copy"><div>
-<div class="eyebrow">DAY1 · FILM 01</div>
-<h1>先看见自己想要<br>的生活。<br>再设计承载它的院子。</h1>
-<p>从心造园 · 把院子还给生活</p>
-<a class="hero-link" href="#story">↓ 看看我们为什么这样做</a>
+<div class="eyebrow">序幕</div>
+<h1>先看见自己<br>想要的生活。</h1>
+<p class="lead">再设计承载它的院子。</p>
+<p class="lead">—— 从心造园 · 把院子还给生活</p>
+</div></div>
+<div class="hero-media"><img src="assets/studio/dayi-avatar.webp" alt="DAY1 积木小人庭院形象"></div>
+</section>
+
+<section class="chapter paper" id="story">
+<div class="copy"><div class="copy-inner">
+<div class="num">01 / 向往</div>
+<h2>你理想中的生活，<br>是什么样的？</h2>
+<p>也许是清晨的光、雨后的风，是和家人在树下吃一顿晚饭，是孩子在院子里玩，也是终于有一个地方，可以慢下来。</p>
+</div></div>
+<div class="media"><img src="assets/cases/lixiang-render-tea.jpg" alt="庭院生活场景"></div>
+</section>
+
+<section class="chapter reverse">
+<div class="media"><img src="assets/studio/dayi-discussion.webp" alt="DAY1 与客户一起梳理生活"></div>
+<div class="copy"><div class="copy-inner">
+<div class="num">02 / 看见自己</div>
+<h2>我们先聊生活，<br>而不是先画图。</h2>
+<p>你喜欢的图片很多，但真正属于你的生活，只有一个。我们一起梳理未来十年的生活场景和状态，找到那个最重要的“一”。</p>
 </div></div>
 </section>
 
-<section class="split paper" id="story">
-<div class="copy"><div class="copy-inner"><div class="index">01 / 向往</div><h2>你理想中的生活，<br>是什么样的？</h2><p>也许是清晨的光、雨后的风，是和家人在树下吃一顿晚饭，是孩子在水边玩耍，也是忙了一天以后，有一个地方，可以慢下来。</p></div></div>
-<div class="visual"><img src="assets/portfolio/houde-arrival.jpg" alt="自然式庭院入口"></div>
+<section class="chapter paper">
+<div class="copy"><div class="copy-inner">
+<div class="num">03 / 设计与落地</div>
+<h2>从心出发，<br>梳理人与空间的关系。</h2>
+<p>功能、动线、排水、植物、预算、施工条件……我们把复杂的问题变成清晰的判断。不是堆砌，而是取舍；不是一时好看，而是让院子长期好看、好用、好维护。</p>
+</div></div>
+<div class="media"><img src="assets/studio/dayi-onsite.webp" alt="DAY1 现场设计判断"></div>
 </section>
 
-<section class="split reverse dark">
-<div class="visual"><img src="assets/studio/dayi-discussion.webp" alt="大一造园与客户讨论"></div>
-<div class="copy"><div class="copy-inner"><div class="index">02 / 看见自己</div><h2>我们先聊生活，<br>而不是先画图。</h2><p>你喜欢的图片很多，但真正属于你的生活，只有一个。我们一起梳理未来十年的生活场景和状态，找到那个最重要的“一”。</p></div></div>
+<section class="band">
+<div class="media"><img src="assets/cases/huangjin-site-1.jpg" alt="庭院施工现场"></div>
+<div class="copy"><div class="copy-inner">
+<div class="num">04 / 院子开始形成</div>
+<h2>从图纸到现场，<br>一步一步实现。</h2>
+<p>好的设计不是把图画完，而是让正确的判断真正落到现场。材料、尺度、排水、植物和施工细节，都要经得起真实空间的检验。</p>
+</div></div>
 </section>
 
-<section class="split paper">
-<div class="copy"><div class="copy-inner"><div class="index">03 / 设计与落地</div><h2>从心出发，<br>梳理人与空间的关系。</h2><p>功能、动线、排水、植物、预算、施工条件……我们把复杂的问题，变成清晰的方案，帮你做出每一个关键的选择。不是堆砌，而是取舍。不是一时的好看，而是三年、五年、十年后依然好看、好用、好维护的院子。</p></div></div>
-<div class="visual"><img src="assets/studio/dayi-onsite.webp" alt="大一造园现场"></div>
-</section>
-
-<section class="statement">
-<div class="index">04 / 生活开始</div>
+<section class="chapter exit">
+<div class="copy"><div class="copy-inner">
+<div class="num">05 / 设计师离场</div>
 <h2>设计结束了，<br>生活才刚刚开始。</h2>
-<p>我们只是你在这段旅程中的临时支持者，陪伴和设计师。院子完成后，真正的主角，是你和你的生活。</p>
+<p>当院子交付完成，我们会慢慢离开。真正的主角，从来都是你和你的生活。设计不是为了留下设计师的痕迹，而是为了让生活发生。</p>
+</div></div>
+<div class="media"><img src="assets/portfolio/houde-arrival.jpg" alt="完成后的庭院空间"></div>
 </section>
 
-<section class="cases" id="cases">
-<div class="cases-head"><div><div class="index">真实项目</div><h2>不是效果图，是已经发生的事。</h2></div><a href="cases.html">查看全部案例 →</a></div>
-<div class="case-grid">
-<a class="case" href="cases.html"><img src="assets/cases/lixiang-render-tea.jpg" alt="庭院茶空间案例"><div class="case-body"><small>01 / 生活</small><h3>让院子回到日常</h3><p>从生活需求出发，减少无意义的装饰，把空间留给真正会发生的事。</p></div></a>
-<a class="case" href="cases.html"><img src="assets/cases/jiangdi-render.jpg" alt="庭院设计案例"><div class="case-body"><small>02 / 空间</small><h3>让空间关系更清楚</h3><p>动线、视线、植物与建筑彼此支撑，而不是互相争夺。</p></div></a>
-<a class="case" href="cases.html"><img src="assets/cases/huangjin-site-1.jpg" alt="庭院施工现场案例"><div class="case-body"><small>03 / 落地</small><h3>从方案走到现场</h3><p>设计不是交图结束，真正的价值要经得起施工和时间。</p></div></a>
-</div>
-</section>
-
-<section class="service" id="services">
-<div class="index">设计服务</div><h2 style="font:400 46px 'Songti SC',Georgia,serif;margin:10px 0">从一个判断开始，得到一套清晰方向。</h2>
-<div class="service-grid">
-<div class="service-card"><b>庭院改造方向反馈</b><p>适合还没有想清楚怎么做的庭院。上传现场照片，先获得专业方向判断与关键建议。</p><a href="direction-feedback/">了解方向反馈 →</a></div>
-<div class="service-card"><b>499 骨架方案</b><p>明确硬景、绿化、休闲、观景、停车与排水方向。解决“怎么布局”，不替你堆效果图。</p><a href="yard-design.html">了解服务边界 →</a></div>
-<div class="service-card"><b>完整庭院设计</b><p>针对需要从设计走向施工的项目，系统梳理方案、节点与落地条件。</p><a href="yard-design.html">预约设计咨询 →</a></div>
-</div>
+<section class="ending dark">
+<div class="media"><img src="assets/cases/lixiang-render-bed.jpg" alt="庭院生活重新开始"></div>
+<div class="copy"><div class="copy-inner">
+<div class="num">06 / 生活开始</div>
+<h2>院子完成后，<br>生活在这里重新开始。</h2>
+<p>一日三餐，四季流转，孩子长大，树也长大。院子回归生活，也让我们回到自己。</p>
+<p style="margin-top:22px;color:#fff">从心造园 · 把院子还给生活</p>
+</div></div>
 </section>
 </main>
 
-<footer class="footer">
-<div><h2>我的院子，也从这里开始。</h2><p>一份专业的方向建议 · 从心造园 · 把院子还给生活</p></div>
-<div class="footer-links"><a class="primary" href="direction-feedback/">立即获取方向建议 →</a><a href="cases.html">真实案例</a></div>
-</footer>
+<section class="final">
+<div><h2>我的院子，也从这里开始。</h2><p>先得到一个清晰方向，再决定下一步。</p></div>
+<div class="actions">
+<a class="btn primary" href="direction-feedback/">立即获取方向建议 →</a>
+<a class="btn" href="yard-design.html">设计咨询</a>
+<a class="btn" href="cases.html">真实案例</a>
+</div>
+</section>
 </body>
 </html>
