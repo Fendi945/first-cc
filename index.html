@@ -19,8 +19,14 @@ nav{display:flex;gap:30px;font-size:12px;letter-spacing:.04em}nav a:hover{color:
 h1,h2{font-family:"Songti SC",Georgia,serif;font-weight:400;margin:0}
 .kicker{font:11px Georgia,serif;letter-spacing:.18em;color:var(--red)}
 .rule{width:42px;height:1px;background:#999087;margin-top:24px}
-.art{background-image:url('assets/home-story/day1-story-sprite.webp');background-size:100% 700%;background-repeat:no-repeat;background-color:#ddd}
-.s0{background-position:center 0}.s1{background-position:center 16.6667%}.s2{background-position:center 33.3333%}.s3{background-position:center 50%}.s4{background-position:center 66.6667%}.s5{background-position:center 83.3333%}.s6{background-position:center 100%}
+.art{background-repeat:no-repeat;background-position:center;background-size:cover;background-color:#ddd}
+.s0{background-image:url('assets/home-story/00-prologue.webp')}
+.s1{background-image:url('assets/home-story/01-longing.webp')}
+.s2{background-image:url('assets/home-story/02-listening.webp')}
+.s3{background-image:url('assets/home-story/03-clarifying.webp')}
+.s4{background-image:url('assets/home-story/04-building.webp')}
+.s5{background-image:url('assets/home-story/05-leaving.webp')}
+.s6{background-image:url('assets/home-story/06-life-begins.webp')}
 
 /* hero */
 .hero{position:relative;min-height:calc(100svh - 64px);background:#151613;overflow:hidden}
@@ -33,7 +39,7 @@ h1,h2{font-family:"Songti SC",Georgia,serif;font-weight:400;margin:0}
 
 /* blank image interlude */
 .breath{height:min(72vw,720px);max-height:72vh;margin:0;background:#222}
-.breath .art{width:100%;height:100%;background-size:100% 700%}
+.breath .art{width:100%;height:100%;background-size:cover}
 
 /* editorial sections */
 .editorial{display:grid;grid-template-columns:minmax(320px,42%) 1fr;min-height:560px;background:var(--paper);border-top:1px solid #00000008}
