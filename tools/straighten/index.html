@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DAY1｜一键图纸拉正</title>
+<style>
+:root{--ink:#25332b;--sub:#718077;--background:#f4f5f1;--paper:#fff;--outline:#dce3da;--action:#254c3c;--warning:#875c2e}*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);background:var(--background);margin:0}header{background:#22362b;color:#fff;padding:20px 26px}header>div{max-width:1100px;margin:auto}h1{font-size:21px;letter-spacing:.02em;margin:0 0 6px}header p{margin:0;color:#d2dbd4;font-size:13px}main{max-width:1100px;margin:20px auto;padding:0 14px 25px;display:grid;grid-template-columns:295px 1fr;gap:15px}.panel{background:var(--paper);border:1px solid var(--outline);border-radius:12px;padding:18px;min-width:0}.panel h2{margin:0 0 12px;font-size:16px}.step{font-size:12px;font-weight:700;color:var(--sub);margin:18px 0 7px}.note{font-size:12px;line-height:1.75;color:var(--sub)}input[type=file]{width:100%;font-size:13px;border:1px solid var(--outline);border-radius:7px;padding:10px;background:#fafbf8}button{border-radius:8px;padding:12px 16px;border:1px solid #b8c9bc;color:var(--ink);font-size:14px;font-weight:600;background:#fff;cursor:pointer}button.primary{color:white;border-color:var(--action);background:var(--action)}button:disabled{opacity:.42;cursor:not-allowed}.buttons{display:flex;flex-direction:column;gap:9px;margin:14px 0}.row{display:flex;gap:8px}.row>*{flex:1}.status{border-radius:8px;background:#eff3ec;color:#355a44;padding:12px;font-size:12px;line-height:1.75;min-height:55px}.status.warn{background:#fff4e3;color:var(--warning)}.canvasWrap{background:#e9eee8;border:1px dashed #cbd6cc;min-height:420px;display:flex;justify-content:center;align-items:center;overflow:auto;border-radius:9px;padding:10px}canvas{max-width:100%;max-height:76vh;display:block;background:#fff;box-shadow:0 2px 15px #0001}.placeholder{text-align:center;padding:30px;color:#8b988c;font-size:14px}.previewLabel{font-size:12px;color:#6c776f;margin:11px 0}.privacy{border-top:1px solid var(--outline);margin-top:15px;padding-top:10px}.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:15px}.chip{border:1px solid #ccd7cf;background:#f7f9f4;border-radius:30px;padding:5px 8px;font-size:11px;color:#526459}footer{max-width:1100px;margin:5px auto 25px;padding:0 16px;text-align:center;font-size:11px;color:#8a9289} @media(max-width:780px){main{grid-template-columns:1fr;margin:10px auto}.panel{padding:14px}.canvasWrap{min-height:255px}header{padding:18px}canvas{max-height:65vh}}
+</style></head><body>
+<header><div><h1>DAY1 · 图纸一键拉正</h1><p>上传拍歪的纸质平面图，自动校正透视，无需选四角</p></div></header>
+<main>
+<section class="panel">
+<h2>上传与校正</h2>
+<div class="step">01 · 选择图纸照片</div>
+<input id="photo" type="file" accept="image/jpeg,image/png,image/webp" aria-label="上传图纸照片">
+<p class="note">请把纸质平面图尽量完整拍入画面，图框边线清晰、无遮挡。仅适用于平面图照片，不适用于直接测量庭院现场照片。</p>
+<div class="buttons"><button class="primary" id="auto" disabled>一键自动拉正</button></div>
+<div id="status" class="status" role="status" aria-live="polite">请选择一张庭院平面图照片。</div>
+<div class="step">02 · 查看、保存校正结果</div>
+<div class="row"><button id="original" disabled>查看原图</button><button id="corrected" disabled>查看校正图</button></div>
+<div class="buttons"><button class="primary" id="download" disabled>保存拉正后的图纸 PNG</button></div>
+<div class="privacy note"><b>说明：</b>校正结果是图面透视修正，不等于实际测量尺寸。正式设计前仍需使用可靠的控制尺寸或 CAD 校核。识别没有把握时，系统会提示补拍，不强行改变图纸。</div>
+<div class="badges"><span class="chip">无需选四角</span><span class="chip">浏览器本地处理</span><span class="chip">原图不会上传</span></div>
+</section>
+<section class="panel"><h2>图纸预览</h2><p id="previewLabel" class="previewLabel">等待上传图纸</p><div class="canvasWrap"><div class="placeholder" id="empty">上传图纸后在这里预览</div><canvas id="view" hidden></canvas></div><p class="note" id="audit">自动识别会查找纸张或图框中可见的直线边界。边框缺失、模糊或遮挡较多时，请重新拍摄。</p></section>
+</main><footer>DAY1 · 公开体验版 V0.4 · 仅进行图像透视校正 · 不自动生成施工测量尺寸</footer>
+<script>
+(()=>{'use strict';
+const $=x=>document.getElementById(x);const canvas=$('view'),ctx=canvas.getContext('2d',{willReadFrequently:true});let src=null,out=null,name='plan',detected=null;
+const say=(msg,warn=false)=>{$('status').textContent=msg;$('status').classList.toggle('warn',!!warn)};
+function draw(c,label){canvas.width=c.width;canvas.height=c.height;ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(c,0,0);canvas.hidden=false;$('empty').hidden=true;$('previewLabel').textContent=label}
+$('photo').addEventListener('change', e=>{const f=e.target.files[0];if(!f)return;
+  if(!['image/jpeg','image/png','image/webp'].includes(f.type)){say('文件类型不支持，请选 JPG/PNG/WebP 格式。',true);return}
+  if(f.size>18*1024*1024){say('文件超过18MB，请压缩后重新上传。',true);return}
+  const url=URL.createObjectURL(f),img=new Image();img.onload=()=>{let scale=Math.min(1,2000/Math.max(img.width,img.height));src=document.createElement('canvas');src.width=Math.round(img.width*scale);src.height=Math.round(img.height*scale);src.getContext('2d').drawImage(img,0,0,src.width,src.height);out=null;name=f.name.replace(/\.[^.]+$/,'').replace(/[^a-z0-9\u4e00-\u9fff_-]/gi,'_')||'DAY1_plan';$('auto').disabled=false;$('corrected').disabled=true;$('original').disabled=false;$('download').disabled=true;detected=null;draw(src,'原始图纸');say('照片已导入，可以点击「一键自动拉正」。');URL.revokeObjectURL(url)};img.onerror=()=>{say('图纸读取失败，请换一张图片重试。',true);URL.revokeObjectURL(url)};img.src=url;
+});
+function grayEdges(c){let w=c.width,h=c.height,dat=c.getContext('2d').getImageData(0,0,w,h).data,grey=new Float32Array(w*h),smooth=new Float32Array(w*h),wx=new Float32Array(w*h),wy=new Float32Array(w*h);
+for(let i=0,j=0;i<grey.length;i++,j+=4)grey[i]=dat[j]*.299+dat[j+1]*.587+dat[j+2]*.114;
+for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){let i=y*w+x;smooth[i]=(grey[i-w-1]+grey[i-w]+grey[i-w+1]+grey[i-1]+grey[i]+grey[i+1]+grey[i+w-1]+grey[i+w]+grey[i+w+1])/9}
+for(let y=2;y<h-2;y++)for(let x=2;x<w-2;x++){let i=y*w+x;const gx=(smooth[i-w+1]+2*smooth[i+1]+smooth[i+w+1])-(smooth[i-w-1]+2*smooth[i-1]+smooth[i+w-1]);const gy=(smooth[i+w-1]+2*smooth[i+w]+smooth[i+w+1])-(smooth[i-w-1]+2*smooth[i-w]+smooth[i-w+1]);const ax=Math.abs(gx),ay=Math.abs(gy);wx[i]=ax>45? Math.min(130,ax)/(1+Math.max(ay-ax,0)/70):0;wy[i]=ay>45?Math.min(130,ay)/(1+Math.max(ax-ay,0)/70):0}
+let dx=new Float32Array(w*h),dy=new Float32Array(w*h);
+for(let y=2;y<h-2;y++)for(let x=2;x<w-2;x++){let i=y*w+x;dx[i]=Math.max(wx[i-1],wx[i],wx[i+1]);dy[i]=Math.max(wy[i-w],wy[i],wy[i+w])}
+return{w,h,dx,dy}}
+function scanH(edges,range){let{w,h,dy}=edges, xs=[];for(let x=Math.round(w*.17);x<Math.round(w*.92);x+=3)xs.push(x);
+let best={score:-1},results=[];for(let y0=Math.round(h*range[0]);y0<Math.round(h*range[1]);y0+=2){for(let k=-34;k<=34;k++){let slope=k*.007,score=0,hit=0;for(const x of xs){let y=Math.round(y0+slope*(x-w/2));if(y<2||y>=h-2)continue;let v=dy[y*w+x];if(v>30)hit++;score+=Math.min(120,v)/70;}score+=2*hit;if(score>best.score)best={score,y0,slope,hits:hit,all:xs.length};}}
+return best}
+function scanV(edges,range,top,bottom){let{w,h,dx}=edges,ys=[];for(let y=Math.round(top.y0+h*.01);y<Math.round(bottom.y0-h*.01);y+=3)ys.push(y);let best={score:-1};
+for(let x0=Math.round(w*range[0]);x0<Math.round(w*range[1]);x0+=2){for(let k=-30;k<=36;k++){let slope=k*.01,score=0,hit=0;for(const y of ys){let x=Math.round(x0+slope*(y-h/2));if(x<2||x>=w-2)continue;let v=dx[y*w+x];if(v>30)hit++;score+=Math.min(120,v)/70}score+=hit*2;if(score>best.score)best={score,x0,slope,hits:hit,all:ys.length};}}
+return best}
+function intersection(H,V,w,h){const {y0,slope:m}=H,{x0,slope:d}=V;const x=(x0+d*(y0-h/2-m*w/2))/(1-d*m);return{x,y:y0+m*(x-w/2)}}
+function polygonArea(q){let a=0;for(let i=0;i<4;i++){let p=q[i],n=q[(i+1)%4];a+=p.x*n.y-n.x*p.y}return Math.abs(a)/2}
+function findFrame(c){let scale=Math.min(1,750/Math.max(c.width,c.height)),tiny=document.createElement('canvas');tiny.width=Math.round(c.width*scale);tiny.height=Math.round(c.height*scale);tiny.getContext('2d').drawImage(c,0,0,tiny.width,tiny.height);let e=grayEdges(tiny);let t=scanH(e,[.035,.265]),b=scanH(e,[.575,.88]);let l=scanV(e,[.065,.38],t,b),r=scanV(e,[.59,.975],t,b);
+const q=[intersection(t,l,e.w,e.h),intersection(t,r,e.w,e.h),intersection(b,r,e.w,e.h),intersection(b,l,e.w,e.h)],area=polygonArea(q)/(e.w*e.h);
+const ratioX=(Math.hypot(q[0].x-q[1].x,q[0].y-q[1].y)+Math.hypot(q[2].x-q[3].x,q[2].y-q[3].y))/2;
+const ratioY=(Math.hypot(q[0].x-q[3].x,q[0].y-q[3].y)+Math.hypot(q[1].x-q[2].x,q[1].y-q[2].y))/2;
+const minHit=Math.min(t.hits/Math.max(1,t.all),b.hits/Math.max(1,b.all),l.hits/Math.max(1,l.all),r.hits/Math.max(1,r.all));
+const bad= q.some(p=>!Number.isFinite(p.x)||!Number.isFinite(p.y)||p.x < -e.w*.06||p.y < -e.h*.06||p.x > e.w*1.07||p.y > e.h*1.07) || area<.32||area>.95||ratioX/ratioY<.25||ratioX/ratioY>4.8||minHit<.25;
+return{q:q.map(p=>({x:p.x/scale,y:p.y/scale})),area,hit:minHit,valid:!bad,scores:{top:t.hits/t.all,bottom:b.hits/b.all,left:l.hits/l.all,right:r.hits/r.all}}
+}
+function solve(A,b){A=A.map((r,i)=>[...r,b[i]]);const n=b.length;for(let i=0;i<n;i++){let p=i;for(let j=i+1;j<n;j++)if(Math.abs(A[j][i])>Math.abs(A[p][i]))p=j;if(Math.abs(A[p][i])<1e-9)throw Error('几何校正条件不足');[A[i],A[p]]=[A[p],A[i]];let div=A[i][i];for(let k=i;k<=n;k++)A[i][k]/=div;for(let j=0;j<n;j++){if(j===i)continue;let v=A[j][i];for(let k=i;k<=n;k++)A[j][k]-=v*A[i][k]}}return A.map(r=>r[n])}
+function H(A,B){let m=[],b=[];for(let i=0;i<4;i++){let {x,y}=A[i],{x:u,y:v}=B[i];m.push([x,y,1,0,0,0,-x*u,-y*u]);b.push(u);m.push([0,0,0,x,y,1,-x*v,-y*v]);b.push(v)}return solve(m,b)}
+function applyH(h,p){let d=h[6]*p.x+h[7]*p.y+1;return{x:(h[0]*p.x+h[1]*p.y+h[2])/d,y:(h[3]*p.x+h[4]*p.y+h[5])/d}}
+function rectify(c,q){const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);let W=(dist(q[0],q[1])+dist(q[2],q[3]))/2,HH=(dist(q[0],q[3])+dist(q[1],q[2]))/2;
+const ratio=Math.min(1,1500/Math.max(W,HH));W*=ratio;HH*=ratio;
+const D=[{x:0,y:0},{x:W,y:0},{x:W,y:HH},{x:0,y:HH}],forward=H(q,D),back=H(D,q),corners=[{x:0,y:0},{x:c.width,y:0},{x:c.width,y:c.height},{x:0,y:c.height}].map(p=>applyH(forward,p));
+const minX=Math.floor(Math.min(...corners.map(p=>p.x)))-7,minY=Math.floor(Math.min(...corners.map(p=>p.y)))-7,maxX=Math.ceil(Math.max(...corners.map(p=>p.x)))+7,maxY=Math.ceil(Math.max(...corners.map(p=>p.y)))+7;
+let ow=maxX-minX,oh=maxY-minY;if(ow<100||oh<100||ow>3500||oh>3500||ow*oh>5.5e6)throw Error('校正结果尺寸异常');
+let out=document.createElement('canvas');out.width=ow;out.height=oh;let pixels=out.getContext('2d').createImageData(ow,oh),data=pixels.data,source=c.getContext('2d').getImageData(0,0,c.width,c.height).data,sw=c.width,sh=c.height;
+for(let y=0;y<oh;y++){for(let x=0;x<ow;x++){const p=applyH(back,{x:x+minX,y:y+minY}),a=p.x,b=p.y,i=(y*ow+x)*4;if(a>=0&&b>=0&&a<sw-1&&b<sh-1){let jx=Math.floor(a),jy=Math.floor(b),fx=a-jx,fy=b-jy,j=(jy*sw+jx)*4;for(let k=0;k<3;k++)data[i+k]=source[j+k]*(1-fx)*(1-fy)+source[j+4+k]*fx*(1-fy)+source[j+sw*4+k]*(1-fx)*fy+source[j+sw*4+4+k]*fx*fy;data[i+3]=255}else{data[i]=data[i+1]=data[i+2]=data[i+3]=255}}}
+out.getContext('2d').putImageData(pixels,0,0);return out}
+$('auto').onclick=async()=>{if(!src)return;say('正在自动寻找图纸边框并拉正，请稍候……');$('auto').disabled=true;await new Promise(resolve=>setTimeout(resolve,60));
+try{const finding=findFrame(src);detected=finding;if(!finding.valid){out=null;$('corrected').disabled=true;$('download').disabled=true;draw(src,'原始图纸 · 自动识别未通过');say('图框识别把握不足，请重新拍摄：尽量正对纸面、拍全边界、避免阴影和遮挡。系统不会强行拉伸。',true);$('audit').textContent='本次未采用候选边界，避免把线条识别错误当作准确图纸。';return;}out=rectify(src,finding.q);draw(out,'自动拉正预览 · 未进行真实尺寸测量');$('corrected').disabled=false;$('download').disabled=false;say('自动拉正完成。请目测直线是否恢复横平竖直，满意后可保存。');$('audit').textContent='图框检测已通过基本一致性检查，但不等于尺寸准确；仅供后续专业设计师复核。';}
+catch(err){out=null;$('download').disabled=true;$('corrected').disabled=true;draw(src,'原始图纸');say('自动校正失败，请重新拍摄更清晰、边线完整的图纸。',true);console.warn(err)}finally{$('auto').disabled=false}
+};
+$('original').onclick=()=>src&&draw(src,'原始图纸');$('corrected').onclick=()=>out&&draw(out,'自动拉正预览 · 未测量尺寸');
+$('download').onclick=()=>{if(!out)return;out.toBlob(blob=>{if(!blob){say('图片保存失败',true);return}const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name+'_DAY1_自动拉正.png';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)},'image/png')};
+})();
+</script></body></html>
