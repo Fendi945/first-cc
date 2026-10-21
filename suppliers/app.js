@@ -28,7 +28,7 @@ async function api(action,fields={},files=null){
  }
  let r=await fetch(API,{method:"POST",headers,body,cache:"no-store",signal:AbortSignal.timeout(60000)});
  let data;try{data=await r.json()}catch{data={}};
- if(!r.ok)throw new Error(({invitation_required:"需要有效邀请",invitation_expired_or_revoked:"邀请已过期或撤销，请联系大一重新邀请",supplier_disabled:"此供应商已停止授权",rate_limited:"操作较频繁，请稍后重试",photo_required:"请补充真实物料照片",missing_material_information:"请填写名称并选择正确品类",image_too_large:"图片不得超过6MB",invalid_image_format:"图片格式应为 JPG、PNG 或 WebP",image_usage_permission_required:"请勾选图片授权确认",service_unavailable:"连接暂时中断，请稍后重试",storage_or_database_unavailable:"服务器暂时无法保存，请稍后重试"})[data.error]||"提交失败（"+(data.error||r.status)+"）");
+ if(!r.ok)throw new Error(({invitation_required:"需要有效邀请",invitation_expired_or_revoked:"邀请已过期或撤销，请联系大一重新邀请",supplier_disabled:"此供应商已停止授权",rate_limited:"操作较频繁，请稍后重试",photo_required:"请补充真实物料照片",missing_material_information:"请填写名称并选择正确品类",image_too_large:"图片不得超过6MB",invalid_image_format:"图片格式应为 JPG、PNG 或 WebP",image_usage_permission_required:"请勾选图片授权确认",image_mime_mismatch:"图片内容与格式不一致，请使用原始 JPG/PNG/WebP 文件",invalid_material_information:"材料信息不完整，请检查填写内容",service_unavailable:"连接暂时中断，请稍后重试",storage_or_database_unavailable:"服务器暂时无法保存，请稍后重试"})[data.error]||"提交失败（"+(data.error||r.status)+"）");
  return data;
 }
 async function profileAndList(){
@@ -92,7 +92,10 @@ async function submit(e){
   previews.forEach((url,id)=>{URL.revokeObjectURL(url);$(id).hidden=true;$(id).removeAttribute("src")});previews.clear();
   await reload();
   window.scrollTo({top:0,behavior:"smooth"});
- }catch(err){status(err.message,true)}
+ }catch(err){
+  status(err.message+"\n如刚才出现网络中断，请先刷新下方提交记录，确认是否已收到，避免重复上传。",true);
+  try{await reload()}catch(_){}
+ }
  finally{busy=false;btn.disabled=false;btn.textContent="提交物料，等待大一审核 →"}
 }
 function init(){
@@ -106,6 +109,14 @@ function init(){
  $("photo").addEventListener("change",()=>preview($("photo"),"photoPreview"));
  $("texture").addEventListener("change",()=>preview($("texture"),"texturePreview"));
  $("reloadMaterials").addEventListener("click",reload);
+ $("supplierLogout").addEventListener("click",()=>{
+  if(!window.confirm("确定清除本设备保存的供应商访问凭证？服务器上的提交记录不会删除。再次使用需要原始邀请链接。"))return;
+  try{localStorage.removeItem(KEY)}catch(_){}
+  clearHash();
+  token=null;profile=null;
+  $("workspace").hidden=true;$("needInvite").hidden=false;
+  status("本设备的访问记录已清除。再次提交请使用专用邀请链接。");
+ });
  void profileAndList();
 }
 init();
