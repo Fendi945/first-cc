@@ -38,7 +38,7 @@ label.span{grid-column:1/-1}.hint{font-size:11px;color:var(--text);line-height:1
 .pill.approved{color:#416c52;border-color:#c8d9cd}.pill.pending{color:#996942;border-color:#e2d0bc}.pill.rejected{color:#a14239;border-color:#eccbc9}
 footer{padding:30px;text-align:center;border-top:1px solid var(--line);font-size:11px;color:var(--text)}
 @media(max-width:660px){main{padding:35px 19px 70px}header{padding:14px 19px}.brand-copy{font-size:10px}.box{padding:20px}.grid,.upload-row{grid-template-columns:1fr}.actions .btn{width:100%}.material{align-items:flex-start;flex-direction:column}}
-</style></head><body>
+.supplier-session{border-top:1px solid var(--line);margin-top:18px;padding-top:14px;display:flex;align-items:center;justify-content:space-between;gap:20px}.supplier-session .hint{max-width:600px}@media(max-width:660px){.supplier-session{flex-direction:column;align-items:flex-start}}</style></head><body>
 <header><div class="brand">day<span class="dot">·</span>ı</div><div class="brand-copy">大一造园 / 供应链资料入口</div></header>
 <main>
 <p class="kicker">DAY1 / SUPPLIER PORTAL</p>
@@ -47,7 +47,8 @@ footer{padding:30px;text-align:center;border-top:1px solid var(--line);font-size
 <div id="status" class="status" role="status" aria-live="polite">正在验证供应商邀请…</div>
 <section id="needInvite" class="box" hidden><h2>需要专属邀请</h2><p class="intro">请使用大一造园单独发送给贵公司的邀请链接进入。供应商不能直接登录大一企业后台，也不能查看其他公司的资料。</p></section>
 <section id="workspace" hidden>
-<div class="box"><p class="kicker">INVITED SUPPLIER</p><h2 id="companyName">供应商资料</h2><p class="hint" id="companyMeta">正在读取邀请信息…</p></div>
+<div class="box"><p class="kicker">INVITED SUPPLIER</p><h2 id="companyName">供应商资料</h2><p class="hint" id="companyMeta">正在读取邀请信息…</p>
+ <div class="supplier-session"><p class="hint">为便于再次上传，当前浏览器会保存本公司的访问凭证。若使用公共设备，完成后请清除此设备授权。</p><button type="button" id="supplierLogout" class="btn outline">清除本设备访问记录</button></div></div>
 <form id="materialForm" class="box">
 <p class="kicker">NEW MATERIAL / 等待审核</p><h2>提交一种物料</h2>
 <div class="grid">
@@ -70,8 +71,8 @@ footer{padding:30px;text-align:center;border-top:1px solid var(--line);font-size
 <div class="confirm"><input id="permission" type="checkbox" required><label for="permission">我确认所提交的图片和材料信息真实、合法，已拥有或取得相应使用授权，允许大一造园为内部材料审核、景观设计方案展示及项目选材使用。提交不代表大一承诺采购或向客户销售。</label></div>
 <div class="actions"><button id="submitButton" class="btn" type="submit">提交物料，等待大一审核 →</button><span class="hint">材料审核通过后才进入正式资源库。</span></div>
 </form>
-<section class="box"><p class="kicker">SUBMISSION HISTORY</p><h2>本公司已提交物料</h2><p class="hint">此处只显示贵公司自己的资料及审核状态。</p><div id="myMaterials"><p class="hint">正在读取…</p></div><button id="reloadMaterials" class="btn outline small" type="button" style="margin-top:19px">刷新审核进度</button></section>
+<section class="box"><p class="kicker">SUBMISSION HISTORY</p><h2>本公司已提交物料</h2><p class="hint">此处只显示贵公司自己的资料及审核状态。如材料被退回，请按审核意见修改后重新提交，原记录会保留供核对。</p><div id="myMaterials"><p class="hint">正在读取…</p></div><button id="reloadMaterials" class="btn outline small" type="button" style="margin-top:19px">刷新审核进度</button></section>
 </section>
 </main><footer>DAY1 GARDEN · 私有供应商上传入口 · 客户与经营数据不对供应商开放</footer>
-<script src="./app.js?v=1.0.0" defer></script>
+<script src="./app.js?v=1.0.1" defer></script>
 </body></html>
