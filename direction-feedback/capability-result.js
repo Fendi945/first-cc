@@ -43,7 +43,8 @@
       selected = valid(legacy) ? legacy.code : (entries[0] ? entries[0].code : null);
     }
     book = {orders: entries.slice(0, MAX_ORDERS), activeCode: selected};
-    persist();
+    // Do not erase legacy order-number-only hints before the customer has recovered access.
+    if (book.orders.length || (saved && Array.isArray(saved.orders))) persist();
   }
   function persist() {
     try {
