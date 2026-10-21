@@ -189,6 +189,11 @@ textarea{min-height:92px;resize:vertical;width:100%}input:focus,textarea:focus,s
 .supplier-photo-grid img{width:100%;height:210px;object-fit:contain}.supplier-photo-grid figcaption{font-size:11px;color:var(--muted);margin-top:7px}
 .supplier-footer-notice{font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
 @media(max-width:1000px){.supplier-split{grid-template-columns:1fr}.supplier-items{max-height:350px}}@media(max-width:700px){.supplier-invite-form{grid-template-columns:1fr}.supplier-metrics>div{padding:15px 10px}.supplier-metrics strong{font-size:23px}.supplier-entry{flex-direction:column;align-items:flex-start}.supplier-section-head{align-items:flex-start;flex-direction:column}.supplier-link-actions{flex-direction:column}.supplier-photo-grid{grid-template-columns:1fr}}
+
+/* Material search controls */
+#supplierMaterialSearch{max-width:210px}
+#supplierMaterialList .supplier-item:focus-visible{outline:2px solid var(--red);outline-offset:-2px}
+@media(max-width:700px){#supplierMaterialSearch{max-width:unset;width:100%}}
 </style>
 </head>
 <body>
@@ -379,8 +384,8 @@ textarea{min-height:92px;resize:vertical;width:100%}input:focus,textarea:focus,s
   <div id="supplierDirectory" class="supplier-directory" aria-live="polite"><p class="muted">正在读取供应商记录…</p></div>
  </section>
  <section class="supplier-section">
-  <div class="supplier-section-head"><div><p class="section-label">02 / MATERIAL APPROVAL</p><h2>材料资源库 · 审核入库</h2></div><div class="filters"><select id="supplierMaterialFilter" aria-label="材料审核筛选"><option value="pending">待审核</option><option value="approved">已入库</option><option value="rejected">已退回</option><option value="all">全部</option></select><button id="supplierReloadMaterials" type="button" class="btn outline small">刷新材料</button></div></div>
-  <div class="supplier-split"><div class="panel"><div class="panel-head"><strong class="small">供应商提交的物料</strong><span class="muted small">按最新提交排序</span></div><div id="supplierMaterialList" class="supplier-items"><p class="empty">等待加载资料…</p></div></div>
+  <div class="supplier-section-head"><div><p class="section-label">02 / MATERIAL APPROVAL</p><h2>材料资源库 · 审核入库</h2></div><div class="filters"><select id="supplierMaterialFilter" aria-label="材料审核状态"><option value="pending">待审核</option><option value="approved">已入库</option><option value="rejected">已退回</option><option value="all">全部状态</option></select><select id="supplierCategoryFilter" aria-label="筛选材料类别"><option value="all">全部品类</option><option value="stone">石材与铺装</option><option value="plants">苗木与植物</option><option value="wood">木材与木制品</option><option value="metal">金属与构件</option><option value="furniture">户外家具</option><option value="lighting">景观灯具</option><option value="water">水景材料</option><option value="other">其他</option></select><input id="supplierMaterialSearch" type="search" placeholder="搜索已加载的物料" aria-label="搜索当前材料名称或供应商"><button id="supplierReloadMaterials" type="button" class="btn outline small">刷新材料</button></div></div>
+  <div class="supplier-split"><div class="panel"><div class="panel-head"><strong class="small">供应商提交的物料</strong><span class="muted small">按最新提交排序</span></div><p id="supplierResultsNote" class="small muted" style="margin:8px 18px">仅筛选当前加载的记录，最多100条。</p><div id="supplierMaterialList" class="supplier-items"><p class="empty">等待加载资料…</p></div></div>
    <div class="panel"><div class="panel-head"><strong class="small">材料规格与实拍图</strong><span class="muted small">管理员审核</span></div><div id="supplierMaterialDetail" class="detail"><p class="muted">点击左侧一项物料，查看真实照片与贴图并作出审核决定。</p></div></div></div>
  </section>
  <p class="supplier-footer-notice">第一阶段只包括邀请、上传、审核、入库。采购、库存和结算需要额外的业务规则与权限系统，暂不开放。</p>
@@ -410,6 +415,6 @@ textarea{min-height:92px;resize:vertical;width:100%}input:focus,textarea:focus,s
   </main>
  </div>
 </div>
-<script src="./app.js?v=4.3.0-supplier" defer></script>
+<script src="./app.js?v=4.3.1-supplier" defer></script>
 </body>
 </html>
