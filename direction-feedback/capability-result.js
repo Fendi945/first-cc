@@ -237,7 +237,12 @@
     $('orderCodeText').textContent = code;
     $('resultBox').classList.add('hidden');
     state('正在读取本次订单', '正在检查交付结果…');
-    if (!options || !options.fromLink) cleanNavigation();
+    // Remove the shareable secret from the address bar immediately, even when
+    // opened from a result link. Otherwise copying the address leaks access.
+    // The validated credential is already saved locally above.
+    // If storage is blocked, retain the private fragment so the rightful
+    // customer can still bookmark/reopen it and warn about the risk.
+    if (stored) cleanNavigation();
     renderHistory();
     viewResult();
     void poll(generation);
@@ -291,8 +296,14 @@
   var goNew = new URLSearchParams(window.location.search).get('new') === '1';
   if (fromLink) {
     var linkedCode = fragment.get('order') || '', linkedKey = fragment.get('key') || '';
-    if (valid({code: linkedCode, key: linkedKey})) start(linkedCode, linkedKey, {fromLink: true});
-    else {
+    if (valid({code: linkedCode, key: linkedKey})) {
+      var kept = start(linkedCode, linkedKey, {fromLink: true});
+      if (!kept) {
+        state('订单正在恢复', '当前浏览器无法永久保存订单。请妥善保管完整私人链接，勿转发给其他客户。');
+      }
+    } else {
+      // Malformed/private-link fragments should never be casually reshared.
+      cleanNavigation();
       viewResult();
       state('订单链接不完整', '请使用完整的安全订单链接。');
     }
@@ -308,6 +319,12 @@
         $('dayiRecoverHint').classList.remove('hidden');
       }
     }
+  }
+  if (goNew && !fromLink) {
+    ['savedOrdersHome', 'savedOrdersResult'].forEach(function (id) {
+      var holder = $(id);
+      if (holder) holder.classList.add('hidden');
+    });
   }
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden && active) {
