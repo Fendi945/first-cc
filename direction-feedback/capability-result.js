@@ -156,11 +156,11 @@
   } else if (!goNew) {
     var saved = readSaved();
     if (saved) start(saved.code, saved.key);
-    else if (localStorage.getItem('dayi_last_order')) {
+    else if ((function () { try { return !!localStorage.getItem('dayi_last_order'); } catch (_) { return false; } })()) {
       // Legacy orders stored only the code. Do not grant private photo access with a guessable code.
       var hint = document.getElementById('dayiRecoverHint');
       if (hint) {
-        hint.textContent = '以前已提交过订单？旧版网站没有保存安全查看凭证，请不要重新付款；首次找回后，后续可在本设备自动查看结果。';
+        hint.textContent = '检测到此前的订单。旧版网站只保存了订单号，不能直接读取私人效果图。请勿再次付款；使用已收到的完整结果链接打开一次后，以后在本设备打开此网址就会自动显示。';
         hint.classList.remove('hidden');
       }
     }
