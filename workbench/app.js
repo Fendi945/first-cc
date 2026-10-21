@@ -119,6 +119,57 @@ function choose(tab){
  document.querySelectorAll("[data-view]").forEach(x=>x.hidden=x.dataset.view!==tab);
  document.querySelectorAll("[data-tab]").forEach(x=>{x.classList.toggle("selected",x.dataset.tab===tab);x.setAttribute("aria-current",x.dataset.tab===tab?"page":"false")});
  if(tab==="business"&&!S.orders.length)void loadOrders();
+ if(tab==="home")void loadHomeQueue();
+}
+async function loadHomeQueue(){
+ if(!S.approved)return;
+ const list=$("homeQueue");
+ list.replaceChildren();
+ const busy=el("div","queue-item");
+ put(busy,el("span","queue-no","—"),el("span","","正在读取真实订单…"),el("span","queue-context","即时反馈订单"),el("span","queue-state","连接中"));
+ list.appendChild(busy);
+ try{
+  const [pending,processing]=await Promise.all([
+   callAdmin("admin_business_orders",{filter:"pending",offset:0}),
+   callAdmin("admin_business_orders",{filter:"processing",offset:0})
+  ]);
+  if(!S.approved)return;
+  if(!Array.isArray(pending.orders)||!Array.isArray(processing.orders))throw new Error("订单格式不正确");
+  const queue=[
+   ...pending.orders.map(o=>({order:o,task:"核实收款 · "+safeText(o.order_code),label:"待确认",filter:"pending"})),
+   ...processing.orders.map(o=>({order:o,task:"跟进效果图 · "+safeText(o.order_code),label:"待处理",filter:"processing"}))
+  ].filter(x=>x.order&&x.order.order_code).slice(0,3);
+  list.replaceChildren();
+  if(queue.length){
+   queue.forEach((entry,i)=>{
+    const row=el("div","queue-item"),go=el("button","",entry.task);
+    go.type="button";
+    go.addEventListener("click",()=>{
+     S.filter=entry.filter;$("orderFilter").value=entry.filter;
+     S.selected=entry.order.order_code;S.offset=0;S.orders=[];
+     choose("business");
+    });
+    put(row,el("span","queue-no",String(i+1).padStart(2,"0")),go,el("span","queue-context","经营 · 即时反馈订单"),el("span","queue-state",entry.label));
+    list.appendChild(row);
+   });
+  }else{
+   const row=el("div","queue-item");
+   put(row,el("span","queue-no","—"),el("span","","目前没有待核实付款或待处理交付的订单。"),el("span","queue-context","经营 · 即时反馈"),el("span","queue-state","无需处理"));
+   list.appendChild(row);
+  }
+  const p=pending.orders.length,w=processing.orders.length;
+  $("homeInsightTitle").textContent=p?"先核实实际收款，再安排交付。":w?"优先完成已付款订单的交付。":"当前没有待处理订单。";
+  $("homeInsightText").textContent="最近最多25笔待核实订单："+p+" 笔；最近最多25笔处理中订单："+w+" 笔。只有实际到账才能确认付款。";
+  $("homeBusinessCard").textContent=p||w?"近期待处理订单："+(p+w)+" 笔（每类最多25笔）":"即时反馈订单已接入";
+ }catch(error){
+  if(!S.approved)return;
+  list.replaceChildren();
+  const row=el("div","queue-item");
+  put(row,el("span","queue-no","!"),el("span","","当前无法读取订单，请进入经营模块重试。"),el("span","queue-context","连接异常"),el("span","queue-state","重试"));
+  list.appendChild(row);
+  $("homeInsightTitle").textContent="订单状态暂时不可用。";
+  $("homeInsightText").textContent="当前未取得真实数据，不展示推测的订单数量。";
+ }
 }
 function counts(orders){
  $("countAll").textContent=orders.length;
