@@ -115,6 +115,24 @@ textarea{min-height:92px;resize:vertical;width:100%}input:focus,textarea:focus,s
 .overview-section{margin-top:51px}.overview-item{min-height:164px}
 .overview-item strong{margin:26px 0 16px}.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* V4.2 BUSINESS: preserve full taxonomy, nest digital-product order console */
+.business-guidance{margin:29px 0 12px;font-size:12px;color:var(--muted);max-width:920px;line-height:1.8}
+.business-taxonomy{margin-top:39px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.business-group{padding:27px 25px 35px;border-right:1px solid var(--line);min-width:0}
+.business-group:first-child{padding-left:0}.business-group:last-child{padding-right:0;border-right:0}
+.business-group h2{font-family:Georgia,"Songti SC",serif;font-size:23px;font-weight:500;margin:12px 0 7px}
+.business-cat-links{margin-top:21px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.business-cat-links button{width:100%;min-height:55px;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;font-size:14px}
+.business-cat-links button:last-child{border:0}.business-cat-links button:hover{color:var(--red)}
+.cat-muted,.cat-live{font-size:11px;white-space:nowrap}.cat-muted{color:var(--muted)}.cat-live{color:var(--red)}
+.business-feature{display:flex;gap:28px;justify-content:space-between;align-items:center;border:1px solid var(--line);background:var(--paper);padding:29px 30px;margin-top:53px}
+.business-feature h2{font-size:24px;font-family:Georgia,"Songti SC",serif;font-weight:500;margin:12px 0 8px}.business-feature p.muted{font-size:12px;line-height:1.8;margin:0}
+.business-crumb{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:24px 0 27px;color:var(--muted);font-size:12px}
+.business-crumb button{border:0;background:none;color:var(--ink);padding:0;font-size:12px}.business-crumb button:hover{color:var(--red)}
+.business-notready{border:1px solid var(--line);background:var(--paper);padding:30px;margin-top:42px;max-width:650px}.business-notready h2{font-size:23px;margin:12px 0;font-weight:500}.business-notready .btn{margin-top:16px}
+@media(max-width:1050px){.business-taxonomy{grid-template-columns:1fr}.business-group{border-right:0;border-bottom:1px solid var(--line);padding:25px 0!important}.business-group:last-child{border-bottom:0}}
+@media(max-width:640px){.business-feature{flex-direction:column;align-items:flex-start;padding:23px}.business-guidance{margin-top:21px}}
 </style>
 </head>
 <body>
@@ -201,6 +219,23 @@ textarea{min-height:92px;resize:vertical;width:100%}input:focus,textarea:focus,s
     <div class="section"><p class="eyebrow">其余产品</p><p class="muted">其他商品、设计服务与套餐模块尚未接入系统，不展示虚构经营数据。</p></div>
    </section>
    <section id="businessView" data-view="business" hidden>
+<div id="businessOverview" class="business-subview"><p class="eyebrow">BUSINESS / COMMERCIAL OPERATIONS</p>
+ <div class="intro"><h1>经营</h1><p>价值如何进入市场并形成经营。从客户与商机，贯穿订单、销售、渠道、复购与经营状态。</p></div>
+ <p class="business-guidance">原 V4.2 经营分类已恢复。仅“交易履行 → 订单 → 即时反馈”已接入真实数据，其余模块保留位置并明确标注“规划中”。</p>
+ <div class="business-taxonomy"><section class="business-group"><p class="section-label">01 / DEMAND</p><h2>市场需求</h2><p class="muted small">理解客户与市场</p><div class="business-cat-links"><button type="button" data-business="customers"><span>客户</span><span class="cat-muted">规划中 →</span></button><button type="button" data-business="opportunities"><span>商机</span><span class="cat-muted">规划中 →</span></button><button type="button" data-business="channels"><span>渠道</span><span class="cat-muted">规划中 →</span></button><button type="button" data-business="retention"><span>复购信号</span><span class="cat-muted">规划中 →</span></button></div></section>
+<section class="business-group"><p class="section-label">02 / COMMERCE</p><h2>交易履行</h2><p class="muted small">让承诺完成交付</p><div class="business-cat-links"><button type="button" data-business="orders"><span>订单</span><span class="cat-live">已接入 1 项 →</span></button><button type="button" data-business="sales"><span>销售</span><span class="cat-muted">规划中 →</span></button><button type="button" data-business="inventory"><span>库存</span><span class="cat-muted">规划中 →</span></button><button type="button" data-business="allocation"><span>分配</span><span class="cat-muted">规划中 →</span></button></div></section>
+<section class="business-group"><p class="section-label">03 / OPERATIONS</p><h2>经营状态</h2><p class="muted small">识别真实经营状态</p><div class="business-cat-links"><button type="button" data-business="revenue"><span>收入健康度</span><span class="cat-muted">规划中 →</span></button><button type="button" data-business="exceptions"><span>例外事项</span><span class="cat-muted">规划中 →</span></button><button type="button" data-business="forecast"><span>预测</span><span class="cat-muted">规划中 →</span></button><button type="button" data-business="daily"><span>日结</span><span class="cat-muted">规划中 →</span></button></div></section></div>
+ <div class="business-feature"><div><p class="section-label">已接入的经营业务</p><h2>大一造园 · 即时反馈</h2><p class="muted">客户上传、付款核验、效果图交付和历史订单已经接入现有数据库。</p></div><button class="btn" type="button" data-business="feedback">进入订单管理 →</button></div>
+</div>
+<div id="businessOrdersIndex" class="business-subview" hidden><div class="business-crumb"><button data-business="overview" type="button">经营总览</button> / 交易履行 / 订单</div>
+ <div class="intro"><h1>订单</h1><p>这里汇集不同产品的订单与履约流程。即时反馈只是其中一个已上线的数字产品。</p></div>
+ <article class="product"><header><div><p class="section-label">数字产品 · 已接入</p><h2>大一造园 · 即时反馈</h2><p class="muted">原图、付款凭证、效果图、三条建议与交付历史。</p></div><strong class="price">¥39.90</strong></header>
+ <div class="links"><button class="btn" type="button" data-business="feedback">管理即时反馈订单 →</button><a href="https://dayi.homes/direction-feedback/?new=1" target="_blank" rel="noopener noreferrer" class="btn outline">客户下单入口 ↗</a></div></article>
+ <p class="muted" style="margin-top:25px">其他产品的订单管理入口将按业务逐步接入，而不是取代原来的经营分类。</p></div>
+<div id="businessPlanned" class="business-subview" hidden><div class="business-crumb"><button type="button" data-business="overview">经营总览</button> / <span id="businessPlannedGroup">经营模块</span></div>
+ <div class="intro"><h1 id="businessPlannedTitle">经营模块</h1><p id="businessPlannedIntro">该模块目前尚未接入真实数据，原分类与扩展位置已保留。</p></div>
+ <div class="business-notready"><p class="section-label">MODULE STATUS</p><h2>规划中 · 尚未接入</h2><p class="muted">这里不显示虚构的客户、商机、营收和预测数据；在具备真实数据接口后再启用。</p><button class="btn outline" type="button" data-business="overview">返回经营总览 →</button></div></div>
+<div id="businessOrders" class="business-subview" hidden><div class="business-crumb"><button type="button" data-business="overview">经营总览</button> / <button type="button" data-business="orders">订单</button> / 即时反馈</div>
     <p class="eyebrow">BUSINESS / DIRECTION FEEDBACK</p>
     <div class="intro"><h1>即时反馈订单</h1><p>真实订单的收款确认、庭院现场资料、效果图和设计建议交付。所有客户照片由私有存储提供临时访问地址。</p></div>
     <div class="section">
@@ -210,12 +245,13 @@ textarea{min-height:92px;resize:vertical;width:100%}input:focus,textarea:focus,s
      <div class="split"><div class="panel"><div class="panel-head"><strong class="small">订单列表</strong><span class="small muted" id="pageLabel">每页 25 笔</span></div><div id="orderList" class="order-list"><div class="empty">正在准备…</div></div></div>
      <div class="panel"><div class="panel-head"><strong class="small">订单资料与交付</strong><span class="small muted">私密 · 管理员可见</span></div><div id="orderDetail" class="detail"><p class="muted">选择一笔订单查看详情。</p></div></div></div>
     </div>
-   </section>
-   <section id="projectView" data-view="project" hidden><p class="eyebrow">PROJECT</p><h1>项目</h1><p class="muted">项目执行与验收模块规划中，尚未接入真实数据。</p></section>
+</div>
+</section>
+<section id="projectView" data-view="project" hidden><p class="eyebrow">PROJECT</p><h1>项目</h1><p class="muted">项目执行与验收模块规划中，尚未接入真实数据。</p></section>
    <section id="knowledgeView" data-view="knowledge" hidden><p class="eyebrow">KNOWLEDGE</p><h1>知识</h1><p class="muted">知识沉淀与企业标准模块规划中，尚未接入真实数据。</p></section>
   </main>
  </div>
 </div>
-<script src="./app.js?v=4.2.1" defer></script>
+<script src="./app.js?v=4.2.2" defer></script>
 </body>
 </html>
