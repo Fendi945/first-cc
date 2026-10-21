@@ -166,7 +166,7 @@ async function supplyRequest(action,data={}){
  let result={};try{result=await response.json()}catch(_){}
  if(!response.ok){
   if([401,403].includes(response.status)){signOut("管理员授权已失效，请重新登录。");throw new Error("管理员身份已失效")}
-  const reasons={rate_limited:"操作过于频繁，请稍后重试",company_name_required:"请填写供应商公司名称",supplier_not_available:"供应商已停用或不存在",supplier_disabled:"供应商已停用",material_has_no_image:"该物料缺少真实照片，不能批准入库",service_unavailable:"连接暂时中断",storage_or_database_unavailable:"数据暂时不可用"};
+  const reasons={rate_limited:"操作过于频繁，请稍后重试",company_name_required:"请填写供应商公司名称",supplier_not_available:"供应商已停用或不存在",supplier_disabled:"供应商已停用",material_already_reviewed:"该材料已被其他管理员审核，请刷新列表",review_notes_required:"退回必须填写明确原因",material_has_no_image:"该物料缺少真实照片，不能批准入库",service_unavailable:"连接暂时中断",storage_or_database_unavailable:"数据暂时不可用"};
   throw new Error(reasons[result.error]||"供应链操作失败："+safeText(result.error||response.status));
  }
  return result;
@@ -265,8 +265,17 @@ async function reloadSupplyMaterials(){
 }
 function renderSupplyMaterials(){
  const target=$("supplierMaterialList");target.replaceChildren();
- if(!supplyMaterials.length){target.appendChild(supplyElem("p","empty","当前筛选没有物料记录。"));return}
- supplyMaterials.forEach(m=>{
+ const category=$("supplierCategoryFilter").value||"all";
+ const word=$("supplierMaterialSearch").value.trim().toLocaleLowerCase("zh-CN");
+ const visible=supplyMaterials.filter(m=>{
+  if(category!=="all"&&m.category!==category)return false;
+  if(!word)return true;
+  const supplierName=supplySuppliers.find(x=>x.id===m.supplier_id)?.company_name||"";
+  return [m.name,m.model,m.specification,supplierName,m.region].some(x=>String(x||"").toLocaleLowerCase("zh-CN").includes(word));
+ });
+ $("supplierResultsNote").textContent="当前已加载 "+supplyMaterials.length+" 条，筛选显示 "+visible.length+" 条；搜索与筛选仅在当前最多100条记录中生效。";
+ if(!visible.length){target.appendChild(supplyElem("p","empty",supplyMaterials.length?"当前条件没有匹配的材料。":"当前状态没有物料记录。"));return}
+ visible.forEach(m=>{
   const row=supplyElem("button","supplier-item"+(m.id===supplySelected?" active":""));
   row.type="button";
   const supplierName=supplySuppliers.find(x=>x.id===m.supplier_id)?.company_name||"供应商";
@@ -299,8 +308,12 @@ async function showSupplyMaterial(id){
  const input=supplyElem("textarea");input.maxLength=900;input.placeholder="例如：请补充材质细节、实物规格或清晰照片。";input.value=m.review_notes||"";
  label.appendChild(input);review.appendChild(label);
  const actions=supplyElem("div","supplier-review-actions");
- actions.appendChild(button("批准入库",()=>void reviewSupplierMaterial(m,"approved",input.value),"btn small"));
- actions.appendChild(button("退回修改",()=>void reviewSupplierMaterial(m,"rejected",input.value),"btn outline small"));
+ if(m.approval_status==="pending"){
+  actions.appendChild(button("批准入库",()=>void reviewSupplierMaterial(m,"approved",input.value),"btn small"));
+  actions.appendChild(button("退回修改",()=>void reviewSupplierMaterial(m,"rejected",input.value),"btn outline small"));
+ }else{
+  actions.appendChild(supplyElem("p","small muted","这条材料已经审核完成。如需更改，请让供应商重新提交后再审核。"));
+ }
  review.appendChild(actions);detail.appendChild(review);
  try{
   const result=await supplyRequest("admin_material_assets",{material_id:id});
@@ -538,6 +551,8 @@ async function boot(){
  $("supplierRefresh").addEventListener("click",()=>void loadSupplyDashboard());
  $("supplierReloadMaterials").addEventListener("click",()=>void reloadSupplyMaterials());
  $("supplierMaterialFilter").addEventListener("change",()=>void reloadSupplyMaterials());
+ $("supplierCategoryFilter").addEventListener("change",renderSupplyMaterials);
+ $("supplierMaterialSearch").addEventListener("input",renderSupplyMaterials);
  document.querySelectorAll("[data-product]").forEach(b=>b.addEventListener("click",()=>showProductModule(b.dataset.product)));
  $("orderFilter").addEventListener("change",()=>{S.filter=$("orderFilter").value;S.offset=0;void loadOrders(false)});
  $("orderSearch").addEventListener("input",renderOrders);
