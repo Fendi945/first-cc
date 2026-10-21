@@ -5,6 +5,7 @@
 const API="https://fhvhnibznphatfnbvvnb.supabase.co/functions/v1/dayi-supplier-api";
 const PUB="sb_publishable_8_ElUXtWKbEM9Of37zdYug_mdWjcV4B";
 const KEY="dayi-supplier-invite-v1";
+const PENDING_KEY="dayi-supplier-upload-pending-v1";
 const $=id=>document.getElementById(id);
 let token=null, profile=null, busy=false;
 const dictionary={pending:"待大一审核",approved:"审核通过",rejected:"未通过"};
@@ -28,7 +29,7 @@ async function api(action,fields={},files=null){
  }
  let r=await fetch(API,{method:"POST",headers,body,cache:"no-store",signal:AbortSignal.timeout(60000)});
  let data;try{data=await r.json()}catch{data={}};
- if(!r.ok)throw new Error(({invitation_required:"需要有效邀请",invitation_expired_or_revoked:"邀请已过期或撤销，请联系大一重新邀请",supplier_disabled:"此供应商已停止授权",rate_limited:"操作较频繁，请稍后重试",photo_required:"请补充真实物料照片",missing_material_information:"请填写名称并选择正确品类",image_too_large:"图片不得超过6MB",invalid_image_format:"图片格式应为 JPG、PNG 或 WebP",image_usage_permission_required:"请勾选图片授权确认",image_mime_mismatch:"图片内容与格式不一致，请使用原始 JPG/PNG/WebP 文件",invalid_material_information:"材料信息不完整，请检查填写内容",service_unavailable:"连接暂时中断，请稍后重试",storage_or_database_unavailable:"服务器暂时无法保存，请稍后重试"})[data.error]||"提交失败（"+(data.error||r.status)+"）");
+ if(!r.ok)throw new Error(({invitation_required:"需要有效邀请",invitation_expired_or_revoked:"邀请已过期或撤销，请联系大一重新邀请",supplier_disabled:"此供应商已停止授权",rate_limited:"操作较频繁，请稍后重试",photo_required:"请补充真实物料照片",missing_material_information:"请填写名称并选择正确品类",image_too_large:"图片不得超过6MB",invalid_image_format:"图片格式应为 JPG、PNG 或 WebP",image_usage_permission_required:"请勾选图片授权确认",image_mime_mismatch:"图片内容与格式不一致，请使用原始 JPG/PNG/WebP 文件",submission_key_conflict:"这笔提交已存在但内容有变化，请刷新后重新提交",submission_incomplete:"原提交不完整，请联系大一协助恢复",invalid_material_information:"材料信息不完整，请检查填写内容",service_unavailable:"连接暂时中断，请稍后重试",storage_or_database_unavailable:"服务器暂时无法保存，请稍后重试"})[data.error]||"提交失败（"+(data.error||r.status)+"）");
  return data;
 }
 async function profileAndList(){
@@ -64,6 +65,29 @@ async function reload(){
  }catch(e){e.replaceChildren(); const msg=document.createElement("p");msg.className="hint";msg.textContent=e.message;e.appendChild(msg)}
 }
 const previews=new Map();
+function submissionUUID(){
+ if(crypto.randomUUID)return crypto.randomUUID();
+ const x=new Uint8Array(16);crypto.getRandomValues(x);x[6]=(x[6]&15)|64;x[8]=(x[8]&63)|128;
+ const k=Array.from(x,n=>n.toString(16).padStart(2,"0")).join("");
+ return k.slice(0,8)+"-"+k.slice(8,12)+"-"+k.slice(12,16)+"-"+k.slice(16,20)+"-"+k.slice(20);
+}
+function uploadIdentity(data,photo,texture){
+ const fingerprint=JSON.stringify({
+  supplier:profile.id,name:data.name,category:data.category,model:data.model,
+  specification:data.specification,finish:data.finish,price:data.reference_price,
+  currency:data.price_currency,region:data.region,description:data.description,
+  photo:[photo.name,photo.size,photo.lastModified],
+  texture:texture?[texture.name,texture.size,texture.lastModified]:null
+ });
+ try{
+  const saved=JSON.parse(sessionStorage.getItem(PENDING_KEY)||"null");
+  if(saved&&saved.fingerprint===fingerprint&&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(saved.key))return saved.key;
+ }catch(_){}
+ const key=submissionUUID();
+ try{sessionStorage.setItem(PENDING_KEY,JSON.stringify({fingerprint,key}))}catch(_){}
+ return key;
+}
 function preview(fileInput,viewId){
  const img=$(viewId),file=fileInput.files?.[0];
  if(previews.has(viewId)){URL.revokeObjectURL(previews.get(viewId));previews.delete(viewId)}
@@ -82,12 +106,16 @@ async function submit(e){
  const fd=new FormData(form);
  const data=Object.fromEntries(fd.entries());delete data.name_dummy;
  data.permission=true;
+ data.submission_key=uploadIdentity(data,photo,texture);
  if(!data.name||String(data.name).trim().length<2||!data.category){status("请输入物料名称并选择品类。",true);return}
  const btn=$("submitButton");busy=true;btn.disabled=true;btn.textContent="正在安全上传，请稍候…";
  try{
   const response=await api("vendor_submit",{metadata:JSON.stringify(data)},[["photo",photo],["texture",texture]]);
   if(!response.saved)throw new Error("提交结果无法确认，请联系管理员");
-  status("提交成功，材料已进入大一的待审核列表。您可以继续提交下一种材料。");
+  try{sessionStorage.removeItem(PENDING_KEY)}catch(_){}
+  status(response.already_saved
+   ?"这项物料已保存，系统已恢复同一次提交记录，没有重复生成物料。"
+   :"提交成功，材料已进入大一的待审核列表。您可以继续提交下一种材料。");
   form.reset();
   previews.forEach((url,id)=>{URL.revokeObjectURL(url);$(id).hidden=true;$(id).removeAttribute("src")});previews.clear();
   await reload();
@@ -111,7 +139,7 @@ function init(){
  $("reloadMaterials").addEventListener("click",reload);
  $("supplierLogout").addEventListener("click",()=>{
   if(!window.confirm("确定清除本设备保存的供应商访问凭证？服务器上的提交记录不会删除。再次使用需要原始邀请链接。"))return;
-  try{localStorage.removeItem(KEY)}catch(_){}
+  try{localStorage.removeItem(KEY);sessionStorage.removeItem(PENDING_KEY)}catch(_){}
   clearHash();
   token=null;profile=null;
   $("workspace").hidden=true;$("needInvite").hidden=false;
