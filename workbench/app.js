@@ -118,8 +118,28 @@ function choose(tab){
  S.tab=tab;
  document.querySelectorAll("[data-view]").forEach(x=>x.hidden=x.dataset.view!==tab);
  document.querySelectorAll("[data-tab]").forEach(x=>{x.classList.toggle("selected",x.dataset.tab===tab);x.setAttribute("aria-current",x.dataset.tab===tab?"page":"false")});
- if(tab==="business"&&!S.orders.length)void loadOrders();
+ if(tab==="business")showBusinessModule("overview");
  if(tab==="home")void loadHomeQueue();
+}
+const BUSINESS_CATEGORIES={"customers":["客户","市场需求","客户资料与客户关系，将在建立安全的客户主档后接入。"],"opportunities":["商机","市场需求","管理有效线索、咨询转化与成交机会，尚未接入。"],"channels":["渠道","市场需求","展示真实获客渠道数据，尚未接入。"],"retention":["复购信号","市场需求","基于真实客户与历史订单分析复购，尚未接入。"],"sales":["销售","交易履行","基于真实到账的销售流水与收入尚未接入。"],"inventory":["库存","交易履行","实物商品、材料与库存数据尚未接入。"],"allocation":["分配","交易履行","履约任务与资源分配尚未接入。"],"revenue":["收入健康度","经营状态","需要真实到账与支出数据，不能展示模拟收入。"],"exceptions":["例外事项","经营状态","集中管理异常订单与特殊业务流程，尚未接入。"],"forecast":["预测","经营状态","预测需要经过核实的历史数据，尚未接入。"],"daily":["日结","经营状态","每日订单、收款与交付的正式日结尚未接入。"]};
+function showBusinessModule(which){
+ if(!S.approved)return;
+ if(S.tab!=="business")choose("business");
+ ["businessOverview","businessOrdersIndex","businessPlanned","businessOrders"].forEach(id=>$(id).hidden=true);
+ const key=which==="orders"?"orders":which==="feedback"?"feedback":BUSINESS_CATEGORIES[which]?which:"overview";
+ S.businessModule=key;
+ if(key==="overview")$("businessOverview").hidden=false;
+ else if(key==="orders")$("businessOrdersIndex").hidden=false;
+ else if(key==="feedback"){
+  $("businessOrders").hidden=false;
+  if(!S.orders.length)void loadOrders();
+ }else{
+  $("businessPlanned").hidden=false;
+  const [label,group,description]=BUSINESS_CATEGORIES[key];
+  $("businessPlannedTitle").textContent=label;
+  $("businessPlannedGroup").textContent=group+" / "+label;
+  $("businessPlannedIntro").textContent=description;
+ }
 }
 async function loadHomeQueue(){
  if(!S.approved)return;
@@ -147,7 +167,7 @@ async function loadHomeQueue(){
     go.addEventListener("click",()=>{
      S.filter=entry.filter;$("orderFilter").value=entry.filter;
      S.selected=entry.order.order_code;S.offset=0;S.orders=[];
-     choose("business");
+     showBusinessModule("feedback");
     });
     put(row,el("span","queue-no",String(i+1).padStart(2,"0")),go,el("span","queue-context","经营 · 即时反馈订单"),el("span","queue-state",entry.label));
     list.appendChild(row);
@@ -328,12 +348,13 @@ async function boot(){
  $("logoutTop").addEventListener("click",()=>signOut("已安全退出登录。"));
  document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>choose(b.dataset.tab)));
  document.querySelectorAll("[data-target]").forEach(b=>b.addEventListener("click",()=>choose(b.dataset.target)));
+ document.querySelectorAll("[data-business]").forEach(b=>b.addEventListener("click",()=>showBusinessModule(b.dataset.business)));
  $("orderFilter").addEventListener("change",()=>{S.filter=$("orderFilter").value;S.offset=0;void loadOrders(false)});
  $("orderSearch").addEventListener("input",renderOrders);
  $("refreshOrders").addEventListener("click",()=>void loadOrders());
  $("prevPage").addEventListener("click",()=>{S.offset=Math.max(0,S.offset-25);void loadOrders(false)});
  $("nextPage").addEventListener("click",()=>{S.offset+=25;void loadOrders(false)});
- setInterval(()=>{if(S.approved&&S.tab==="business"&&!document.hidden&&!S.loading)void loadOrders()},60000);
+ setInterval(()=>{if(S.approved&&S.tab==="business"&&S.businessModule==="feedback"&&!document.hidden&&!S.loading)void loadOrders()},60000);
  if(checkRecovery())return;
  const saved=storedSession();
  if(saved){remember(saved);authMessage("正在恢复管理员登录…");try{await verify();return}catch(e){clearCredentials();authMessage("请重新登录："+e.message,true)}}
