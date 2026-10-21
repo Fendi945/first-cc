@@ -119,7 +119,19 @@ function choose(tab){
  document.querySelectorAll("[data-view]").forEach(x=>x.hidden=x.dataset.view!==tab);
  document.querySelectorAll("[data-tab]").forEach(x=>{x.classList.toggle("selected",x.dataset.tab===tab);x.setAttribute("aria-current",x.dataset.tab===tab?"page":"false")});
  if(tab==="business")showBusinessModule("overview");
+ if(tab==="product")showProductModule("overview");
  if(tab==="home")void loadHomeQueue();
+}
+function showProductModule(which){
+ if(!S.approved)return;
+ if(S.tab!=="product")choose("product");
+ const available={overview:"productOverview",consult:"productConsult",design:"productDesign",build:"productBuild",digital:"productDigital"};
+ const wanted=Object.prototype.hasOwnProperty.call(available,which)?which:"overview";
+ Object.values(available).forEach(id=>$(id).hidden=true);
+ $(available[wanted]).hidden=false;
+ S.productModule=wanted;
+ // Switching between service descriptions should not touch order state
+ // or perform any payment/fulfillment operation.
 }
 const BUSINESS_CATEGORIES={"customers":["客户","市场需求","客户资料与客户关系，将在建立安全的客户主档后接入。"],"opportunities":["商机","市场需求","管理有效线索、咨询转化与成交机会，尚未接入。"],"channels":["渠道","市场需求","展示真实获客渠道数据，尚未接入。"],"retention":["复购信号","市场需求","基于真实客户与历史订单分析复购，尚未接入。"],"sales":["销售","交易履行","基于真实到账的销售流水与收入尚未接入。"],"inventory":["库存","交易履行","实物商品、材料与库存数据尚未接入。"],"allocation":["分配","交易履行","履约任务与资源分配尚未接入。"],"revenue":["收入健康度","经营状态","需要真实到账与支出数据，不能展示模拟收入。"],"exceptions":["例外事项","经营状态","集中管理异常订单与特殊业务流程，尚未接入。"],"forecast":["预测","经营状态","预测需要经过核实的历史数据，尚未接入。"],"daily":["日结","经营状态","每日订单、收款与交付的正式日结尚未接入。"]};
 function showBusinessModule(which){
@@ -349,6 +361,7 @@ async function boot(){
  document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>choose(b.dataset.tab)));
  document.querySelectorAll("[data-target]").forEach(b=>b.addEventListener("click",()=>choose(b.dataset.target)));
  document.querySelectorAll("[data-business]").forEach(b=>b.addEventListener("click",()=>showBusinessModule(b.dataset.business)));
+ document.querySelectorAll("[data-product]").forEach(b=>b.addEventListener("click",()=>showProductModule(b.dataset.product)));
  $("orderFilter").addEventListener("change",()=>{S.filter=$("orderFilter").value;S.offset=0;void loadOrders(false)});
  $("orderSearch").addEventListener("input",renderOrders);
  $("refreshOrders").addEventListener("click",()=>void loadOrders());
