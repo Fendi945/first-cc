@@ -137,11 +137,12 @@ const BUSINESS_CATEGORIES={"customers":["客户","市场需求","客户资料与
 function showBusinessModule(which){
  if(!S.approved)return;
  if(S.tab!=="business")choose("business");
- ["businessOverview","businessOrdersIndex","businessPlanned","businessOrders"].forEach(id=>$(id).hidden=true);
- const key=which==="orders"?"orders":which==="feedback"?"feedback":BUSINESS_CATEGORIES[which]?which:"overview";
+ ["businessOverview","businessOrdersIndex","businessPlanned","businessOrders","businessSuppliers"].forEach(id=>$(id).hidden=true);
+ const key=which==="orders"?"orders":which==="feedback"?"feedback":which==="supply"?"supply":BUSINESS_CATEGORIES[which]?which:"overview";
  S.businessModule=key;
  if(key==="overview")$("businessOverview").hidden=false;
  else if(key==="orders")$("businessOrdersIndex").hidden=false;
+ else if(key==="supply"){$("businessSuppliers").hidden=false;void loadSupplyDashboard();}
  else if(key==="feedback"){
   $("businessOrders").hidden=false;
   if(!S.orders.length)void loadOrders();
@@ -153,6 +154,177 @@ function showBusinessModule(which){
   $("businessPlannedIntro").textContent=description;
  }
 }
+/* Supply chain integration. All data operations are isolated from customer orders. */
+const SUPPLY_API=BASE+"/functions/v1/dayi-supplier-api";
+const SUPPLY_CATEGORIES={stone:"石材与铺装",plants:"苗木与植物",wood:"木材与木制品",metal:"金属与构件",furniture:"户外家具",lighting:"景观灯具",water:"水景材料",other:"其他"};
+const SUPPLY_STATUS={invited:"已邀请",active:"已提交资料",disabled:"已停用",pending:"待审核",approved:"已入库",rejected:"已退回"};
+let supplySuppliers=[],supplyMaterials=[],supplySelected=null,supplyCounter=0,supplyBusy=false;
+async function supplyRequest(action,data={}){
+ const jwt=await accessToken();
+ const headers={apikey:PUB,Authorization:"Bearer "+jwt,"Content-Type":"application/json"};
+ const response=await fetch(SUPPLY_API,{method:"POST",headers,body:JSON.stringify({action,...data}),cache:"no-store",signal:AbortSignal.timeout(25000)});
+ let result={};try{result=await response.json()}catch(_){}
+ if(!response.ok){
+  if([401,403].includes(response.status)){signOut("管理员授权已失效，请重新登录。");throw new Error("管理员身份已失效")}
+  const reasons={rate_limited:"操作过于频繁，请稍后重试",company_name_required:"请填写供应商公司名称",supplier_not_available:"供应商已停用或不存在",supplier_disabled:"供应商已停用",material_has_no_image:"该物料缺少真实照片，不能批准入库",service_unavailable:"连接暂时中断",storage_or_database_unavailable:"数据暂时不可用"};
+  throw new Error(reasons[result.error]||"供应链操作失败："+safeText(result.error||response.status));
+ }
+ return result;
+}
+function supplyElem(tag,cl,t){return el(tag,cl,t)}
+function clearSupplyMaterial(){
+ supplySelected=null;$("supplierMaterialDetail").replaceChildren(supplyElem("p","muted","选择物料查看资料及图片。"));
+}
+async function loadSupplyDashboard(){
+ if(!S.approved||S.tab!=="business"||S.businessModule!=="supply")return;
+ if(supplyBusy)return;
+ supplyBusy=true;
+ $("supplierDirectory").replaceChildren(supplyElem("p","muted","正在读取供应商…"));
+ try{
+  const [list,pending,approved]=await Promise.all([
+   supplyRequest("admin_suppliers"),supplyRequest("admin_materials",{filter:"pending"}),supplyRequest("admin_materials",{filter:"approved"})
+  ]);
+  if(!S.approved)return;
+  supplySuppliers=Array.isArray(list.suppliers)?list.suppliers:[];
+  $("supplierTotal").textContent=supplySuppliers.length>=200?"200+":String(supplySuppliers.length);
+  $("supplierPending").textContent=(pending.materials||[]).length>=100?"100+":String((pending.materials||[]).length);
+  $("supplierApproved").textContent=(approved.materials||[]).length>=100?"100+":String((approved.materials||[]).length);
+  renderSupplierDirectory();
+  // Keep the selected filter rather than silently switching the admin's work queue.
+  await reloadSupplyMaterials();
+ }catch(err){$("supplierDirectory").replaceChildren(supplyElem("p","muted","暂时无法读取供应商信息。"));note("供应链读取失败："+err.message,true)}
+ finally{supplyBusy=false}
+}
+function showPrivateInvite(url){
+ $("supplierInviteUrl").value=url;$("supplierInviteResult").hidden=false;
+}
+async function copySupplierInvite(){
+ const link=$("supplierInviteUrl").value;
+ if(!link)return;
+ try{await navigator.clipboard.writeText(link);note("已复制专属邀请链接。只发送对应供应商，不要公开分享。")}
+ catch{window.prompt("请复制专属供应商邀请链接：",link)}
+}
+async function createSupplier(e){
+ e.preventDefault();
+ if(!S.approved)return;
+ const form=$("supplierInviteForm"),fields=Object.fromEntries(new FormData(form).entries());
+ if(String(fields.company_name||"").trim().length<2){note("请输入完整的公司名称。",true);return}
+ const button=$("supplierInviteButton");button.disabled=true;
+ try{
+  const data=await supplyRequest("admin_create_supplier",fields);
+  if(!data.invite_url)throw new Error("邀请链接未返回");
+  showPrivateInvite(data.invite_url);
+  form.reset();
+  note("供应商创建成功。请将私人邀请链接发给该公司。");
+  await loadSupplyDashboard();
+ }catch(error){note(error.message,true)}
+ finally{button.disabled=false}
+}
+function renderSupplierDirectory(){
+ const target=$("supplierDirectory");target.replaceChildren();
+ if(!supplySuppliers.length){target.appendChild(supplyElem("p","muted","目前没有供应商。请先填写上面的邀请表单。"));return}
+ supplySuppliers.forEach(x=>{
+  const row=supplyElem("div","supplier-entry"),left=supplyElem("div");
+  left.appendChild(supplyElem("strong","",x.company_name));
+  left.appendChild(supplyElem("p","",["状态："+(SUPPLY_STATUS[x.status]||"待核对"),x.region,x.contact_name].filter(Boolean).join(" · ")));
+  const buttons=supplyElem("div","supplier-actions");
+  if(x.status!=="disabled"){
+   buttons.appendChild(button("重新签发邀请",()=>void reissueSupplier(x)));
+   buttons.appendChild(button("停用",()=>void disableSupplier(x)));
+  }
+  row.append(left,buttons);target.appendChild(row);
+ });
+}
+async function reissueSupplier(row){
+ if(!window.confirm("重新签发邀请将立即撤销此前该供应商的所有旧上传链接。确定为 "+row.company_name+" 签发新链接吗？"))return;
+ try{
+  const r=await supplyRequest("admin_reissue_invite",{supplier_id:row.id});
+  if(!r.invite_url)throw new Error("未生成邀请链接");
+  showPrivateInvite(r.invite_url);note("新邀请已签发，旧邀请已撤销。");
+ }catch(e){note(e.message,true)}
+}
+async function disableSupplier(row){
+ if(!window.confirm("停用供应商 "+row.company_name+" 后，将立即禁止其通过邀请链接上传材料。历史资料仍保留。确定吗？"))return;
+ try{
+  await supplyRequest("admin_disable_supplier",{supplier_id:row.id});note("供应商已停用，历史资料保留。");
+  await loadSupplyDashboard();
+ }catch(e){note(e.message,true)}
+}
+async function reloadSupplyMaterials(){
+ const filter=$("supplierMaterialFilter").value||"pending";
+ const target=$("supplierMaterialList");target.replaceChildren(supplyElem("p","empty","正在读取提交物料…"));
+ supplyCounter++;
+ const generation=supplyCounter;
+ try{
+  const result=await supplyRequest("admin_materials",{filter});
+  if(generation!==supplyCounter||S.businessModule!=="supply")return;
+  supplyMaterials=Array.isArray(result.materials)?result.materials:[];
+  renderSupplyMaterials();
+  clearSupplyMaterial();
+ }catch(e){target.replaceChildren(supplyElem("p","empty","获取物料失败："+e.message));note("物料查询失败："+e.message,true)}
+}
+function renderSupplyMaterials(){
+ const target=$("supplierMaterialList");target.replaceChildren();
+ if(!supplyMaterials.length){target.appendChild(supplyElem("p","empty","当前筛选没有物料记录。"));return}
+ supplyMaterials.forEach(m=>{
+  const row=supplyElem("button","supplier-item"+(m.id===supplySelected?" active":""));
+  row.type="button";
+  const supplierName=supplySuppliers.find(x=>x.id===m.supplier_id)?.company_name||"供应商";
+  row.appendChild(supplyElem("strong","",m.name));
+  row.appendChild(supplyElem("span","",supplierName+" · "+(SUPPLY_CATEGORIES[m.category]||m.category)));
+  row.appendChild(supplyElem("span","",(SUPPLY_STATUS[m.approval_status]||m.approval_status)+" · "+time(m.created_at)));
+  row.addEventListener("click",()=>void showSupplyMaterial(m.id));
+  target.appendChild(row);
+ });
+}
+async function showSupplyMaterial(id){
+ const m=supplyMaterials.find(x=>x.id===id);if(!m)return;
+ supplySelected=id;renderSupplyMaterials();
+ const detail=$("supplierMaterialDetail");detail.replaceChildren();
+ detail.appendChild(supplyElem("h3","",m.name));
+ const facts=supplyElem("div","facts");
+ const supplierName=supplySuppliers.find(x=>x.id===m.supplier_id)?.company_name||"供应商";
+ [
+  ["供应商",supplierName],["材料分类",SUPPLY_CATEGORIES[m.category]||m.category],
+  ["型号",m.model],["规格",m.specification],["饰面与材质",m.finish],
+  ["参考单价",m.reference_price===null?"未报价":m.reference_price+" "+m.price_currency+" / "+(m.unit||"单位未注明")],
+  ["供货地区",m.region],["补充说明",m.description],["审核状态",SUPPLY_STATUS[m.approval_status]||m.approval_status],
+  ["审核备注",m.review_notes]
+ ].forEach(([label,value])=>facts.appendChild(item("div",label,value)));
+ detail.appendChild(facts);
+ const area=supplyElem("div","supplier-photo-grid");detail.appendChild(area);
+ const loading=supplyElem("p","muted small","正在安全加载私有图片…");area.appendChild(loading);
+ const review=supplyElem("div","supplier-review");
+ const label=supplyElem("label","small muted","审核意见（退回时必填）");
+ const input=supplyElem("textarea");input.maxLength=900;input.placeholder="例如：请补充材质细节、实物规格或清晰照片。";input.value=m.review_notes||"";
+ label.appendChild(input);review.appendChild(label);
+ const actions=supplyElem("div","supplier-review-actions");
+ actions.appendChild(button("批准入库",()=>void reviewSupplierMaterial(m,"approved",input.value),"btn small"));
+ actions.appendChild(button("退回修改",()=>void reviewSupplierMaterial(m,"rejected",input.value),"btn outline small"));
+ review.appendChild(actions);detail.appendChild(review);
+ try{
+  const result=await supplyRequest("admin_material_assets",{material_id:id});
+  if(supplySelected!==id||!S.approved)return;
+  area.replaceChildren();
+  if(!result.assets?.length)area.appendChild(supplyElem("p","muted small","尚无可用照片，不应批准入库。"));
+  else result.assets.forEach(a=>{
+   const pic=supplyElem("figure"),image=supplyElem("img");
+   image.alt=a.kind==="texture"?"材质贴图":"物料实拍图";image.loading="lazy";image.referrerPolicy="no-referrer";image.src=a.url;
+   pic.append(image,supplyElem("figcaption","",image.alt+" · 签名预览有效5分钟"));area.appendChild(pic);
+  });
+ }catch(e){area.replaceChildren(supplyElem("p","muted small","图片暂时无法读取："+e.message))}
+}
+async function reviewSupplierMaterial(m,decision,notes){
+ if(!S.approved||supplySelected!==m.id)return;
+ if(decision==="rejected"&&notes.trim().length<5){note("退回材料请写至少5个字的审核意见。",true);return}
+ if(!window.confirm((decision==="approved"?"确认将“"+m.name+"”审核入库？":"确认退回“"+m.name+"”，并把审核意见提供给供应商？")))return;
+ try{
+  await supplyRequest("admin_review_material",{material_id:m.id,decision,review_notes:notes.trim()});
+  note(decision==="approved"?"材料已审核入库。":"材料已退回，供应商可以查看审核意见。");
+  await loadSupplyDashboard();
+ }catch(e){note("审核失败："+e.message,true)}
+}
+
 async function loadHomeQueue(){
  if(!S.approved)return;
  const list=$("homeQueue");
@@ -361,6 +533,11 @@ async function boot(){
  document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>choose(b.dataset.tab)));
  document.querySelectorAll("[data-target]").forEach(b=>b.addEventListener("click",()=>choose(b.dataset.target)));
  document.querySelectorAll("[data-business]").forEach(b=>b.addEventListener("click",()=>showBusinessModule(b.dataset.business)));
+ $("supplierInviteForm").addEventListener("submit",e=>void createSupplier(e));
+ $("supplierCopyInvite").addEventListener("click",()=>void copySupplierInvite());
+ $("supplierRefresh").addEventListener("click",()=>void loadSupplyDashboard());
+ $("supplierReloadMaterials").addEventListener("click",()=>void reloadSupplyMaterials());
+ $("supplierMaterialFilter").addEventListener("change",()=>void reloadSupplyMaterials());
  document.querySelectorAll("[data-product]").forEach(b=>b.addEventListener("click",()=>showProductModule(b.dataset.product)));
  $("orderFilter").addEventListener("change",()=>{S.filter=$("orderFilter").value;S.offset=0;void loadOrders(false)});
  $("orderSearch").addEventListener("input",renderOrders);
