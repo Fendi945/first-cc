@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#f7f5f0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://fhvhnibznphatfnbvvnb.supabase.co; script-src 'self'; style-src 'unsafe-inline'; img-src 'self' blob: data:; base-uri 'self'; form-action 'self'">
+<title>供应商资料提交 · 大一造园</title>
+<style>
+:root{--ink:#272521;--red:#bf4030;--text:#736f69;--line:#ded9d0;--bg:#f7f5f0;--paper:#fffefa;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink)}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);min-height:100%;font-size:14px;line-height:1.75}
+[hidden]{display:none!important}button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+header{border-bottom:1px solid var(--line);background:var(--paper);padding:18px max(24px,calc((100vw - 1050px)/2));display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{font-family:Georgia,serif;font-size:30px;letter-spacing:-.08em}.brand .dot{color:var(--red)}
+.brand-copy{font-size:12px;color:var(--text);letter-spacing:.1em}
+main{max-width:1050px;margin:0 auto;padding:58px 24px 110px}
+.kicker{font-size:11px;letter-spacing:.17em;font-weight:650;color:var(--red)}
+h1{font-weight:500;font-family:Georgia,"Songti SC",serif;font-size:clamp(33px,5.5vw,52px);margin:15px 0;line-height:1.3}
+h2{font-weight:500;font-size:21px;font-family:Georgia,"Songti SC",serif}
+.intro{max-width:780px;font-size:14px;color:var(--text);line-height:1.9;margin:12px 0 35px}
+.box{padding:30px;border:1px solid var(--line);background:var(--paper);margin-top:24px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 22px}
+label{display:grid;gap:7px;font-size:12px;color:var(--text)}label b{font-weight:500;color:var(--ink)}
+input,textarea,select{width:100%;background:#fff;border:1px solid var(--line);padding:12px 13px;border-radius:2px;min-height:45px;outline:0}
+input:focus,select:focus,textarea:focus{border-color:var(--red)}textarea{min-height:110px;resize:vertical}
+label.span{grid-column:1/-1}.hint{font-size:11px;color:var(--text);line-height:1.8}.hint code{font-size:11px}
+.upload-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}.file-group{border:1px dashed #c8c0b6;padding:18px;display:grid;gap:10px}
+.file-group input{border:0;padding:0;background:transparent;min-height:unset}
+.file-preview{width:100%;height:150px;object-fit:contain;background:#f3f0eb}
+.btn{border:1px solid var(--ink);background:var(--ink);padding:11px 19px;min-height:46px;color:white;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{background:#403b35}.btn:disabled{opacity:.5;cursor:wait}.btn.outline{background:transparent;border-color:var(--line);color:var(--ink)}.btn.outline:hover{border-color:var(--red);color:var(--red)}
+.confirm{display:flex;align-items:flex-start;gap:12px;border-top:1px solid var(--line);margin-top:23px;padding-top:23px}
+.confirm input{width:18px;min-height:18px;height:18px;margin-top:3px;accent-color:var(--red)}
+.confirm label{display:block;font-size:12px;line-height:1.85}
+.actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:24px}.small{font-size:12px}
+.status{padding:15px;border:1px solid var(--line);margin:23px 0;white-space:pre-line;background:#fff}.status.error{border-left:3px solid var(--red)}
+#myMaterials{display:grid;gap:10px}.material{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;align-items:center}
+.material strong{font-weight:500}.pill{font-size:11px;padding:4px 11px;border-radius:30px;border:1px solid var(--line);white-space:nowrap}
+.pill.approved{color:#416c52;border-color:#c8d9cd}.pill.pending{color:#996942;border-color:#e2d0bc}.pill.rejected{color:#a14239;border-color:#eccbc9}
+footer{padding:30px;text-align:center;border-top:1px solid var(--line);font-size:11px;color:var(--text)}
+@media(max-width:660px){main{padding:35px 19px 70px}header{padding:14px 19px}.brand-copy{font-size:10px}.box{padding:20px}.grid,.upload-row{grid-template-columns:1fr}.actions .btn{width:100%}.material{align-items:flex-start;flex-direction:column}}
+</style></head><body>
+<header><div class="brand">day<span class="dot">·</span>ı</div><div class="brand-copy">大一造园 / 供应链资料入口</div></header>
+<main>
+<p class="kicker">DAY1 / SUPPLIER PORTAL</p>
+<h1>把好材料，交给懂它的人。</h1>
+<p class="intro">此页面仅向收到大一造园邀请的供应商开放。提交物料实拍照片、材质贴图及准确规格，由大一审核后纳入内部景观材料资源库。未经审核，不会公开展示或自动上架销售。</p>
+<div id="status" class="status" role="status" aria-live="polite">正在验证供应商邀请…</div>
+<section id="needInvite" class="box" hidden><h2>需要专属邀请</h2><p class="intro">请使用大一造园单独发送给贵公司的邀请链接进入。供应商不能直接登录大一企业后台，也不能查看其他公司的资料。</p></section>
+<section id="workspace" hidden>
+<div class="box"><p class="kicker">INVITED SUPPLIER</p><h2 id="companyName">供应商资料</h2><p class="hint" id="companyMeta">正在读取邀请信息…</p></div>
+<form id="materialForm" class="box">
+<p class="kicker">NEW MATERIAL / 等待审核</p><h2>提交一种物料</h2>
+<div class="grid">
+<label><b>物料名称 *</b><input name="name" maxlength="160" minlength="2" placeholder="例如：浅灰色荔枝面花岗岩" required></label>
+<label><b>品类 *</b><select name="category" required><option value="">选择品类</option><option value="stone">石材与铺装</option><option value="plants">苗木与植物</option><option value="wood">木材与木制品</option><option value="metal">金属与构件</option><option value="furniture">户外家具</option><option value="lighting">景观灯具</option><option value="water">水景材料</option><option value="other">其他</option></select></label>
+<label><b>品牌 / 型号</b><input name="model" maxlength="160" placeholder="产品型号或苗木规格标识"></label>
+<label><b>规格 / 尺寸</b><input name="specification" maxlength="1200" placeholder="长宽厚、胸径冠幅、颜色等"></label>
+<label><b>表面处理 / 材质描述</b><input name="finish" maxlength="200" placeholder="例如：荔枝面、哑光、自然纹理"></label>
+<label><b>单位</b><input name="unit" maxlength="40" placeholder="㎡、m、块、株、套"></label>
+<label><b>参考单价（可选）</b><input name="reference_price" type="number" min="0" max="1000000000" step="0.01" placeholder="价格请标注单位"></label>
+<label><b>币种</b><select name="price_currency"><option value="CNY">CNY 人民币</option><option value="AUD">AUD 澳元</option><option value="USD">USD 美元</option></select></label>
+<label class="span"><b>可供货地区</b><input name="region" maxlength="160" placeholder="例如：河北石家庄 / 华北，或澳洲墨尔本西区"></label>
+<label class="span"><b>适用条件、养护或施工注意事项</b><textarea name="description" maxlength="2400" placeholder="如需排水层、防滑等级、植物耐阴条件、交付周期等"></textarea></label>
+</div>
+<h2 style="margin:30px 0 12px">图片与材质贴图</h2>
+<div class="upload-row">
+<label class="file-group"><b>物料真实照片 *</b><span class="hint">JPG / PNG / WebP，单张 ≤6MB。请使用真实产品实拍图。</span><input id="photo" type="file" accept="image/jpeg,image/png,image/webp" required><img id="photoPreview" class="file-preview" alt="物料照片预览" hidden></label>
+<label class="file-group"><b>材质纹理贴图（可选）</b><span class="hint">真实纹理、材质大样，单张 ≤6MB；可用于设计材料意向。</span><input id="texture" type="file" accept="image/jpeg,image/png,image/webp"><img id="texturePreview" class="file-preview" alt="材质贴图预览" hidden></label>
+</div>
+<div class="confirm"><input id="permission" type="checkbox" required><label for="permission">我确认所提交的图片和材料信息真实、合法，已拥有或取得相应使用授权，允许大一造园为内部材料审核、景观设计方案展示及项目选材使用。提交不代表大一承诺采购或向客户销售。</label></div>
+<div class="actions"><button id="submitButton" class="btn" type="submit">提交物料，等待大一审核 →</button><span class="hint">材料审核通过后才进入正式资源库。</span></div>
+</form>
+<section class="box"><p class="kicker">SUBMISSION HISTORY</p><h2>本公司已提交物料</h2><p class="hint">此处只显示贵公司自己的资料及审核状态。</p><div id="myMaterials"><p class="hint">正在读取…</p></div><button id="reloadMaterials" class="btn outline small" type="button" style="margin-top:19px">刷新审核进度</button></section>
+</section>
+</main><footer>DAY1 GARDEN · 私有供应商上传入口 · 客户与经营数据不对供应商开放</footer>
+<script src="./app.js?v=1.0.0" defer></script>
+</body></html>
