@@ -560,12 +560,14 @@ textarea:focus,input[type=text]:focus{border-color:#8e857d}
       await api({action:'upload',order_code:orderCode,access_token:submission.access_token,kind:'payment'},proofFile);
       await api({action:'submit',order_code:orderCode,access_token:submission.access_token,contact:$('contact').value.trim()});
       // Persist a cryptographically strong capability only AFTER the order is submitted.
+      var stored=false;
       try{
         localStorage.setItem('dayi_customer_order_v2',JSON.stringify({
           code:orderCode,key:submission.access_token,stored_at:Date.now()
         }));
         localStorage.setItem('dayi_last_order',orderCode);
-      }catch(_){/* Some private browsers disable persistent storage. */}
+        stored=!!localStorage.getItem('dayi_customer_order_v2');
+      }catch(_){/* Private browsers may disable persistent storage. */}
       trackEvent('order_submitted',{amount_cny:PRICE,product_code:'direction_feedback_1'},
         {dedupeKey:'order_submitted:'+orderCode,orderCode:orderCode});
       $('orderCodeText').textContent=orderCode;
@@ -573,7 +575,12 @@ textarea:focus,input[type=text]:focus{border-color:#8e857d}
       $('statusTitle').textContent='订单已提交';
       $('statusText').textContent='系统正在核对付款。结果完成后将自动出现在此页面，无需再次下单。';
       if(window.DayiResultViewer)window.DayiResultViewer.start(orderCode,submission.access_token);
-      else window.location.hash='order='+encodeURIComponent(orderCode)+'&key='+submission.access_token;
+      // Fallback when storage is unavailable: preserve the capability in this
+      // tab's address, so a copied/bookmarked URL can still restore the result.
+      if(!stored || !window.DayiResultViewer){
+        window.location.hash='order='+encodeURIComponent(orderCode)+'&key='+submission.access_token;
+        if(!stored)$('statusText').textContent='当前浏览器不允许保存订单，请收藏本页完整网址，以便以后找回结果。';
+      }
     }catch(e){
       alert(e.message||String(e));
       button.disabled=false;button.textContent='我已付款，提交订单 →';
